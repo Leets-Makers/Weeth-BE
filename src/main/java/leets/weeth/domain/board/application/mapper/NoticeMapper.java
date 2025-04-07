@@ -23,7 +23,7 @@ public interface NoticeMapper {
             @Mapping(target = "name", source = "notice.user.name"),
             @Mapping(target = "position", source = "notice.user.position"),
             @Mapping(target = "role", source = "notice.user.role"),
-            @Mapping(target = "time", source = "notice.modifiedAt"),
+            @Mapping(target = "time", source = "notice.createdAt"),
             @Mapping(target = "hasFile", expression = "java(fileExists)")
     })
     NoticeDTO.ResponseAll toAll(Notice notice, boolean fileExists);
@@ -32,7 +32,7 @@ public interface NoticeMapper {
             @Mapping(target = "name", source = "notice.user.name"),
             @Mapping(target = "position", source = "notice.user.position"),
             @Mapping(target = "role", source = "notice.user.role"),
-            @Mapping(target = "time", source = "notice.modifiedAt"),
+            @Mapping(target = "time", source = "notice.createdAt"),
             @Mapping(target = "comments", source = "comments")
     })
     NoticeDTO.Response toNoticeDto(Notice notice, List<FileResponse> fileUrls, List<CommentDTO.Response> comments);
