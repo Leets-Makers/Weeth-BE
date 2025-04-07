@@ -1,11 +1,10 @@
 package leets.weeth.global.auth.jwt.application.usecase;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.global.auth.jwt.application.dto.JwtDto;
-import leets.weeth.global.auth.jwt.service.JwtRedisService;
 import leets.weeth.global.auth.jwt.service.JwtProvider;
+import leets.weeth.global.auth.jwt.service.JwtRedisService;
 import leets.weeth.global.auth.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

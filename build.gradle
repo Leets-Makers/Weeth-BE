@@ -60,9 +60,6 @@ dependencies {
 	// AWS Spring Cloud
 	implementation 'software.amazon.awssdk:s3:2.19.1'
 
-	// ThymeLeaf
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
