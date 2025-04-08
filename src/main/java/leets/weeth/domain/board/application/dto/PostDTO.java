@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
-import leets.weeth.domain.file.application.dto.request.FileUpdateRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;

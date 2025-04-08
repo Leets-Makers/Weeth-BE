@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.comment.domain.entity.Comment;
-import leets.weeth.domain.file.converter.FileListConverter;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -13,8 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -43,10 +40,6 @@ public class Board extends BaseEntity {
     @PrePersist
     public void prePersist() {
         commentCount = 0;
-    }
-
-    public void increaseCommentCount() {
-        commentCount++;
     }
 
     public void decreaseCommentCount() {
