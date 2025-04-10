@@ -40,6 +40,6 @@ public class AttendanceController {
     @GetMapping("/detail")
     @Operation(summary="출석 내역 상세조회")
     public CommonResponse<Detail> findAll(@Parameter(hidden = true) @CurrentUser Long userId) {
-        return CommonResponse.createSuccess(ATTENDANCE_FIND_ALL_SUCCESS.getMessage(), attendanceUseCase.findAll(userId));
+        return CommonResponse.createSuccess(ATTENDANCE_FIND_ALL_SUCCESS.getMessage(), attendanceUseCase.findAllDetailsByCurrentCardinal(userId));
     }
 }

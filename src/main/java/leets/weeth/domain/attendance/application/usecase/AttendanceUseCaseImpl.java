@@ -69,8 +69,7 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
         return mapper.toMainDto(user, todayMeeting);
     }
 
-    @Override
-    public AttendanceDTO.Detail findAll(Long userId) {
+    public AttendanceDTO.Detail findAllDetailsByCurrentCardinal(Long userId) {
         User user = userGetService.find(userId);
         Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
 
