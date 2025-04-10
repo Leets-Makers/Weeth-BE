@@ -15,7 +15,7 @@ public interface AttendanceUseCase {
 
     Main find(Long userId);
 
-    Detail findAll(Long userId);
+    Detail findAllDetailsByCurrentCardinal(Long userId);
 
     List<AttendanceInfo> findAllAttendanceByMeeting(Long meetingId);
 

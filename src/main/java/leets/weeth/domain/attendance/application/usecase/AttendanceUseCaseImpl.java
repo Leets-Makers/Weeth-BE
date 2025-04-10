@@ -11,7 +11,9 @@ import leets.weeth.domain.attendance.domain.service.AttendanceUpdateService;
 import leets.weeth.domain.schedule.application.exception.MeetingNotFoundException;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,9 +29,12 @@ import java.util.List;
 public class AttendanceUseCaseImpl implements AttendanceUseCase {
 
     private final UserGetService userGetService;
+    private final UserCardinalGetService userCardinalGetService;
+
     private final AttendanceGetService attendanceGetService;
     private final AttendanceUpdateService attendanceUpdateService;
     private final AttendanceMapper mapper;
+
     private final MeetingGetService meetingGetService;
 
     @Override
@@ -64,14 +69,12 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
         return mapper.toMainDto(user, todayMeeting);
     }
 
-    /*
-    todo 후에 쿼리 최적화, 기수별 정렬 추가
-     */
-    @Override
-    public AttendanceDTO.Detail findAll(Long userId) {
+    public AttendanceDTO.Detail findAllDetailsByCurrentCardinal(Long userId) {
         User user = userGetService.find(userId);
+        Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
 
         List<AttendanceDTO.Response> responses = user.getAttendances().stream()
+                .filter(attendance -> attendance.getMeeting().getCardinal().equals(currentCardinal.getCardinalNumber()))
                 .sorted(Comparator.comparing(attendance -> attendance.getMeeting().getStart()))
                 .map(mapper::toResponseDto)
                 .toList();
