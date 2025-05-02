@@ -5,7 +5,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import leets.weeth.domain.user.domain.entity.SecurityUser;
 import leets.weeth.global.config.ProviderAwareEntryPoint;
-import leets.weeth.global.sas.application.mapper.OAuth2AuthorizationMapper;
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
 import leets.weeth.global.sas.domain.service.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
@@ -98,10 +97,9 @@ public class OAuth2AuthorizationServerConfig {
     @Primary
     public OAuth2AuthorizationService authorizationService(
             RegisteredClientRepository registeredClientRepository,
-            OAuth2AuthorizationGrantAuthorizationRepository oAuth2AuthorizationGrantAuthorizationRepository,
-            OAuth2AuthorizationMapper oAuth2AuthorizationMapper) {
+            OAuth2AuthorizationGrantAuthorizationRepository oAuth2AuthorizationGrantAuthorizationRepository) {
 
-        return new RedisOAuth2AuthorizationService(registeredClientRepository, oAuth2AuthorizationGrantAuthorizationRepository, oAuth2AuthorizationMapper);
+        return new RedisOAuth2AuthorizationService(registeredClientRepository, oAuth2AuthorizationGrantAuthorizationRepository);
     }
 
     @Bean
