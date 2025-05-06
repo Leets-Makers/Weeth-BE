@@ -1,4 +1,4 @@
-package leets.weeth.global.config;
+package leets.weeth.global.sas.application.property;
 
 import lombok.Getter;
 import lombok.Setter;
