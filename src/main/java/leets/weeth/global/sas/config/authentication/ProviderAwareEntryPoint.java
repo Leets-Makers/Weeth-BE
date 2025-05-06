@@ -6,11 +6,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import leets.weeth.global.auth.authentication.ErrorMessage;
 import leets.weeth.global.common.response.CommonResponse;
 import leets.weeth.global.sas.application.property.OauthProviderProperties;
+import leets.weeth.global.sas.config.authentication.strategy.OauthUrlBuilderResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -20,6 +20,7 @@ import java.util.Optional;
 public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
 
     private final OauthProviderProperties oauthProps;
+    private final OauthUrlBuilderResolver oauthUrlBuilderResolver;
 
     private static final String PROVIDER_PARAMETER = "provider";
     private static final String KAKAO = "kakao";
@@ -39,16 +40,11 @@ public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
             return;
         }
 
-        // 3) 리다이렉트 URL 구성 -> 전략 패턴으로 리팩토링
-        String redirect = UriComponentsBuilder.fromHttpUrl(cfg.getAuthorizeUri())
-                .queryParam("client_id", cfg.getClientId())
-                .queryParam("redirect_uri", cfg.getRedirectUri())
-                .queryParam("response_type", "code")
-                .build()
-                .encode()
-                .toUriString();
+        // 3) 리다이렉트 URL 구성
+        String redirectUrl = oauthUrlBuilderResolver.resolve(provider)
+                .buildOauthUrl(cfg);
 
-        res.sendRedirect(redirect);
+        res.sendRedirect(redirectUrl);
     }
 
     private void setResponse(HttpServletResponse response) throws IOException {
