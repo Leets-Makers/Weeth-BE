@@ -4,7 +4,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import leets.weeth.domain.user.domain.entity.SecurityUser;
-import leets.weeth.global.config.ProviderAwareEntryPoint;
+import leets.weeth.global.sas.config.authentication.ProviderAwareEntryPoint;
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
 import leets.weeth.global.sas.domain.service.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
