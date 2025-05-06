@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Slf4j
@@ -37,7 +35,7 @@ public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
             return;
         }
 
-        // 3) 리다이렉트 URL 구성
+        // 3) 리다이렉트 URL 구성 -> 전략 패턴으로 리팩토링
         String redirect = UriComponentsBuilder.fromHttpUrl(cfg.getAuthorizeUri())
                 .queryParam("client_id", cfg.getClientId())
                 .queryParam("redirect_uri", cfg.getRedirectUri())
@@ -47,9 +45,5 @@ public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
                 .toUriString();
 
         res.sendRedirect(redirect);
-    }
-
-    private static String url(String v) {
-        return URLEncoder.encode(v, StandardCharsets.UTF_8);
     }
 }
