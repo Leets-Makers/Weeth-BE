@@ -4,11 +4,11 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import leets.weeth.domain.user.domain.entity.SecurityUser;
+import leets.weeth.global.sas.application.exception.Oauth2JwtTokenException;
 import leets.weeth.global.sas.config.authentication.ProviderAwareEntryPoint;
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
 import leets.weeth.global.sas.domain.service.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -36,7 +36,6 @@ import java.security.PrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class OAuth2AuthorizationServerConfig {
@@ -136,7 +135,7 @@ public class OAuth2AuthorizationServerConfig {
                 ctx.getClaims().claim("email", u.email());
                 ctx.getClaims().claim("role", u.role());
             }else {
-                log.info("토큰 생성 안됨");
+                throw new Oauth2JwtTokenException();
             }
         };
     }
