@@ -14,17 +14,16 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 public class KakaoAuthService {
 
-    @Value("${auth.kakao.client_id}")
+    @Value("${auth.providers.kakao.client_id}")
     private String kakaoClientId;
-    @Value("${auth.kakao.redirect_uri}")
+    @Value("${auth.providers.kakao.redirect_uri}")
     private String redirectUri;
-    @Value("${auth.kakao.grant_type}")
+    @Value("${auth.providers.kakao.grant_type}")
     private String grantType;
-    @Value("${auth.kakao.token_uri}")
+    @Value("${auth.providers.kakao.token_uri}")
     private String tokenUri;
-    @Value("${auth.kakao.user_info_uri}")
+    @Value("${auth.providers.kakao.user_info_uri}")
     private String userInfoUri;
-
 
     private final RestClient restClient = RestClient.create();
 
