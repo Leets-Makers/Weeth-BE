@@ -3,8 +3,10 @@ package leets.weeth.global.sas.application.util;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -12,7 +14,7 @@ import java.util.Base64;
 @Component
 public class PemUtils {
 
-    public PrivateKey parsePrivateKey(String privateKeyPem) throws Exception {
+    public PrivateKey parsePrivateKey(String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String pem = privateKeyPem
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
@@ -25,7 +27,7 @@ public class PemUtils {
         return keyFactory.generatePrivate(keySpec);
     }
 
-    public RSAPublicKey parsePublicKey(String publicKeyPem) throws Exception {
+    public RSAPublicKey parsePublicKey(String publicKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String pem = publicKeyPem
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
