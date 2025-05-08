@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import leets.weeth.global.auth.authentication.ErrorMessage;
 import leets.weeth.global.common.response.CommonResponse;
-import leets.weeth.global.sas.application.property.OauthProviderProperties;
+import leets.weeth.global.sas.application.property.OauthProperties;
 import leets.weeth.global.sas.config.authentication.strategy.OauthUrlBuilderResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
 
-    private final OauthProviderProperties oauthProps;
+    private final OauthProperties oauthProps;
     private final OauthUrlBuilderResolver oauthUrlBuilderResolver;
 
     private static final String PROVIDER_PARAMETER = "provider";
@@ -32,7 +32,7 @@ public class ProviderAwareEntryPoint implements AuthenticationEntryPoint {
         String provider = Optional.ofNullable(req.getParameter(PROVIDER_PARAMETER))
                 .orElse(KAKAO);
 
-        OauthProviderProperties.Provider cfg = oauthProps.getProviders().get(provider);
+        OauthProperties.Provider cfg = oauthProps.getProviders().get(provider);
 
         // 2) 잘못된 provider 처리
         if (cfg == null) {
