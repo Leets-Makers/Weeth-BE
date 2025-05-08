@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -14,7 +14,7 @@ import java.util.Base64;
 @Component
 public class PemUtils {
 
-    public PrivateKey parsePrivateKey(String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public RSAPrivateKey parsePrivateKey(String privateKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String pem = privateKeyPem
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
@@ -24,7 +24,7 @@ public class PemUtils {
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(der);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
-        return keyFactory.generatePrivate(keySpec);
+        return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
     }
 
     public RSAPublicKey parsePublicKey(String publicKeyPem) throws NoSuchAlgorithmException, InvalidKeySpecException {

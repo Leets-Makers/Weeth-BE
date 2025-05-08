@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 @Configuration
@@ -21,7 +21,7 @@ public class JwtKeyConfig {
     }
 
     @Bean
-    public PrivateKey privateKey(PemUtils pemUtils) throws Exception {
+    public RSAPrivateKey privateKey(PemUtils pemUtils) throws Exception {
         return pemUtils.parsePrivateKey(jwtKeyProperties.getPrivateKey());
     }
 }
