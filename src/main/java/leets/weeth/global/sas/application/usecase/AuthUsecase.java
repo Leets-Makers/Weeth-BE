@@ -13,12 +13,10 @@ import leets.weeth.global.auth.kakao.dto.KakaoUserInfoResponse;
 import leets.weeth.global.sas.application.dto.OauthUserInfoResponse;
 import leets.weeth.global.sas.application.mapper.OauthMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthUsecase {
@@ -36,7 +34,6 @@ public class AuthUsecase {
     public User login(String authCode) {
         KakaoTokenResponse tokenResponse = kakaoAuthService.getKakaoToken(authCode);
         KakaoUserInfoResponse userInfo = kakaoAuthService.getUserInfo(tokenResponse.access_token());
-        log.info("카카오 토큰: {}", tokenResponse.access_token());
 
         long kakaoId = userInfo.id();
         Optional<User> optionalUser = userGetService.find(kakaoId);
