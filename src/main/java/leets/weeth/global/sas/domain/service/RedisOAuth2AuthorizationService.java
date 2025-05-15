@@ -6,6 +6,9 @@ import leets.weeth.global.sas.domain.entity.OAuth2AuthorizationGrantAuthorizatio
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -103,6 +106,12 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
             OAuth2AuthorizationGrantAuthorization authorizationGrantAuthorization) {
         RegisteredClient registeredClient = this.registeredClientRepository
                 .findById(authorizationGrantAuthorization.getRegisteredClientId());
+
+        if (registeredClient == null) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, "잘못된 client id 입니다.", null)
+            );
+        }
 
         OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(registeredClient);
         ModelMapper.mapOAuth2AuthorizationGrantAuthorization(authorizationGrantAuthorization, builder);
