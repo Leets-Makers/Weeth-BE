@@ -4,10 +4,10 @@ import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import leets.weeth.global.auth.kakao.KakaoAuthService;
 import leets.weeth.global.auth.kakao.dto.KakaoUserInfoResponse;
+import leets.weeth.global.sas.application.exception.UserInActiveException;
+import leets.weeth.global.sas.application.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
@@ -55,7 +55,13 @@ public class KakaoAuthenticationProvider extends CustomAuthenticationProvider<Ka
     @Override
     protected User getOrLoadUser(KakaoUserInfoResponse userInfo) {
         long kakaoId = userInfo.id();
-        return userGetService.find(kakaoId)
-                .orElseThrow(() -> new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT));
+        User user = userGetService.find(kakaoId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (user.isInactive()) {
+            throw new UserInActiveException();
+        }
+
+        return user;
     }
 }
