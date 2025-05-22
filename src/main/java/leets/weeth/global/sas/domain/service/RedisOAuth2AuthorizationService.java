@@ -1,6 +1,7 @@
 package leets.weeth.global.sas.domain.service;
 
-import leets.weeth.global.sas.application.mapper.ModelMapper;
+import leets.weeth.global.sas.application.mapper.OAuth2AuthorizationConverter;
+import leets.weeth.global.sas.application.mapper.OAuth2AuthorizationMapper;
 import leets.weeth.global.sas.domain.entity.OAuth2AuthorizationCodeGrantAuthorization;
 import leets.weeth.global.sas.domain.entity.OAuth2AuthorizationGrantAuthorization;
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
@@ -31,7 +32,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
     public void save(OAuth2Authorization authorization) {
         Assert.notNull(authorization, "authorization cannot be null");
 
-        OAuth2AuthorizationGrantAuthorization entity = ModelMapper.convertOAuth2AuthorizationGrantAuthorization(authorization);
+        OAuth2AuthorizationGrantAuthorization entity = OAuth2AuthorizationConverter.convertOAuth2AuthorizationGrantAuthorization(authorization);
 
         // ttl 설정
         if (entity.getAccessToken() == null && entity instanceof OAuth2AuthorizationCodeGrantAuthorization codeGrant) {
@@ -114,7 +115,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         }
 
         OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(registeredClient);
-        ModelMapper.mapOAuth2AuthorizationGrantAuthorization(authorizationGrantAuthorization, builder);
+        OAuth2AuthorizationMapper.mapOAuth2AuthorizationGrantAuthorization(authorizationGrantAuthorization, builder);
         return builder.build();
     }
 
