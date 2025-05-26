@@ -4,14 +4,18 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.global.auth.jwt.exception.InvalidTokenException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class JwtProvider {
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
@@ -27,6 +31,9 @@ public class JwtProvider {
     @Value("${weeth.jwt.refresh.expiration}")
     private Long refreshTokenExpirationPeriod;
 
+    private final RSAPublicKey publicKey;
+    private final RSAPrivateKey privateKey;
+
     public String createAccessToken(Long id, String email, Role role) {
         Date now = new Date();
         return JWT.create()
@@ -35,7 +42,7 @@ public class JwtProvider {
                 .withClaim(ID_CLAIM, id)
                 .withClaim(EMAIL_CLAIM, email)
                 .withClaim(ROLE_CLAIM, role.toString())
-                .sign(Algorithm.HMAC512(key));
+                .sign(Algorithm.RSA256(publicKey, privateKey));
     }
 
     public String createRefreshToken(Long id) {
@@ -44,12 +51,12 @@ public class JwtProvider {
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withExpiresAt(new Date(now.getTime() + refreshTokenExpirationPeriod))
                 .withClaim(ID_CLAIM, id)
-                .sign(Algorithm.HMAC512(key));
+                .sign(Algorithm.RSA256(publicKey, privateKey));
     }
 
     public boolean validate(String token) {
         try {
-            JWT.require(Algorithm.HMAC512(key)).build().verify(token);
+            JWT.require(Algorithm.RSA256(publicKey)).build().verify(token);
             return true;
         } catch (Exception e) {
             log.error("유효하지 않은 토큰입니다. {}", e.getMessage());
