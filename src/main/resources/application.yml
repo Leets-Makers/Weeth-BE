@@ -18,9 +18,24 @@ springdoc:
     display-request-duration: true
 
 auth:
-  kakao:
-    client_id: ${KAKAO_CLIENT_ID}
-    redirect_uri: ${KAKAO_REDIRECT_URI}
-    grant_type: ${KAKAO_GRANT_TYPE}
-    token_uri: ${KAKAO_TOKEN_URI}
-    user_info_uri: ${KAKAO_USER_INFO_URI}
+  issuer: ${AUTH_ISSUER}
+  providers:
+    kakao:
+      authorize_uri: https://kauth.kakao.com/oauth/authorize
+      client_id: ${KAKAO_CLIENT_ID}
+      redirect_uri: ${KAKAO_REDIRECT_URI}
+      grant_type: ${KAKAO_GRANT_TYPE}
+      token_uri: ${KAKAO_TOKEN_URI}
+      user_info_uri: ${KAKAO_USER_INFO_URI}
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY}
+    public-key: ${JWT_PUBLIC_KEY}
+  clients:
+    leenk:
+      registeredClientId: ${LEENK_REGISTERED_CLIENT_ID}
+      clientId: ${LEENK_CLIENT_ID}
+      clientSecret: ${LEENK_CLIENT_SECRET}
+      redirectUris: ${LEENK_REDIRECT_URIS}
+      scopes: ${LEENK_SCOPES}
+      accessTokenTtl: ${LEENK_ACCESS_TOKEN_TTL}
+      refreshTokenTtl: ${LEENK_REFRESH_TOKEN_TTL}

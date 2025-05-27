@@ -8,15 +8,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import leets.weeth.global.auth.jwt.application.dto.JwtDto;
 import leets.weeth.global.auth.jwt.exception.TokenNotFoundException;
 import leets.weeth.global.common.response.CommonResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     private static final String EMAIL_CLAIM = "email";
@@ -31,6 +34,8 @@ public class JwtService {
     private String accessHeader;
     @Value("${weeth.jwt.refresh.header}")
     private String refreshHeader;
+
+    private final RSAPublicKey publicKey;
 
     public String extractRefreshToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(refreshHeader))
@@ -47,7 +52,7 @@ public class JwtService {
 
     public Optional<String> extractEmail(String accessToken) {
         try {
-            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(key))
+            return Optional.ofNullable(JWT.require(Algorithm.RSA256(publicKey))
                     .build()
                     .verify(accessToken)
                     .getClaim(EMAIL_CLAIM)
@@ -60,7 +65,7 @@ public class JwtService {
 
     public Optional<Long> extractId(String token) {
         try {
-            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(key))
+            return Optional.ofNullable(JWT.require(Algorithm.RSA256(publicKey))
                     .build()
                     .verify(token)
                     .getClaim(ID_CLAIM)
@@ -73,7 +78,7 @@ public class JwtService {
 
     public Optional<String> extractRole(String token) {
         try {
-            return Optional.ofNullable(JWT.require(Algorithm.HMAC512(key))
+            return Optional.ofNullable(JWT.require(Algorithm.RSA256(publicKey))
                     .build()
                     .verify(token)
                     .getClaim(ROLE_CLAIM)

@@ -63,6 +63,9 @@ dependencies {
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	// Spring Authorization Server
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+
 }
 
 tasks.named('test') {
