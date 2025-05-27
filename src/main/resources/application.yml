@@ -18,6 +18,7 @@ springdoc:
     display-request-duration: true
 
 auth:
+  issuer: ${AUTH_ISSUER}
   providers:
     kakao:
       authorize_uri: https://kauth.kakao.com/oauth/authorize

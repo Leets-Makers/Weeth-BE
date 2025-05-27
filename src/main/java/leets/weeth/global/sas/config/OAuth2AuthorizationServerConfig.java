@@ -16,6 +16,7 @@ import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthoriz
 import leets.weeth.global.sas.domain.service.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -49,6 +50,10 @@ import java.time.Duration;
 @Configuration
 @RequiredArgsConstructor
 public class OAuth2AuthorizationServerConfig {
+
+    @Value("${auth.issuer}")
+    private String issuer;
+
     private final ProviderAwareEntryPoint entryPoint;
     private final KakaoAuthService kakaoAuthService;
     private final UserGetService userGetService;
@@ -150,7 +155,7 @@ public class OAuth2AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("https://weeth.site") //임시값
+                .issuer(issuer)
                 .build();
     }
 
