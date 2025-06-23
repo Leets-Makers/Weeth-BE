@@ -4,6 +4,7 @@ import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import leets.weeth.global.auth.kakao.KakaoAuthService;
 import leets.weeth.global.auth.kakao.dto.KakaoUserInfoResponse;
+import leets.weeth.global.sas.application.exception.KakaoLoginException;
 import leets.weeth.global.sas.application.exception.UserInActiveException;
 import leets.weeth.global.sas.application.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Component
 public class KakaoAuthenticationProvider extends CustomAuthenticationProvider<KakaoUserInfoResponse> {
@@ -49,7 +51,11 @@ public class KakaoAuthenticationProvider extends CustomAuthenticationProvider<Ka
 
     @Override
     protected KakaoUserInfoResponse getUserInfo(String accessToken) {
-        return kakaoAuthService.getUserInfo(accessToken);
+        try {
+            return kakaoAuthService.getUserInfo(accessToken);
+        } catch (HttpClientErrorException e) {
+            throw new KakaoLoginException(e.getResponseBodyAsString());
+        }
     }
 
     @Override
