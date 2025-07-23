@@ -3,6 +3,7 @@ package leets.weeth.domain.board.domain.entity;
 import jakarta.persistence.*;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
+import leets.weeth.domain.board.domain.entity.enums.PostPart;
 import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
@@ -30,6 +31,9 @@ public class Board extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    private PostPart postPart;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
