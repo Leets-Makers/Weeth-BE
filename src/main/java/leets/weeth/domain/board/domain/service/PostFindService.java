@@ -1,6 +1,7 @@
 package leets.weeth.domain.board.domain.service;
 
 import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.PostPart;
 import leets.weeth.domain.board.domain.repository.PostRepository;
 import leets.weeth.domain.board.application.exception.PostNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,15 @@ public class PostFindService {
 
     public Slice<Post> findRecentPosts(Pageable pageable) {
         return postRepository.findPageBy(pageable);
+    }
+
+    public Slice<Post> findRecentPostsByPart(PostPart postPart, Pageable pageable) {
+        if (postPart == PostPart.ALL) {
+
+            return findRecentPosts(pageable);
+        }
+
+        return postRepository.findPageByPostPart(postPart, pageable);
     }
 
     public Slice<Post> search(String keyword, Pageable pageable) {
