@@ -17,6 +17,7 @@ public enum ResponseMessage {
     POST_UPDATED_SUCCESS("게시글이 성공적으로 수정되었습니다."),
     POST_DELETED_SUCCESS("게시글이 성공적으로 삭제되었습니다."),
     POST_FIND_ALL_SUCCESS("게시글 목록이 성공적으로 조회되었습니다."),
+    POST_PART_FIND_ALL_SUCCESS("파트별 게시글 목록이 성공적으로 조회되었습니다."),
     POST_FIND_BY_ID_SUCCESS("게시글이 성공적으로 조회되었습니다.");
 
     private final String message;

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.usecase.PostUsecase;
+import leets.weeth.domain.board.domain.entity.enums.PostPart;
 import leets.weeth.global.auth.annotation.CurrentUser;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.global.common.response.CommonResponse;
@@ -37,6 +38,12 @@ public class PostController {
     public CommonResponse<Slice<PostDTO.ResponseAll>> findPosts(@RequestParam("pageNumber") int pageNumber,
                                                                       @RequestParam("pageSize") int pageSize) {
         return CommonResponse.createSuccess(POST_FIND_ALL_SUCCESS.getMessage(), postUsecase.findPosts(pageNumber, pageSize));
+    }
+
+    @GetMapping("/part")
+    @Operation(summary="파트별 스터디 게시글 목록 조회 [무한스크롤]")
+    public CommonResponse<Slice<PostDTO.ResponseAll>> findPartPosts(@RequestParam("postPart") PostPart postPart, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+        return CommonResponse.createSuccess(POST_PART_FIND_ALL_SUCCESS.getMessage(), postUsecase.findPartPosts(postPart, pageNumber, pageSize));
     }
 
     @GetMapping("/{boardId}")
