@@ -1,5 +1,9 @@
 package leets.weeth.domain.board.application.usecase;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
@@ -20,7 +24,9 @@ import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -29,11 +35,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,7 @@ public class PostUseCaseImpl implements PostUsecase {
     private final PostDeleteService postDeleteService;
 
     private final UserGetService userGetService;
+    private final CardinalGetService cardinalGetService;
 
     private final FileSaveService fileSaveService;
     private final FileGetService fileGetService;
@@ -58,8 +60,10 @@ public class PostUseCaseImpl implements PostUsecase {
     @Transactional
     public void save(PostDTO.Save request, Long userId) {
         User user = userGetService.find(userId);
+        Cardinal latest = cardinalGetService.getLatestInProgress();
 
         Post post = mapper.fromPostDto(request, user);
+        post.updateCardinalNumber(latest);
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
