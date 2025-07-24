@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.entity.enums.PostPart;
+import leets.weeth.domain.board.domain.entity.enums.PostType;
 import leets.weeth.domain.comment.domain.entity.Comment;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -32,8 +34,17 @@ public class Board extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column
+    private String studyName;
+
+    @Column(nullable = false)
+    private Integer cardinalNumber;
+
     @Enumerated(EnumType.STRING)
     private PostPart postPart;
+
+    @Enumerated(EnumType.STRING)
+    private PostType postType;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -68,4 +79,7 @@ public class Board extends BaseEntity {
         this.content = dto.content();
     }
 
+    public void updateCardinalNumber(Cardinal cardinal) {
+        this.cardinalNumber = cardinal.getCardinalNumber();
+    }
 }
