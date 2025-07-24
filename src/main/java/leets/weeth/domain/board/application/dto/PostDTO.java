@@ -2,8 +2,10 @@ package leets.weeth.domain.board.application.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import leets.weeth.domain.board.domain.entity.enums.PostPart;
-import leets.weeth.domain.board.domain.entity.enums.PostType;
+import java.time.LocalDateTime;
+import java.util.List;
+import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
@@ -11,18 +13,16 @@ import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class PostDTO {
 
     @Builder
     public record Save(
             @NotNull String title,
             @NotNull String content,
-            @NotNull PostPart postPart,
-            @NotNull PostType postType,
+            @NotNull Part part,
+            @NotNull Category category,
             @NotNull String studyName,
+            @NotNull int week,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 

@@ -1,15 +1,14 @@
 package leets.weeth.domain.board.domain.service;
 
-import leets.weeth.domain.board.domain.entity.Post;
-import leets.weeth.domain.board.domain.entity.enums.PostPart;
-import leets.weeth.domain.board.domain.repository.PostRepository;
+import java.util.List;
 import leets.weeth.domain.board.application.exception.PostNotFoundException;
+import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.Part;
+import leets.weeth.domain.board.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +29,13 @@ public class PostFindService {
         return postRepository.findPageBy(pageable);
     }
 
-    public Slice<Post> findRecentPostsByPart(PostPart postPart, Pageable pageable) {
-        if (postPart == PostPart.ALL) {
+    public Slice<Post> findRecentPostsByPart(Part part, Pageable pageable) {
+        if (part == Part.ALL) {
 
             return findRecentPosts(pageable);
         }
 
-        return postRepository.findPageByPostPart(postPart, pageable);
+        return postRepository.findPageByPart(part, pageable);
     }
 
     public Slice<Post> search(String keyword, Pageable pageable) {

@@ -1,10 +1,21 @@
 package leets.weeth.domain.board.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import java.util.List;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
-import leets.weeth.domain.board.domain.entity.enums.PostPart;
-import leets.weeth.domain.board.domain.entity.enums.PostType;
+import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
@@ -15,7 +26,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import java.util.List;
 
 @Getter
 @MappedSuperclass
@@ -38,13 +48,16 @@ public class Board extends BaseEntity {
     private String studyName;
 
     @Column(nullable = false)
-    private Integer cardinalNumber;
+    private int cardinalNumber;
+
+    @Column(nullable=false)
+    private int week;
 
     @Enumerated(EnumType.STRING)
-    private PostPart postPart;
+    private Part part;
 
     @Enumerated(EnumType.STRING)
-    private PostType postType;
+    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
