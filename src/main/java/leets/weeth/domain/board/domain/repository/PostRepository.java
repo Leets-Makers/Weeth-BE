@@ -1,17 +1,35 @@
 package leets.weeth.domain.board.domain.repository;
 
 import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
 	Slice<Post> findPageBy(Pageable page);
 
-	Slice<Post> findPageByPart(Part part, Pageable pageable);
+	@Query("""
+        SELECT p
+          FROM Post p
+         WHERE p.part = :part
+           AND (:category IS NULL    OR p.category = :category)
+           AND (:cardinal IS NULL         OR p.cardinalNumber = :cardinal)
+           AND (:week     IS NULL       OR p.week = :week)
+      ORDER BY p.id DESC
+    """)
+	Slice<Post> findByPartAndOptionalFilters(
+			@Param("part")     Part part,
+			@Param("category") Category category,
+			@Param("cardinal") Integer cardinal,
+			@Param("week")     Integer week,
+			Pageable pageable
+	);
 
 	Slice<Post> findByTitleContainingOrContentContainingIgnoreCase(String keyword1, String keyword2, Pageable pageable);
 }

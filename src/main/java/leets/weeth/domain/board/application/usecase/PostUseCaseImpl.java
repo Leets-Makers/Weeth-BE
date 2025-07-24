@@ -9,6 +9,7 @@ import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
 import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.service.PostDeleteService;
 import leets.weeth.domain.board.domain.service.PostFindService;
@@ -93,11 +94,11 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseAll> findPartPosts(Part part, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, Integer week, int pageNumber, int pageSize) {
         validatePageNumber(pageNumber);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findRecentPostsByPart(part, pageable);
+        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(part, category, cardinalNumber, week, pageable);
 
         return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
     }

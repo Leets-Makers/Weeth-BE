@@ -1,6 +1,7 @@
 package leets.weeth.domain.board.application.usecase;
 
 import leets.weeth.domain.board.application.dto.PostDTO;
+import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import org.springframework.data.domain.Slice;
@@ -14,7 +15,7 @@ public interface PostUsecase {
 
     Slice<PostDTO.ResponseAll> findPosts(int pageNumber, int pageSize);
 
-    Slice<PostDTO.ResponseAll> findPartPosts(Part part, int pageNumber, int pageSize);
+    Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, Integer week, int pageNumber, int pageSize);
 
     void update(Long postId, PostDTO.Update dto, Long userId) throws UserNotMatchException;
 

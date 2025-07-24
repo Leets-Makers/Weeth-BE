@@ -3,6 +3,7 @@ package leets.weeth.domain.board.domain.service;
 import java.util.List;
 import leets.weeth.domain.board.application.exception.PostNotFoundException;
 import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,11 @@ public class PostFindService {
         return postRepository.findPageBy(pageable);
     }
 
-    public Slice<Post> findRecentPostsByPart(Part part, Pageable pageable) {
-        if (part == Part.ALL) {
+    public Slice<Post> findByPartAndOptionalFilters(Part part, Category category, Integer cardinalNumber, Integer week, Pageable pageable) {
 
-            return findRecentPosts(pageable);
-        }
-
-        return postRepository.findPageByPart(part, pageable);
+        return postRepository.findByPartAndOptionalFilters(
+                part, category, cardinalNumber, week, pageable
+        );
     }
 
     public Slice<Post> search(String keyword, Pageable pageable) {
