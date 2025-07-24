@@ -2,6 +2,8 @@ package leets.weeth.domain.board.application.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import leets.weeth.domain.board.domain.entity.enums.PostPart;
+import leets.weeth.domain.board.domain.entity.enums.PostType;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
@@ -18,6 +20,9 @@ public class PostDTO {
     public record Save(
             @NotNull String title,
             @NotNull String content,
+            @NotNull PostPart postPart,
+            @NotNull PostType postType,
+            @NotNull String studyName,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
