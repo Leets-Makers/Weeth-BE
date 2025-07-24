@@ -34,7 +34,6 @@ import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -44,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PostUseCaseImpl implements PostUsecase {
 
     private final PostSaveService postSaveService;
@@ -123,8 +121,6 @@ public class PostUseCaseImpl implements PostUsecase {
 
         Integer targetCardinal = Optional.ofNullable(cardinalNumber)
                 .orElseGet(() -> userCardinalGetService.getCurrentCardinal(user).getCardinalNumber());
-
-        log.info(">>> userPart={}, targetCardinal={}", userPart, targetCardinal);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Slice<Post> posts = postFindService.findByPartAndOptionalFilters(
