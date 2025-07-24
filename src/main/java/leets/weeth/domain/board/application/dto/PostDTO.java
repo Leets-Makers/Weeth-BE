@@ -55,7 +55,9 @@ public class PostDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time,//modifiedAt
+            String studyName,
+            int week,
+            LocalDateTime time,
             Integer commentCount,
             boolean hasFile
     ){}
