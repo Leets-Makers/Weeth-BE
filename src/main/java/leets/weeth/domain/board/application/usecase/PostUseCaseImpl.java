@@ -3,8 +3,10 @@ package leets.weeth.domain.board.application.usecase;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.PostDTO;
+import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
 import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
@@ -27,9 +29,12 @@ import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
+import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -39,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostUseCaseImpl implements PostUsecase {
 
     private final PostSaveService postSaveService;
@@ -47,6 +53,7 @@ public class PostUseCaseImpl implements PostUsecase {
     private final PostDeleteService postDeleteService;
 
     private final UserGetService userGetService;
+    private final UserCardinalGetService userCardinalGetService;
     private final CardinalGetService cardinalGetService;
 
     private final FileSaveService fileSaveService;
@@ -61,6 +68,12 @@ public class PostUseCaseImpl implements PostUsecase {
     @Transactional
     public void save(PostDTO.Save request, Long userId) {
         User user = userGetService.find(userId);
+
+        if (request.category() == Category.Education
+                && !user.hasRole(Role.ADMIN)) {
+            throw new CategoryAccessDeniedException();
+        }
+
         Cardinal latest = cardinalGetService.getLatestInProgress();
 
         Post post = mapper.fromPostDto(request, user);
@@ -101,6 +114,24 @@ public class PostUseCaseImpl implements PostUsecase {
         Slice<Post> posts = postFindService.findByPartAndOptionalFilters(part, category, cardinalNumber, week, pageable);
 
         return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
+    }
+
+    @Override
+    public Slice<PostDTO.ResponseAll> findEducationByUser(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+        User user = userGetService.find(userId);
+        Part userPart = user.getUserPart();
+
+        Integer targetCardinal = Optional.ofNullable(cardinalNumber)
+                .orElseGet(() -> userCardinalGetService.getCurrentCardinal(user).getCardinalNumber());
+
+        log.info(">>> userPart={}, targetCardinal={}", userPart, targetCardinal);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(
+                userPart, Category.Education, targetCardinal, null, pageable
+        );
+
+        return posts.map(post -> mapper.toAll(post, checkFileExistsByPost(post.getId())));
     }
 
     @Override

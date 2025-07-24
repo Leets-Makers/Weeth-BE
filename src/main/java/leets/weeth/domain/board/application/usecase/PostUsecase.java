@@ -17,6 +17,8 @@ public interface PostUsecase {
 
     Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, Integer week, int pageNumber, int pageSize);
 
+    Slice<PostDTO.ResponseAll> findEducationByUser(Long userId, Integer cardinalNumber, int pageNumber, int pageSize);
+
     void update(Long postId, PostDTO.Update dto, Long userId) throws UserNotMatchException;
 
     void delete(Long postId, Long userId) throws UserNotMatchException;

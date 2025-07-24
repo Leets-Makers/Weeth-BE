@@ -17,7 +17,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Query("""
         SELECT p
           FROM Post p
-         WHERE p.part = :part
+         WHERE (p.part = :part
+             	OR p.part = leets.weeth.domain.board.domain.entity.enums.Part.ALL)
            AND (:category IS NULL    OR p.category = :category)
            AND (:cardinal IS NULL         OR p.cardinalNumber = :cardinal)
            AND (:week     IS NULL       OR p.week = :week)

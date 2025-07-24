@@ -2,6 +2,7 @@ package leets.weeth.domain.board.presentation;
 
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_CREATED_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_DELETED_SUCCESS;
+import static leets.weeth.domain.board.presentation.ResponseMessage.POST_EDU_FIND_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_ALL_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_BY_ID_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_PART_FIND_ALL_SUCCESS;
@@ -60,6 +61,13 @@ public class PostController {
                                                                     @RequestParam(required = false) Integer week,
                                                                     @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
         return CommonResponse.createSuccess(POST_PART_FIND_ALL_SUCCESS.getMessage(), postUsecase.findPartPosts(part, category, cardinalNumber, week, pageNumber, pageSize));
+    }
+
+    @GetMapping("/education")
+    @Operation(summary="교육자료 조회 [무한스크롤]")
+    public CommonResponse<Slice<PostDTO.ResponseAll>> findEducationMaterials(@RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationByUser(userId, cardinalNumber, pageNumber, pageSize));
     }
 
     @GetMapping("/{boardId}")
