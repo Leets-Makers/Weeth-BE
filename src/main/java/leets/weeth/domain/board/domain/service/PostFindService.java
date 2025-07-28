@@ -37,6 +37,13 @@ public class PostFindService {
         );
     }
 
+    public Slice<Post> findEducationByCardinal(int cardinalNumber, Pageable pageable) {
+
+        return postRepository.findByCategoryAndCardinalNumber(
+                Category.Education, cardinalNumber, pageable
+        );
+    }
+
     public Slice<Post> search(String keyword, Pageable pageable) {
         if(keyword == null || keyword.isEmpty()){
             return findRecentPosts(pageable);

@@ -3,7 +3,6 @@ package leets.weeth.domain.board.application.usecase;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
@@ -37,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,15 +119,18 @@ public class PostUseCaseImpl implements PostUsecase {
     @Override
     public Slice<PostDTO.ResponseAll> findEducationByUser(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
-        Part userPart = user.getUserPart();
 
-        Integer targetCardinal = Optional.ofNullable(cardinalNumber)
-                .orElseGet(() -> userCardinalGetService.getCurrentCardinal(user).getCardinalNumber());
+        int  myCardinal = userCardinalGetService
+                .getCurrentCardinal(user)
+                .getCardinalNumber();
+
+        if (cardinalNumber != null && !cardinalNumber.equals(myCardinal)) {
+            Pageable emptyPageable = PageRequest.of(pageNumber, pageSize);
+            return new SliceImpl<>(Collections.emptyList(), emptyPageable, false);
+        }
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(
-                userPart, Category.Education, targetCardinal, null, null, pageable
-        );
+        Slice<Post> posts = postFindService.findEducationByCardinal(myCardinal, pageable);
 
         return posts.map(post -> mapper.toAll(post, checkFileExistsByPost(post.getId())));
     }
