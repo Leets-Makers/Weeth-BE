@@ -73,8 +73,10 @@ public class PostUseCaseImpl implements PostUsecase {
         }
 
         Cardinal latest = cardinalGetService.getLatestInProgress();
+        Part userPart = user.getUserPart();
 
         Post post = mapper.fromPostDto(request, user);
+        post.updatePart(userPart);
         post.updateCardinalNumber(latest);
         postSaveService.save(post);
 
@@ -105,11 +107,11 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, Integer week, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, String studyName, Integer week, int pageNumber, int pageSize) {
         validatePageNumber(pageNumber);
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(part, category, cardinalNumber, week, pageable);
+        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(part, category, cardinalNumber, studyName, week, pageable);
 
         return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
     }
@@ -124,7 +126,7 @@ public class PostUseCaseImpl implements PostUsecase {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Slice<Post> posts = postFindService.findByPartAndOptionalFilters(
-                userPart, Category.Education, targetCardinal, null, pageable
+                userPart, Category.Education, targetCardinal, null, null, pageable
         );
 
         return posts.map(post -> mapper.toAll(post, checkFileExistsByPost(post.getId())));

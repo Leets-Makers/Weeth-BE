@@ -56,16 +56,14 @@ public class PostController {
 
     @GetMapping("/part")
     @Operation(summary="파트별 스터디 게시글 목록 조회 [무한스크롤]")
-    public CommonResponse<Slice<PostDTO.ResponseAll>> findPartPosts(@RequestParam("part") Part part, @RequestParam(required = false) Category category,
-                                                                    @RequestParam(required = false) Integer cardinalNumber,
-                                                                    @RequestParam(required = false) Integer week,
-                                                                    @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
-        return CommonResponse.createSuccess(POST_PART_FIND_ALL_SUCCESS.getMessage(), postUsecase.findPartPosts(part, category, cardinalNumber, week, pageNumber, pageSize));
+    public CommonResponse<Slice<PostDTO.ResponseAll>> findPartPosts(@RequestParam("part") Part part, @RequestParam(required = false) Category category, @RequestParam(required = false) Integer cardinalNumber, @RequestParam(required = false) Integer week, @RequestParam(required = false) String studyName, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize) {
+
+        return CommonResponse.createSuccess(POST_PART_FIND_ALL_SUCCESS.getMessage(), postUsecase.findPartPosts(part, category, cardinalNumber, studyName, week, pageNumber, pageSize));
     }
 
     @GetMapping("/education")
     @Operation(summary="교육자료 조회 [무한스크롤]")
-    public CommonResponse<Slice<PostDTO.ResponseAll>> findEducationMaterials(@RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
+    public CommonResponse<Slice<PostDTO.ResponseAll>> findEducationMaterials(@RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam(required = false) String studyName, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
 
         return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationByUser(userId, cardinalNumber, pageNumber, pageSize));
     }
