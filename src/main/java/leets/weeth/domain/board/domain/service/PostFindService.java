@@ -30,10 +30,10 @@ public class PostFindService {
         return postRepository.findPageBy(pageable);
     }
 
-    public Slice<Post> findByPartAndOptionalFilters(Part part, Category category, Integer cardinalNumber, Integer week, Pageable pageable) {
+    public Slice<Post> findByPartAndOptionalFilters(Part part, Category category, Integer cardinalNumber, String  studyName, Integer week, Pageable pageable) {
 
         return postRepository.findByPartAndOptionalFilters(
-                part, category, cardinalNumber, week, pageable
+                part, category, cardinalNumber, studyName, week, pageable
         );
     }
 

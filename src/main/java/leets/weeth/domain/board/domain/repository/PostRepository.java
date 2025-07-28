@@ -19,15 +19,17 @@ public interface PostRepository extends JpaRepository<Post, Long> {
           FROM Post p
          WHERE (p.part = :part
              	OR p.part = leets.weeth.domain.board.domain.entity.enums.Part.ALL)
-           AND (:category IS NULL    OR p.category = :category)
-           AND (:cardinal IS NULL         OR p.cardinalNumber = :cardinal)
-           AND (:week     IS NULL       OR p.week = :week)
+           AND (:category IS NULL OR p.category = :category)
+           AND (:cardinal IS NULL OR p.cardinalNumber = :cardinal)
+           AND (:studyName  IS NULL OR p.studyName = :studyName)
+           AND (:week     IS NULL OR p.week = :week)
       ORDER BY p.id DESC
     """)
 	Slice<Post> findByPartAndOptionalFilters(
 			@Param("part")     Part part,
 			@Param("category") Category category,
 			@Param("cardinal") Integer cardinal,
+			@Param("studyName")  String studyName,
 			@Param("week")     Integer week,
 			Pageable pageable
 	);

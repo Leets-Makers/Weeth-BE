@@ -15,7 +15,7 @@ public interface PostUsecase {
 
     Slice<PostDTO.ResponseAll> findPosts(int pageNumber, int pageSize);
 
-    Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, Integer week, int pageNumber, int pageSize);
+    Slice<PostDTO.ResponseAll> findPartPosts(Part part, Category category, Integer cardinalNumber, String studyName, Integer week, int pageNumber, int pageSize);
 
     Slice<PostDTO.ResponseAll> findEducationByUser(Long userId, Integer cardinalNumber, int pageNumber, int pageSize);
 
