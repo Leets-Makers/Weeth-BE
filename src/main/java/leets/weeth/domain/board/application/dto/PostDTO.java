@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import leets.weeth.domain.board.domain.entity.enums.Category;
-import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
@@ -19,9 +18,8 @@ public class PostDTO {
     public record Save(
             @NotNull String title,
             @NotNull String content,
-            @NotNull Part part,
             @NotNull Category category,
-            @NotNull String studyName,
+            String studyName,
             @NotNull int week,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
