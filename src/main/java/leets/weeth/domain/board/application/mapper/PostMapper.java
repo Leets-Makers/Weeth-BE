@@ -1,16 +1,19 @@
 package leets.weeth.domain.board.application.mapper;
 
+import java.util.List;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.user.domain.entity.User;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Mappings;
+import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
-
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = CommentMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = CommentMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE, imports = { java.time.LocalDateTime.class })
 public interface PostMapper {
 
     @Mappings({
@@ -24,7 +27,8 @@ public interface PostMapper {
             @Mapping(target = "position", source = "post.user.position"),
             @Mapping(target = "role", source = "post.user.role"),
             @Mapping(target = "time", source = "post.modifiedAt"),
-            @Mapping(target = "hasFile", expression = "java(fileExists)")
+            @Mapping(target = "hasFile", expression = "java(fileExists)"),
+            @Mapping(target = "isNew", expression = "java(post.getCreatedAt().isAfter(LocalDateTime.now().minusHours(24)))")
     })
     PostDTO.ResponseAll toAll(Post post, boolean fileExists);
 

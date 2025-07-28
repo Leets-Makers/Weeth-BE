@@ -57,7 +57,8 @@ public class PostDTO {
             int week,
             LocalDateTime time,
             Integer commentCount,
-            boolean hasFile
+            boolean hasFile,
+            boolean isNew
     ){}
 
 }
