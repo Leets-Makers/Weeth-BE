@@ -18,7 +18,8 @@ public interface PostMapper {
 
     @Mappings({
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "user", source = "user")
+            @Mapping(target = "user", source = "user"),
+            @Mapping(target = "part", expression = "java(user.getUserPart())")
     })
     Post fromPostDto(PostDTO.Save dto, User user);
 

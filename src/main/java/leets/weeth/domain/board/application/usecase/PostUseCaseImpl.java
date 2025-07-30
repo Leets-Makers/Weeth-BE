@@ -73,10 +73,8 @@ public class PostUseCaseImpl implements PostUsecase {
         }
 
         Cardinal latest = cardinalGetService.getLatestInProgress();
-        Part userPart = user.getUserPart();
 
         Post post = mapper.fromPostDto(request, user);
-        post.updatePart(userPart);
         post.updateCardinalNumber(latest);
         postSaveService.save(post);
 
