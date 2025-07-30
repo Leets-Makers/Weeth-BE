@@ -41,9 +41,17 @@ public class PostController {
 
     @PostMapping
     @Operation(summary="게시글 생성")
-    public CommonResponse<String> save(@RequestBody @Valid PostDTO.Save dto,
-                                       @Parameter(hidden = true) @CurrentUser Long userId) {
+    public CommonResponse<String> save(@RequestBody @Valid PostDTO.Save dto, @Parameter(hidden = true) @CurrentUser Long userId) {
         postUsecase.save(dto, userId);
+
+        return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
+    }
+
+    @PostMapping("/education")
+    @Operation(summary = "교육자료 생성")
+    public CommonResponse<String> saveEducation(@RequestBody @Valid PostDTO.SaveEducation dto, @Parameter(hidden = true) @CurrentUser Long userId) {
+        postUsecase.saveEducation(dto, userId);
+
         return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
     }
 

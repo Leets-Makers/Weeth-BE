@@ -11,6 +11,8 @@ public interface PostUsecase {
 
     void save(PostDTO.Save request, Long userId);
 
+    void saveEducation(PostDTO.SaveEducation request, Long userId);
+
     PostDTO.Response findPost(Long postId);
 
     Slice<PostDTO.ResponseAll> findPosts(int pageNumber, int pageSize);

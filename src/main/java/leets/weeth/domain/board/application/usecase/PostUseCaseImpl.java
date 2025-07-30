@@ -87,6 +87,27 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
+    @Transactional
+    public void saveEducation(PostDTO.SaveEducation request, Long userId) {
+        User user = userGetService.find(userId);
+
+        if (!user.hasRole(Role.ADMIN)) {
+            throw new CategoryAccessDeniedException();
+        }
+
+        Cardinal latest = cardinalGetService.findInProgress().stream()
+                .max(Comparator.comparing(Cardinal::getCardinalNumber))
+                .orElseThrow();
+
+        Post post = mapper.fromEducationDto(request, user, latest);
+
+        postSaveService.save(post);
+
+        List<File> files = fileMapper.toFileList(request.files(), post);
+        fileSaveService.save(files);
+    }
+
+    @Override
     public PostDTO.Response findPost(Long postId) {
         Post post = postFindService.find(postId);
 
