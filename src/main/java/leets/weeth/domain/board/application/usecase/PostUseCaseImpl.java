@@ -117,7 +117,7 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseAll> findEducationByUser(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
 
         int  myCardinal = userCardinalGetService

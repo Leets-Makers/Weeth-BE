@@ -65,7 +65,7 @@ public class PostController {
     @Operation(summary="교육자료 조회 [무한스크롤]")
     public CommonResponse<Slice<PostDTO.ResponseAll>> findEducationMaterials(@RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
 
-        return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationByUser(userId, cardinalNumber, pageNumber, pageSize));
+        return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationPosts(userId, cardinalNumber, pageNumber, pageSize));
     }
 
     @GetMapping("/{boardId}")
