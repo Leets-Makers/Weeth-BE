@@ -31,5 +31,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	Slice<Post> findByCategoryAndCardinalNumber(Category category, Integer  cardinalNumber, Pageable pageable);
 
+	Slice<Post> findByCategory(Category category, Pageable pageable);
+
 	Slice<Post> findByTitleContainingOrContentContainingIgnoreCase(String keyword1, String keyword2, Pageable pageable);
 }

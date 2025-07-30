@@ -7,8 +7,10 @@ import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,6 +44,12 @@ public class PostFindService {
         return postRepository.findByCategoryAndCardinalNumber(
                 Category.Education, cardinalNumber, pageable
         );
+    }
+
+    public Slice<Post> findByCategory(Category category, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+
+        return postRepository.findByCategory(category, pageable);
     }
 
     public Slice<Post> search(String keyword, Pageable pageable) {
