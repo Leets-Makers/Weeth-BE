@@ -95,8 +95,4 @@ public class Board extends BaseEntity {
     public void updateCardinalNumber(Cardinal cardinal) {
         this.cardinalNumber = cardinal.getCardinalNumber();
     }
-
-    public void updatePart(Part part) {
-        this.part = part;
-    }
 }
