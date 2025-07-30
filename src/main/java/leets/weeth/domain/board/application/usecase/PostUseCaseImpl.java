@@ -1,6 +1,7 @@
 package leets.weeth.domain.board.application.usecase;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,7 +73,10 @@ public class PostUseCaseImpl implements PostUsecase {
             throw new CategoryAccessDeniedException();
         }
 
-        Cardinal latest = cardinalGetService.getLatestInProgress();
+        List<Cardinal> inProgressList = cardinalGetService.findInProgress();
+        Cardinal latest = inProgressList.stream()
+                .max(Comparator.comparing(Cardinal::getCardinalNumber))
+                .orElseThrow();
 
         Post post = mapper.fromPostDto(request, user);
         post.updateCardinalNumber(latest);
@@ -118,9 +122,7 @@ public class PostUseCaseImpl implements PostUsecase {
     public Slice<PostDTO.ResponseAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
 
-        int  myCardinal = userCardinalGetService
-                .getCurrentCardinal(user)
-                .getCardinalNumber();
+        int myCardinal = userCardinalGetService.getCurrentCardinal(user).getCardinalNumber();
 
         if (cardinalNumber != null && !cardinalNumber.equals(myCardinal)) {
             Pageable emptyPageable = PageRequest.of(pageNumber, pageSize);
