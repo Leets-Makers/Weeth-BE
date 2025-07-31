@@ -2,8 +2,6 @@ package leets.weeth.domain.board.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,10 +12,7 @@ import jakarta.persistence.PrePersist;
 import java.util.List;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
-import leets.weeth.domain.board.domain.entity.enums.Category;
-import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.domain.entity.Comment;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -43,21 +38,6 @@ public class Board extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
-
-    @Column
-    private String studyName;
-
-    @Column(nullable = false)
-    private int cardinalNumber;
-
-    @Column(nullable=false)
-    private int week;
-
-    @Enumerated(EnumType.STRING)
-    private Part part;
-
-    @Enumerated(EnumType.STRING)
-    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -90,9 +70,5 @@ public class Board extends BaseEntity {
     public void updateUpperClass(PostDTO.Update dto) {
         this.title = dto.title();
         this.content = dto.content();
-    }
-
-    public void updateCardinalNumber(Cardinal cardinal) {
-        this.cardinalNumber = cardinal.getCardinalNumber();
     }
 }
