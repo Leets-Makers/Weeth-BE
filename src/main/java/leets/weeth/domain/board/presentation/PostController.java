@@ -47,14 +47,6 @@ public class PostController {
         return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
     }
 
-    @PostMapping("/education")
-    @Operation(summary = "교육자료 생성")
-    public CommonResponse<String> saveEducation(@RequestBody @Valid PostDTO.SaveEducation dto, @Parameter(hidden = true) @CurrentUser Long userId) {
-        postUsecase.saveEducation(dto, userId);
-
-        return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
-    }
-
     @GetMapping
     @Operation(summary="게시글 목록 조회 [무한스크롤]")
     public CommonResponse<Slice<PostDTO.ResponseAll>> findPosts(@RequestParam("pageNumber") int pageNumber,

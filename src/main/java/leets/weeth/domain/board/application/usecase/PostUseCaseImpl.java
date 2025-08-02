@@ -90,10 +90,6 @@ public class PostUseCaseImpl implements PostUsecase {
     public void saveEducation(PostDTO.SaveEducation request, Long userId) {
         User user = userGetService.find(userId);
 
-        if (!user.hasRole(Role.ADMIN)) {
-            throw new CategoryAccessDeniedException();
-        }
-
         Cardinal latest = cardinalGetService.findInProgress().stream()
                 .max(Comparator.comparing(Cardinal::getCardinalNumber))
                 .orElseThrow();
