@@ -78,8 +78,7 @@ public class PostUseCaseImpl implements PostUsecase {
                 .max(Comparator.comparing(Cardinal::getCardinalNumber))
                 .orElseThrow();
 
-        Post post = mapper.fromPostDto(request, user);
-        post.updateCardinalNumber(latest);
+        Post post = mapper.fromPostDto(request, user, latest);
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);

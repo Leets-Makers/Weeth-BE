@@ -11,7 +11,6 @@ import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.domain.entity.Comment;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,9 +51,5 @@ public class Post extends Board {
 
     public void update(PostDTO.Update dto) {
         this.updateUpperClass(dto);
-    }
-
-    public void updateCardinalNumber(Cardinal cardinal) {
-        this.cardinalNumber = cardinal.getCardinalNumber();
     }
 }
