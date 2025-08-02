@@ -31,6 +31,8 @@ public interface PostMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "part", ignore = true)
+    @Mapping(target = "parts", source = "dto.parts")
     @Mapping(target = "cardinalNumber", expression = "java(latest.getCardinalNumber())")
     @Mapping(target = "category", constant = "Education")
     Post fromEducationDto(PostDTO.SaveEducation dto, User user, Cardinal latest);
@@ -45,6 +47,17 @@ public interface PostMapper {
     })
     PostDTO.ResponseAll toAll(Post post, boolean fileExists);
 
+    @Mappings({
+            @Mapping(target = "id",            source = "post.id"),
+            @Mapping(target = "name",          source = "post.user.name"),
+            @Mapping(target = "parts",         source = "post.parts"),
+            @Mapping(target = "week",          source = "post.week"),
+            @Mapping(target = "commentCount",  source = "post.commentCount"),
+            @Mapping(target = "time",          source = "post.modifiedAt"),
+            @Mapping(target = "hasFile",       expression = "java(fileExists)"),
+            @Mapping(target = "isNew",         expression = "java(post.getCreatedAt().isAfter(LocalDateTime.now().minusHours(24)))")
+    })
+    PostDTO.ResponseEducationAll toEducationAll(Post post, boolean fileExists);
 
     @Mappings({
             @Mapping(target = "name", source = "post.user.name"),

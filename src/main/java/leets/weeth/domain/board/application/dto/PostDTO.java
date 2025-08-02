@@ -71,4 +71,16 @@ public class PostDTO {
             boolean isNew
     ){}
 
+    @Builder
+    public record ResponseEducationAll(
+            Long id,
+            String name,
+            List<Part> parts,
+            int week,
+            LocalDateTime time,
+            Integer commentCount,
+            boolean hasFile,
+            boolean isNew
+    ){}
+
 }

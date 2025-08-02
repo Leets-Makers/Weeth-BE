@@ -135,13 +135,13 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
 
         if (user.hasRole(Role.ADMIN)) {
 
             return postFindService.findByCategory(Category.Education, pageNumber, pageSize)
-                    .map(post -> mapper.toAll(post, checkFileExistsByPost(post.getId())));
+                    .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
         int targetCardinal = (cardinalNumber != null)
@@ -158,7 +158,7 @@ public class PostUseCaseImpl implements PostUsecase {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
 
-        return posts.map(post -> mapper.toAll(post, checkFileExistsByPost(post.getId())));
+        return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
     }
 
     @Override
