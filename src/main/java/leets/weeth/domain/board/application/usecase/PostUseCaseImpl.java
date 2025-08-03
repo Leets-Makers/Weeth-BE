@@ -73,11 +73,7 @@ public class PostUseCaseImpl implements PostUsecase {
             throw new CategoryAccessDeniedException();
         }
 
-        List<Cardinal> inProgressList = cardinalGetService.findInProgress();
-        Cardinal latest = inProgressList.stream()
-                .max(Comparator.comparing(Cardinal::getCardinalNumber))
-                .orElseThrow();
-
+        Cardinal latest = cardinalGetService.findLatestInProgress();
         Post post = mapper.fromPostDto(request, user, latest);
         postSaveService.save(post);
 
