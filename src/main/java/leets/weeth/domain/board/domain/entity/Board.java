@@ -1,6 +1,15 @@
 package leets.weeth.domain.board.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import java.util.List;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.comment.domain.entity.Comment;
@@ -12,7 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import java.util.List;
 
 @Getter
 @MappedSuperclass
@@ -63,5 +71,4 @@ public class Board extends BaseEntity {
         this.title = dto.title();
         this.content = dto.content();
     }
-
 }

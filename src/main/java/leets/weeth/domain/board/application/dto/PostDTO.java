@@ -2,6 +2,10 @@ package leets.weeth.domain.board.application.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
+import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
@@ -9,15 +13,24 @@ import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class PostDTO {
 
     @Builder
     public record Save(
             @NotNull String title,
             @NotNull String content,
+            @NotNull Category category,
+            @NotNull String studyName,
+            @NotNull int week,
+            @Valid List<@NotNull FileSaveRequest> files
+    ){}
+
+    @Builder
+    public record SaveEducation(
+            @NotNull String title,
+            @NotNull String content,
+            @NotNull List<Part> parts,
+            @NotNull int week,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
@@ -50,9 +63,24 @@ public class PostDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time,//modifiedAt
+            String studyName,
+            int week,
+            LocalDateTime time,
             Integer commentCount,
-            boolean hasFile
+            boolean hasFile,
+            boolean isNew
+    ){}
+
+    @Builder
+    public record ResponseEducationAll(
+            Long id,
+            String name,
+            List<Part> parts,
+            int week,
+            LocalDateTime time,
+            Integer commentCount,
+            boolean hasFile,
+            boolean isNew
     ){}
 
 }

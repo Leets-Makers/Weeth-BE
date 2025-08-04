@@ -1,10 +1,18 @@
 package leets.weeth.domain.board.application.usecase;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
+import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
 import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
 import leets.weeth.domain.board.domain.entity.Post;
+import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.service.PostDeleteService;
 import leets.weeth.domain.board.domain.service.PostFindService;
 import leets.weeth.domain.board.domain.service.PostSaveService;
@@ -19,20 +27,20 @@ import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.entity.enums.Role;
+import leets.weeth.domain.user.domain.service.CardinalGetService;
+import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +52,8 @@ public class PostUseCaseImpl implements PostUsecase {
     private final PostDeleteService postDeleteService;
 
     private final UserGetService userGetService;
+    private final UserCardinalGetService userCardinalGetService;
+    private final CardinalGetService cardinalGetService;
 
     private final FileSaveService fileSaveService;
     private final FileGetService fileGetService;
@@ -58,7 +68,30 @@ public class PostUseCaseImpl implements PostUsecase {
     public void save(PostDTO.Save request, Long userId) {
         User user = userGetService.find(userId);
 
-        Post post = mapper.fromPostDto(request, user);
+        if (request.category() == Category.Education
+                && !user.hasRole(Role.ADMIN)) {
+            throw new CategoryAccessDeniedException();
+        }
+
+        Cardinal latest = cardinalGetService.findLatestInProgress();
+        Post post = mapper.fromPostDto(request, user, latest);
+        postSaveService.save(post);
+
+        List<File> files = fileMapper.toFileList(request.files(), post);
+        fileSaveService.save(files);
+    }
+
+    @Override
+    @Transactional
+    public void saveEducation(PostDTO.SaveEducation request, Long userId) {
+        User user = userGetService.find(userId);
+
+        Cardinal latest = cardinalGetService.findInProgress().stream()
+                .max(Comparator.comparing(Cardinal::getCardinalNumber))
+                .orElseThrow();
+
+        Post post = mapper.fromEducationDto(request, user, latest);
+
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
@@ -85,6 +118,43 @@ public class PostUseCaseImpl implements PostUsecase {
         Slice<Post> posts = postFindService.findRecentPosts(pageable);
 
         return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
+    }
+
+    @Override
+    public Slice<PostDTO.ResponseAll> findPartPosts(PartPostDTO dto, int pageNumber, int pageSize) {
+        validatePageNumber(pageNumber);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Post> posts = postFindService.findByPartAndOptionalFilters(dto.part(), dto.category(), dto.cardinalNumber(), dto.studyName(), dto.week(), pageable);
+
+        return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
+    }
+
+    @Override
+    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+        User user = userGetService.find(userId);
+
+        if (user.hasRole(Role.ADMIN)) {
+
+            return postFindService.findByCategory(Category.Education, pageNumber, pageSize)
+                    .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
+        }
+
+        int targetCardinal = (cardinalNumber != null)
+                ? cardinalNumber
+                : userCardinalGetService.getCurrentCardinal(user).getCardinalNumber();
+
+        if (cardinalNumber != null
+                && userCardinalGetService.notContains(user,
+                cardinalGetService.findByUserSide(cardinalNumber))) {
+            Pageable empty = PageRequest.of(pageNumber, pageSize);
+            return new SliceImpl<>(Collections.emptyList(), empty, false);
+        }
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
+
+        return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
     }
 
     @Override

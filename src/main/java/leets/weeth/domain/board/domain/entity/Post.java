@@ -1,22 +1,47 @@
 package leets.weeth.domain.board.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
+import java.util.List;
 import leets.weeth.domain.board.application.dto.PostDTO;
+import leets.weeth.domain.board.domain.converter.PartListConverter;
+import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.domain.entity.Comment;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 public class Post extends Board {
+
+    @Column
+    private String studyName;
+
+    @Column(nullable = false)
+    private int cardinalNumber;
+
+    @Column(nullable=false)
+    private int week;
+
+    @Enumerated(EnumType.STRING)
+    private Part part;
+
+    @Column(nullable = false, columnDefinition = "varchar(255)")
+    @Convert(converter = PartListConverter.class)
+    private List<Part> parts;
+
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     @JsonManagedReference
@@ -33,5 +58,4 @@ public class Post extends Board {
     public void update(PostDTO.Update dto) {
         this.updateUpperClass(dto);
     }
-
 }
