@@ -23,6 +23,7 @@ public interface PostMapper {
             @Mapping(target = "modifiedAt", ignore = true),
             @Mapping(target = "user", source = "user"),
             @Mapping(target = "part", expression = "java(user.getUserPart())"),
+            @Mapping(target = "parts", expression = "java(List.of(user.getUserPart()))"),
             @Mapping(target = "cardinalNumber", expression = "java(latest.getCardinalNumber())")
     })
     Post fromPostDto(PostDTO.Save dto, User user, Cardinal latest);
