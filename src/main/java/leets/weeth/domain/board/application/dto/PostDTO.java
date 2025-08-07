@@ -30,7 +30,6 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull List<Part> parts,
-            @NotNull int week,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 

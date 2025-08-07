@@ -40,7 +40,7 @@ public class PostController {
     private final PostUsecase postUsecase;
 
     @PostMapping
-    @Operation(summary="게시글 생성")
+    @Operation(summary="파트 게시글 생성 (스터디 로그, 아티클)")
     public CommonResponse<String> save(@RequestBody @Valid PostDTO.Save dto, @Parameter(hidden = true) @CurrentUser Long userId) {
         postUsecase.save(dto, userId);
 
