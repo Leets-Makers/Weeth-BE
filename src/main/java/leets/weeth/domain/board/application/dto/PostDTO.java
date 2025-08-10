@@ -56,8 +56,7 @@ public class PostDTO {
     ){}
 
     @Builder
-    public record
-    ResponseAll(
+    public record ResponseAll(
             Long id,
             String name,
             Position position,
