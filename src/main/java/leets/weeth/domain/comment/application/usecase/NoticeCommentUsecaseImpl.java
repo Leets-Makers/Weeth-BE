@@ -11,6 +11,8 @@ import leets.weeth.domain.comment.domain.service.CommentFindService;
 import leets.weeth.domain.comment.domain.service.CommentSaveService;
 import leets.weeth.domain.file.application.mapper.FileMapper;
 import leets.weeth.domain.file.domain.entity.File;
+import leets.weeth.domain.file.domain.service.FileDeleteService;
+import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.User;
@@ -30,6 +32,8 @@ public class NoticeCommentUsecaseImpl implements NoticeCommentUsecase {
     private final CommentDeleteService commentDeleteService;
 
     private final FileSaveService fileSaveService;
+    private final FileGetService fileGetService;
+    private final FileDeleteService fileDeleteService;
     private final FileMapper fileMapper;
 
     private final NoticeFindService noticeFindService;
@@ -69,6 +73,12 @@ public class NoticeCommentUsecaseImpl implements NoticeCommentUsecase {
         User user = userGetService.find(userId);
         Notice notice = noticeFindService.find(noticeId);
         Comment comment = validateOwner(commentId, userId);
+
+        List<File> fileList = getFiles(commentId);
+        fileDeleteService.delete(fileList);
+
+        List<File> files = fileMapper.toFileList(dto.files(), comment);
+        fileSaveService.save(files);
 
         comment.update(dto);
     }
@@ -118,4 +128,7 @@ public class NoticeCommentUsecaseImpl implements NoticeCommentUsecase {
         return comment;
     }
 
+    private List<File> getFiles(Long commentId) {
+        return fileGetService.findAllByComment(commentId);
+    }
 }

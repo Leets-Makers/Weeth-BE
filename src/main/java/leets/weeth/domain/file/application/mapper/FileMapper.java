@@ -37,6 +37,7 @@ public interface FileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "comment", source = "comment")
     @Mapping(target = "notice", ignore = true) // notice 필드는 매핑하지 않도록 명시
+    @Mapping(target = "post", ignore = true) // post 필드는 매핑하지 않도록 명시
     File toFileWithComment(String fileName, String fileUrl, Comment comment);
 
     @Mapping(target = "fileId", source = "file.id")
