@@ -21,6 +21,7 @@ import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NoticeUsecaseImpl implements NoticeUsecase {
@@ -143,7 +144,11 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
                 .map(child -> mapToDtoWithChildren(child, commentMap))
                 .collect(Collectors.toList());
 
-        return commentMapper.toCommentDto(comment, children);
+        List<FileResponse> files = fileGetService.findAllByComment(comment.getId()).stream()
+                .map(fileMapper::toFileResponse)
+                .toList();
+
+        return commentMapper.toCommentDto(comment, children, files);
     }
 
 }

@@ -4,6 +4,7 @@ import leets.weeth.domain.account.domain.entity.Receipt;
 import leets.weeth.domain.board.domain.entity.Notice;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
+import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.file.application.dto.request.FileSaveRequest;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.file.application.dto.response.UrlResponse;
@@ -15,6 +16,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = CommentMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -32,39 +34,38 @@ public interface FileMapper {
     @Mapping(target = "receipt", source = "receipt")
     File toFileWithReceipt(String fileName, String fileUrl, Receipt receipt);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comment", source = "comment")
+    @Mapping(target = "notice", ignore = true) // notice 필드는 매핑하지 않도록 명시
+    File toFileWithComment(String fileName, String fileUrl, Comment comment);
+
     @Mapping(target = "fileId", source = "file.id")
     FileResponse toFileResponse(File file);
 
     UrlResponse toUrlResponse(String fileName, String putUrl);
 
-    default List<File> toFileList(List<FileSaveRequest> requests, Post post) {
-        List<FileSaveRequest> dto = requests;
-        if (dto == null || dto.isEmpty()) {
+    private List<File> mapRequestsToFiles(List<FileSaveRequest> requests, Function<FileSaveRequest, File> mapper) {
+        if (requests == null || requests.isEmpty()) {
             return Collections.emptyList();
         }
-
-        return dto.stream()
-                .map(request -> toFileWithPost(request.fileName(), request.fileUrl(), post))
+        return requests.stream()
+                .map(mapper)
                 .collect(Collectors.toList());
+    }
+
+    default List<File> toFileList(List<FileSaveRequest> requests, Post post) {
+        return mapRequestsToFiles(requests, request -> toFileWithPost(request.fileName(), request.fileUrl(), post));
     }
 
     default List<File> toFileList(List<FileSaveRequest> requests, Notice notice) {
-        if (requests == null || requests.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return requests.stream()
-                .map(request -> toFileWithNotice(request.fileName(), request.fileUrl(), notice))
-                .collect(Collectors.toList());
+        return mapRequestsToFiles(requests, request -> toFileWithNotice(request.fileName(), request.fileUrl(), notice));
     }
 
     default List<File> toFileList(List<FileSaveRequest> requests, Receipt receipt) {
-        if (requests == null || requests.isEmpty()) {
-            return Collections.emptyList();
-        }
+        return mapRequestsToFiles(requests, request -> toFileWithReceipt(request.fileName(), request.fileUrl(), receipt));
+    }
 
-        return requests.stream()
-                .map(request -> toFileWithReceipt(request.fileName(), request.fileUrl(), receipt))
-                .collect(Collectors.toList());
+    default List<File> toFileList(List<FileSaveRequest> requests, Comment comment) {
+        return mapRequestsToFiles(requests, request -> toFileWithComment(request.fileName(), request.fileUrl(), comment));
     }
 }
