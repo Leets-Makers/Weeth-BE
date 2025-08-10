@@ -4,6 +4,7 @@ import leets.weeth.domain.board.domain.entity.Notice;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.comment.domain.entity.Comment;
+import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.user.domain.entity.User;
 import org.mapstruct.*;
 
@@ -44,5 +45,5 @@ public interface CommentMapper {
     @Mapping(target = "role", source = "comment.user.role")
     @Mapping(target = "time", source = "comment.modifiedAt")
     @Mapping(target = "children", source = "children")
-    CommentDTO.Response toCommentDto(Comment comment, List<CommentDTO.Response> children);
+    CommentDTO.Response toCommentDto(Comment comment, List<CommentDTO.Response> children, List<FileResponse> fileUrls);
 }

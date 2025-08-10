@@ -8,6 +8,9 @@ import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.comment.domain.service.CommentDeleteService;
 import leets.weeth.domain.comment.domain.service.CommentFindService;
 import leets.weeth.domain.comment.domain.service.CommentSaveService;
+import leets.weeth.domain.file.application.mapper.FileMapper;
+import leets.weeth.domain.file.domain.entity.File;
+import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import leets.weeth.domain.comment.application.exception.CommentNotFoundException;
@@ -25,6 +28,9 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
     private final CommentSaveService commentSaveService;
     private final CommentFindService commentFindService;
     private final CommentDeleteService commentDeleteService;
+
+    private final FileSaveService fileSaveService;
+    private final FileMapper fileMapper;
 
     private final UserGetService userGetService;
 
@@ -44,6 +50,9 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
         }
         Comment comment = commentMapper.fromCommentDto(dto, post, user, parentComment);
         commentSaveService.save(comment);
+
+        List<File> files = fileMapper.toFileList(dto.files(), comment);
+        fileSaveService.save(files);
 
         // 부모 댓글이 없다면 새 댓글로 추가
         if (parentComment == null) {
