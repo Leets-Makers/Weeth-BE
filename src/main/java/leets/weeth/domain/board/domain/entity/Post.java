@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.converter.PartListConverter;
@@ -38,7 +39,7 @@ public class Post extends Board {
 
     @Column(nullable = false, columnDefinition = "varchar(255)")
     @Convert(converter = PartListConverter.class)
-    private List<Part> parts;
+    private List<Part> parts = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Category category;
@@ -57,5 +58,19 @@ public class Post extends Board {
 
     public void update(PostDTO.Update dto) {
         this.updateUpperClass(dto);
+        if (dto.studyName() != null)  this.studyName = dto.studyName();
+        if (dto.week() != null)       this.week = dto.week();
+        if (dto.part() != null) {
+            this.part = dto.part();
+            this.parts = List.of(dto.part());
+        }
+        if (dto.cardinalNumber() != null) this.cardinalNumber = dto.cardinalNumber();
+    }
+
+    public void updateEducation(PostDTO.UpdateEducation dto) {
+        this.updateUpperClass(dto);
+        this.part = null;
+        if (dto.parts() != null) this.parts = dto.parts();
+        if (dto.cardinalNumber() != null) this.cardinalNumber = dto.cardinalNumber();
     }
 }

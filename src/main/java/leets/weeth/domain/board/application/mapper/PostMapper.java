@@ -6,7 +6,6 @@ import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,11 +21,11 @@ public interface PostMapper {
             @Mapping(target = "createdAt", ignore = true),
             @Mapping(target = "modifiedAt", ignore = true),
             @Mapping(target = "user", source = "user"),
-            @Mapping(target = "part", expression = "java(user.getUserPart())"),
-            @Mapping(target = "parts", expression = "java(List.of(user.getUserPart()))"),
-            @Mapping(target = "cardinalNumber", expression = "java(latest.getCardinalNumber())")
+            @Mapping(target = "part", source = "dto.part"),
+            @Mapping(target = "parts", expression = "java(List.of(dto.part()))"),
+            @Mapping(target = "cardinalNumber", source = "dto.cardinalNumber")
     })
-    Post fromPostDto(PostDTO.Save dto, User user, Cardinal latest);
+    Post fromPostDto(PostDTO.Save dto, User user);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -34,9 +33,9 @@ public interface PostMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "part", ignore = true)
     @Mapping(target = "parts", source = "dto.parts")
-    @Mapping(target = "cardinalNumber", expression = "java(latest.getCardinalNumber())")
+    @Mapping(target = "cardinalNumber", source = "dto.cardinalNumber")
     @Mapping(target = "category", constant = "Education")
-    Post fromEducationDto(PostDTO.SaveEducation dto, User user, Cardinal latest);
+    Post fromEducationDto(PostDTO.SaveEducation dto, User user);
 
     @Mappings({
             @Mapping(target = "name", source = "post.user.name"),

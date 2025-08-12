@@ -20,8 +20,10 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull Category category,
-            @NotNull String studyName,
-            @NotNull int week,
+            String studyName,
+            int week,
+            @NotNull Part part,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
@@ -30,14 +32,28 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull List<Part> parts,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
     @Builder
     public record Update(
-            @NotNull String title,
-            @NotNull String content,
-            @Valid List<@NotNull FileSaveRequest> files
+            String title,
+            String content,
+            String studyName,
+            Integer week,
+            Part part,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
+    ){}
+
+    @Builder
+    public record UpdateEducation(
+            String title,
+            String content,
+            List<Part> parts,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
     ){}
 
     @Builder
@@ -48,7 +64,12 @@ public class PostDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time,//modifiedAt
+            String studyName,
+            Integer week,
+            Integer cardinalNumber,
+            Part part,
+            List<Part> parts,
+            LocalDateTime time,
             Integer commentCount,
             List<CommentDTO.Response> comments,
             List<FileResponse> fileUrls

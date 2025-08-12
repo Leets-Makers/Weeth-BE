@@ -1,5 +1,9 @@
 package leets.weeth.domain.board.application.usecase;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
@@ -22,7 +26,6 @@ import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
@@ -70,8 +73,8 @@ public class PostUseCaseImpl implements PostUsecase {
             throw new CategoryAccessDeniedException();
         }
 
-        Cardinal latest = cardinalGetService.findLatestInProgress();
-        Post post = mapper.fromPostDto(request, user, latest);
+        cardinalGetService.findByUserSide(request.cardinalNumber());
+        Post post = mapper.fromPostDto(request, user);
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
@@ -83,11 +86,7 @@ public class PostUseCaseImpl implements PostUsecase {
     public void saveEducation(PostDTO.SaveEducation request, Long userId) {
         User user = userGetService.find(userId);
 
-        Cardinal latest = cardinalGetService.findInProgress().stream()
-                .max(Comparator.comparing(Cardinal::getCardinalNumber))
-                .orElseThrow();
-
-        Post post = mapper.fromEducationDto(request, user, latest);
+        Post post = mapper.fromEducationDto(request, user);
 
         postSaveService.save(post);
 
@@ -174,13 +173,31 @@ public class PostUseCaseImpl implements PostUsecase {
     public void update(Long postId, PostDTO.Update dto, Long userId) {
         Post post = validateOwner(postId, userId);
 
-        List<File> fileList = getFiles(postId);
-        fileDeleteService.delete(fileList);
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
 
-        List<File> files = fileMapper.toFileList(dto.files(), post);
-        fileSaveService.save(files);
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
 
         postUpdateService.update(post, dto);
+    }
+
+    @Override
+    @Transactional
+    public void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) {
+        Post post = validateOwner(postId, userId);
+
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
+
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
+
+        postUpdateService.updateEducation(post, dto);
     }
 
     @Override
