@@ -32,13 +32,15 @@ import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -99,7 +101,6 @@ public class PostUseCaseImpl implements PostUsecase {
         List<FileResponse> response = getFiles(postId).stream()
                 .map(fileMapper::toFileResponse)
                 .toList();
-
 
         return mapper.toPostDto(post, response, filterParentComments(post.getComments()));
     }
@@ -244,7 +245,11 @@ public class PostUseCaseImpl implements PostUsecase {
                 .map(child -> mapToDtoWithChildren(child, commentMap))
                 .collect(Collectors.toList());
 
-        return commentMapper.toCommentDto(comment, children);
+        List<FileResponse> files = fileGetService.findAllByComment(comment.getId()).stream()
+                .map(fileMapper::toFileResponse)
+                .toList();
+
+        return commentMapper.toCommentDto(comment, children, files);
     }
 
     private void validatePageNumber(int pageNumber){

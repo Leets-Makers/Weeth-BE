@@ -143,7 +143,11 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
                 .map(child -> mapToDtoWithChildren(child, commentMap))
                 .collect(Collectors.toList());
 
-        return commentMapper.toCommentDto(comment, children);
+        List<FileResponse> files = fileGetService.findAllByComment(comment.getId()).stream()
+                .map(fileMapper::toFileResponse)
+                .toList();
+
+        return commentMapper.toCommentDto(comment, children, files);
     }
 
 }
