@@ -35,7 +35,7 @@ public class EducationAdminController {
         return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
     }
 
-    @PatchMapping(value = "/{boardId}/education")
+    @PatchMapping(value = "/{boardId}")
     @Operation(summary="교육자료 게시글 수정")
     public CommonResponse<String> update(@PathVariable Long boardId,
                                          @RequestBody @Valid PostDTO.UpdateEducation dto,
