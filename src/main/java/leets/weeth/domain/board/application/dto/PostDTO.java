@@ -31,16 +31,29 @@ public class PostDTO {
     public record SaveEducation(
             @NotNull String title,
             @NotNull String content,
-            @NotNull Integer cardinalNumber,
             @NotNull List<Part> parts,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
     @Builder
     public record Update(
-            @NotNull String title,
-            @NotNull String content,
-            @Valid List<@NotNull FileSaveRequest> files
+            String title,
+            String content,
+            String studyName,
+            Integer week,
+            Part part,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
+    ){}
+
+    @Builder
+    public record UpdateEducation(
+            String title,
+            String content,
+            List<Part> parts,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
     ){}
 
     @Builder

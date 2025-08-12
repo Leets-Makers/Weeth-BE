@@ -22,6 +22,8 @@ public interface PostUsecase {
 
     void update(Long postId, PostDTO.Update dto, Long userId) throws UserNotMatchException;
 
+    void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) throws UserNotMatchException;
+
     void delete(Long postId, Long userId) throws UserNotMatchException;
 
     Slice<PostDTO.ResponseAll> searchPost(String keyword, int pageNumber, int pageSize);

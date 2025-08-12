@@ -172,13 +172,31 @@ public class PostUseCaseImpl implements PostUsecase {
     public void update(Long postId, PostDTO.Update dto, Long userId) {
         Post post = validateOwner(postId, userId);
 
-        List<File> fileList = getFiles(postId);
-        fileDeleteService.delete(fileList);
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
 
-        List<File> files = fileMapper.toFileList(dto.files(), post);
-        fileSaveService.save(files);
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
 
         postUpdateService.update(post, dto);
+    }
+
+    @Override
+    @Transactional
+    public void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) {
+        Post post = validateOwner(postId, userId);
+
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
+
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
+
+        postUpdateService.updateEducation(post, dto);
     }
 
     @Override

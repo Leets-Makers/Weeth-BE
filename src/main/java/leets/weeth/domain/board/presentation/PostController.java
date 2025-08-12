@@ -82,8 +82,8 @@ public class PostController {
         return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(),postUsecase.searchPost(keyword, pageNumber, pageSize));
     }
 
-    @PatchMapping(value = "/{boardId}")
-    @Operation(summary="특정 게시글 수정")
+    @PatchMapping(value = "/{boardId}/part")
+    @Operation(summary="파트 게시글 수정")
     public CommonResponse<String> update(@PathVariable Long boardId,
                                          @RequestBody @Valid PostDTO.Update dto,
                                          @Parameter(hidden = true) @CurrentUser Long userId) throws UserNotMatchException {
