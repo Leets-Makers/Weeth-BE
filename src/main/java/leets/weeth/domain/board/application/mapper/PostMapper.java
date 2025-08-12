@@ -22,11 +22,11 @@ public interface PostMapper {
             @Mapping(target = "createdAt", ignore = true),
             @Mapping(target = "modifiedAt", ignore = true),
             @Mapping(target = "user", source = "user"),
-            @Mapping(target = "part", expression = "java(user.getUserPart())"),
-            @Mapping(target = "parts", expression = "java(List.of(user.getUserPart()))"),
-            @Mapping(target = "cardinalNumber", expression = "java(latest.getCardinalNumber())")
+            @Mapping(target = "part", source = "dto.part"),
+            @Mapping(target = "parts", expression = "java(List.of(dto.part()))"),
+            @Mapping(target = "cardinalNumber", source = "dto.cardinalNumber")
     })
-    Post fromPostDto(PostDTO.Save dto, User user, Cardinal latest);
+    Post fromPostDto(PostDTO.Save dto, User user);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

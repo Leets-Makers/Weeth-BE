@@ -20,8 +20,10 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull Category category,
-            @NotNull String studyName,
-            @NotNull int week,
+            String studyName,
+            int week,
+            @NotNull Part part,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 

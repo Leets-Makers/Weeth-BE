@@ -73,8 +73,8 @@ public class PostUseCaseImpl implements PostUsecase {
             throw new CategoryAccessDeniedException();
         }
 
-        Cardinal latest = cardinalGetService.findLatestInProgress();
-        Post post = mapper.fromPostDto(request, user, latest);
+        cardinalGetService.findByUserSide(request.cardinalNumber());
+        Post post = mapper.fromPostDto(request, user);
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
