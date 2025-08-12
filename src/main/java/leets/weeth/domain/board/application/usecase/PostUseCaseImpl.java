@@ -12,6 +12,7 @@ import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.service.PostDeleteService;
 import leets.weeth.domain.board.domain.service.PostFindService;
 import leets.weeth.domain.board.domain.service.PostSaveService;
@@ -32,15 +33,13 @@ import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -150,6 +149,15 @@ public class PostUseCaseImpl implements PostUsecase {
         Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
 
         return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
+    }
+
+    @Override
+    public PostDTO.ResponseStudyNames findStudyNames(Part part) {
+        List<String> names = postFindService.findByPart(part);
+
+        return PostDTO.ResponseStudyNames.builder()
+                .studyNames(names)
+                .build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package leets.weeth.domain.board.domain.repository;
 
+import java.util.List;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
@@ -13,6 +14,15 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
 	Slice<Post> findPageBy(Pageable page);
+
+	@Query("""
+		SELECT DISTINCT p.studyName
+		FROM Post p
+		WHERE p.part = :part
+		  AND p.studyName IS NOT NULL
+		ORDER BY p.studyName ASC
+	""")
+	List<String> findDistinctStudyNamesByPart(@Param("part") Part part);
 
 	@Query("""
         SELECT p

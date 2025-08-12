@@ -28,6 +28,10 @@ public class PostFindService {
         return postRepository.findAll();
     }
 
+    public List<String> findByPart(Part part) {
+        return postRepository.findDistinctStudyNamesByPart(part);
+    }
+
     public Slice<Post> findRecentPosts(Pageable pageable) {
         return postRepository.findPageBy(pageable);
     }
