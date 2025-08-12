@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.usecase.PostUsecase;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.global.auth.annotation.CurrentUser;
 import leets.weeth.global.common.response.CommonResponse;
@@ -73,6 +74,13 @@ public class PostController {
     @Operation(summary="특정 게시글 조회")
     public CommonResponse<PostDTO.Response> findPost(@PathVariable Long boardId) {
         return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(),postUsecase.findPost(boardId));
+    }
+
+    @GetMapping("/part/studies")
+    @Operation(summary="파트별 스터디 이름 목록 조회")
+    public CommonResponse<PostDTO.ResponseStudyNames> findStudyNames(@RequestParam Part part) {
+
+        return CommonResponse.createSuccess(ResponseMessage.POST_STUDY_NAMES_FIND_SUCCESS.getMessage(), postUsecase.findStudyNames(part));
     }
 
     @GetMapping("/search")
