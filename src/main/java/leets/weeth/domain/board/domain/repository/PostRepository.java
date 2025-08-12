@@ -1,5 +1,6 @@
 package leets.weeth.domain.board.domain.repository;
 
+import java.util.Collection;
 import java.util.List;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
@@ -37,7 +38,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     """)
 	Slice<Post> findByPartAndOptionalFilters(@Param("part") Part part, @Param("category") Category category, @Param("cardinal") Integer cardinal, @Param("studyName") String studyName, @Param("week") Integer week, Pageable pageable);
 
-	Slice<Post> findByCategoryAndCardinalNumber(Category category, Integer  cardinalNumber, Pageable pageable);
+	Slice<Post> findByCategoryAndCardinalNumber(Category category, Integer cardinalNumber, Pageable pageable);
+
+	@Query("""
+		SELECT p
+		  FROM Post p
+		 WHERE p.category = :category
+		   AND p.cardinalNumber IN :cardinals
+	  ORDER BY p.id DESC
+	""")
+	Slice<Post> findByCategoryAndCardinalIn(@Param("category") Category category, @Param("cardinals") Collection<Integer> cardinals, Pageable pageable);
 
 	Slice<Post> findByCategory(Category category, Pageable pageable);
 

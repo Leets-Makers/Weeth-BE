@@ -134,19 +134,21 @@ public class PostUseCaseImpl implements PostUsecase {
                     .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        int targetCardinal = (cardinalNumber != null)
-                ? cardinalNumber
-                : userCardinalGetService.getCurrentCardinal(user).getCardinalNumber();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
-        if (cardinalNumber != null
-                && userCardinalGetService.notContains(user,
-                cardinalGetService.findByUserSide(cardinalNumber))) {
-            Pageable empty = PageRequest.of(pageNumber, pageSize);
-            return new SliceImpl<>(Collections.emptyList(), empty, false);
+        if (cardinalNumber != null) {
+            if (userCardinalGetService.notContains(user, cardinalGetService.findByUserSide(cardinalNumber))) {
+                return new SliceImpl<>(Collections.emptyList(), pageable, false);
+            }
+            Slice<Post> posts = postFindService.findEducationByCardinal(cardinalNumber, pageable);
+            return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
+        List<Integer> userCardinals = userCardinalGetService.getCardinalNumbers(user);
+        if (userCardinals.isEmpty()) {
+            return new SliceImpl<>(Collections.emptyList(), pageable, false);
+        }
+        Slice<Post> posts = postFindService.findEducationByCardinals(userCardinals, pageable);
 
         return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
     }
