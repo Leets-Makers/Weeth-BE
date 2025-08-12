@@ -64,7 +64,12 @@ public class PostDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time,//modifiedAt
+            String studyName,
+            Integer week,
+            Integer cardinalNumber,
+            Part part,
+            List<Part> parts,
+            LocalDateTime time,
             Integer commentCount,
             List<CommentDTO.Response> comments,
             List<FileResponse> fileUrls
