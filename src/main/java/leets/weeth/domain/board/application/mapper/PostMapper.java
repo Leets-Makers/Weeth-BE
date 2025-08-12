@@ -67,5 +67,4 @@ public interface PostMapper {
             @Mapping(target = "comments", source = "comments")
     })
     PostDTO.Response toPostDto(Post post, List<FileResponse> fileUrls, List<CommentDTO.Response> comments);
-
 }

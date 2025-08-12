@@ -103,4 +103,8 @@ public class PostDTO {
             boolean isNew
     ){}
 
+    @Builder
+    public record ResponseStudyNames(
+            List<String> studyNames
+    ) {}
 }
