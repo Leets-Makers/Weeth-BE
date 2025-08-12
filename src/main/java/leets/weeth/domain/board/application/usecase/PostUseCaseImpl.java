@@ -1,7 +1,6 @@
 package leets.weeth.domain.board.application.usecase;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +26,6 @@ import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
@@ -86,11 +84,7 @@ public class PostUseCaseImpl implements PostUsecase {
     public void saveEducation(PostDTO.SaveEducation request, Long userId) {
         User user = userGetService.find(userId);
 
-        Cardinal latest = cardinalGetService.findInProgress().stream()
-                .max(Comparator.comparing(Cardinal::getCardinalNumber))
-                .orElseThrow();
-
-        Post post = mapper.fromEducationDto(request, user, latest);
+        Post post = mapper.fromEducationDto(request, user);
 
         postSaveService.save(post);
 

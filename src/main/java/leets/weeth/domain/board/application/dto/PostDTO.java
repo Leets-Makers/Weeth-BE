@@ -31,6 +31,7 @@ public class PostDTO {
     public record SaveEducation(
             @NotNull String title,
             @NotNull String content,
+            @NotNull Integer cardinalNumber,
             @NotNull List<Part> parts,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
