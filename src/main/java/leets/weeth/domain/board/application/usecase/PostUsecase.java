@@ -19,7 +19,7 @@ public interface PostUsecase {
 
     Slice<PostDTO.ResponseAll> findPartPosts(PartPostDTO dto, int pageNumber, int pageSize);
 
-    Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize);
+    Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Part part, Integer cardinalNumber, int pageNumber, int pageSize);
 
     PostDTO.ResponseStudyNames findStudyNames(Part part);
 
@@ -30,4 +30,6 @@ public interface PostUsecase {
     void delete(Long postId, Long userId) throws UserNotMatchException;
 
     Slice<PostDTO.ResponseAll> searchPost(String keyword, int pageNumber, int pageSize);
+
+    Slice<PostDTO.ResponseEducationAll> searchEducation(String keyword, int pageNumber, int pageSize);
 }

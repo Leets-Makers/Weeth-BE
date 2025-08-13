@@ -79,6 +79,7 @@ public class PostDTO {
     public record ResponseAll(
             Long id,
             String name,
+            Part part,
             Position position,
             Role role,
             String title,

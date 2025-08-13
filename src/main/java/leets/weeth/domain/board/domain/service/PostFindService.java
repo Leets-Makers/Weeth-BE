@@ -36,7 +36,25 @@ public class PostFindService {
     }
 
     public Slice<Post> findRecentPosts(Pageable pageable) {
-        return postRepository.findPageBy(pageable);
+        return postRepository.findRecentPart(pageable);
+    }
+
+    public Slice<Post> findRecentEducationPosts(Pageable pageable) {
+        return postRepository.findRecentEducation(pageable);
+    }
+
+    public Slice<Post> search(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()){
+            return findRecentPosts(pageable);
+        }
+        return postRepository.searchPart(keyword.strip(), pageable);
+    }
+
+    public Slice<Post> searchEducation(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()){
+            return findRecentEducationPosts(pageable);
+        }
+        return postRepository.searchEducation(keyword.strip(), pageable);
     }
 
     public Slice<Post> findByPartAndOptionalFilters(Part part, Category category, Integer cardinalNumber, String  studyName, Integer week, Pageable pageable) {
@@ -46,33 +64,25 @@ public class PostFindService {
         );
     }
 
-    public Slice<Post> findEducationByCardinals(Collection<Integer> cardinals, Pageable pageable) {
+    public Slice<Post> findEducationByCardinals(Part part, Collection<Integer> cardinals, Pageable pageable) {
         if (cardinals == null || cardinals.isEmpty()) {
             return new SliceImpl<>(Collections.emptyList(), pageable, false);
         }
-        return postRepository.findByCategoryAndCardinalIn(Category.Education, cardinals, pageable);
+        String partName = (part != null ? part.name() : Part.ALL.name());
+
+        return postRepository.findByCategoryAndCardinalInWithPart(partName, Category.Education, cardinals, pageable);
     }
 
-    public Slice<Post> findEducationByCardinal(int cardinalNumber, Pageable pageable) {
+    public Slice<Post> findEducationByCardinal(Part part, int cardinalNumber, Pageable pageable) {
+        String partName = (part != null ? part.name() : Part.ALL.name());
 
-        return postRepository.findByCategoryAndCardinalNumber(
-                Category.Education, cardinalNumber, pageable
-        );
+        return postRepository.findByCategoryAndCardinalNumberWithPart(partName, Category.Education, cardinalNumber, pageable);
     }
 
-    public Slice<Post> findByCategory(Category category, int pageNumber, int pageSize) {
+    public Slice<Post> findByCategory(Part part, Category category, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        String partName = (part != null ? part.name() : Part.ALL.name());
 
-        return postRepository.findByCategory(category, pageable);
+        return postRepository.findByCategoryWithPart(partName, category, pageable);
     }
-
-    public Slice<Post> search(String keyword, Pageable pageable) {
-        if(keyword == null || keyword.isEmpty()){
-            return findRecentPosts(pageable);
-        }
-        else{
-            return postRepository.findByTitleContainingOrContentContainingIgnoreCase(keyword, keyword, pageable);
-        }
-    }
-
 }

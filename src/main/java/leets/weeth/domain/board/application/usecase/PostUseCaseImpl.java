@@ -125,22 +125,21 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Part part, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
         if (user.hasRole(Role.ADMIN)) {
 
-            return postFindService.findByCategory(Category.Education, pageNumber, pageSize)
+            return postFindService.findByCategory(part, Category.Education, pageNumber, pageSize)
                     .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
-
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
         if (cardinalNumber != null) {
             if (userCardinalGetService.notContains(user, cardinalGetService.findByUserSide(cardinalNumber))) {
                 return new SliceImpl<>(Collections.emptyList(), pageable, false);
             }
-            Slice<Post> posts = postFindService.findEducationByCardinal(cardinalNumber, pageable);
+            Slice<Post> posts = postFindService.findEducationByCardinal(part, cardinalNumber, pageable);
             return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
@@ -148,7 +147,7 @@ public class PostUseCaseImpl implements PostUsecase {
         if (userCardinals.isEmpty()) {
             return new SliceImpl<>(Collections.emptyList(), pageable, false);
         }
-        Slice<Post> posts = postFindService.findEducationByCardinals(userCardinals, pageable);
+        Slice<Post> posts = postFindService.findEducationByCardinals(part, userCardinals, pageable);
 
         return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
     }
@@ -174,6 +173,22 @@ public class PostUseCaseImpl implements PostUsecase {
         }
 
         return posts.map(post->mapper.toAll(post, checkFileExistsByPost(post.id)));
+    }
+
+    @Override
+    public Slice<PostDTO.ResponseEducationAll> searchEducation(String keyword, int pageNumber, int pageSize) {
+        validatePageNumber(pageNumber);
+
+        keyword = keyword.strip();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Post> posts = postFindService.searchEducation(keyword, pageable);
+
+        if(posts.isEmpty()){
+            throw new NoSearchResultException();
+        }
+
+        return posts.map(post->mapper.toEducationAll(post, checkFileExistsByPost(post.id)));
     }
 
     @Override
