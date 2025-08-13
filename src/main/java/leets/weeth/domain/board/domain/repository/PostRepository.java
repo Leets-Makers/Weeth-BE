@@ -44,8 +44,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		 WHERE p.category = :category
 		   AND (
 				 :partName = 'ALL'
-			  OR FUNCTION('FIND_IN_SET', :partName, FUNCTION('REPLACE', p.parts, ' ', '')) > 0
-			  OR FUNCTION('FIND_IN_SET', 'ALL',    FUNCTION('REPLACE', p.parts, ' ', '')) > 0
+			  OR FUNCTION('FIND_IN_SET', :partName, p.parts) > 0
+			  OR FUNCTION('FIND_IN_SET', 'ALL',    p.parts) > 0
 			 )
 	  ORDER BY p.id DESC
 	""")
@@ -58,8 +58,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		   AND p.cardinalNumber = :cardinal
 		   AND (
 				 :partName = 'ALL'
-			  OR FUNCTION('FIND_IN_SET', :partName, FUNCTION('REPLACE', p.parts, ' ', '')) > 0
-			  OR FUNCTION('FIND_IN_SET', 'ALL',    FUNCTION('REPLACE', p.parts, ' ', '')) > 0
+			  OR FUNCTION('FIND_IN_SET', :partName, p.parts) > 0
+			  OR FUNCTION('FIND_IN_SET', 'ALL',    p.parts) > 0
 			 )
 	  ORDER BY p.id DESC
 	""")
@@ -72,8 +72,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		   AND p.cardinalNumber IN :cardinals
 		   AND (
 				 :partName = 'ALL'
-			  OR FUNCTION('FIND_IN_SET', :partName, FUNCTION('REPLACE', p.parts, ' ', '')) > 0
-			  OR FUNCTION('FIND_IN_SET', 'ALL',    FUNCTION('REPLACE', p.parts, ' ', '')) > 0
+			  OR FUNCTION('FIND_IN_SET', :partName, p.parts) > 0
+			  OR FUNCTION('FIND_IN_SET', 'ALL',    p.parts) > 0
 			 )
 	  ORDER BY p.id DESC
 	""")
