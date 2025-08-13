@@ -157,9 +157,7 @@ public class PostUseCaseImpl implements PostUsecase {
     public PostDTO.ResponseStudyNames findStudyNames(Part part) {
         List<String> names = postFindService.findByPart(part);
 
-        return PostDTO.ResponseStudyNames.builder()
-                .studyNames(names)
-                .build();
+        return mapper.toStudyNames(names);
     }
 
     @Override
