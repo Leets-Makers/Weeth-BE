@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Query("""
 		SELECT DISTINCT p.studyName
 		FROM Post p
-		WHERE p.part = :part
+		WHERE (:part = leets.weeth.domain.board.domain.entity.enums.Part.ALL OR p.part = :part)
 		  AND p.studyName IS NOT NULL
 		ORDER BY p.studyName ASC
 	""")
