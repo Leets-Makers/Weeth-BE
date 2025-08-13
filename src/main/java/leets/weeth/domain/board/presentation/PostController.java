@@ -75,7 +75,7 @@ public class PostController {
     @GetMapping("/{boardId}")
     @Operation(summary="특정 게시글 조회")
     public CommonResponse<PostDTO.Response> findPost(@PathVariable Long boardId) {
-        return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(),postUsecase.findPost(boardId));
+        return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(), postUsecase.findPost(boardId));
     }
 
     @GetMapping("/part/studies")
@@ -89,14 +89,14 @@ public class PostController {
     @Operation(summary="파트 게시글 검색 [무한스크롤]")
     public CommonResponse<Slice<PostDTO.ResponseAll>> findPost(@RequestParam String keyword, @RequestParam("pageNumber") int pageNumber,
                                                                     @RequestParam("pageSize") int pageSize) {
-        return CommonResponse.createSuccess(POST_SEARCH_SUCCESS.getMessage(),postUsecase.searchPost(keyword, pageNumber, pageSize));
+        return CommonResponse.createSuccess(POST_SEARCH_SUCCESS.getMessage(), postUsecase.searchPost(keyword, pageNumber, pageSize));
     }
 
     @GetMapping("/search/education")
     @Operation(summary="교육자료 검색 [무한스크롤]")
     public CommonResponse<Slice<PostDTO.ResponseEducationAll>> findEducation(@RequestParam String keyword, @RequestParam("pageNumber") int pageNumber,
                                                                @RequestParam("pageSize") int pageSize) {
-        return CommonResponse.createSuccess(EDUCATION_SEARCH_SUCCESS.getMessage(),postUsecase.searchEducation(keyword, pageNumber, pageSize));
+        return CommonResponse.createSuccess(EDUCATION_SEARCH_SUCCESS.getMessage(), postUsecase.searchEducation(keyword, pageNumber, pageSize));
     }
 
     @PatchMapping(value = "/{boardId}/part")
@@ -114,5 +114,4 @@ public class PostController {
         postUsecase.delete(boardId, userId);
         return CommonResponse.createSuccess(POST_DELETED_SUCCESS.getMessage());
     }
-
 }
