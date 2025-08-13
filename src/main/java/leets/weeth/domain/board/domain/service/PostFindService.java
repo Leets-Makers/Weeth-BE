@@ -36,7 +36,25 @@ public class PostFindService {
     }
 
     public Slice<Post> findRecentPosts(Pageable pageable) {
-        return postRepository.findPageBy(pageable);
+        return postRepository.findRecentPart(pageable);
+    }
+
+    public Slice<Post> findRecentEducationPosts(Pageable pageable) {
+        return postRepository.findRecentEducation(pageable);
+    }
+
+    public Slice<Post> search(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()){
+            return findRecentPosts(pageable);
+        }
+        return postRepository.searchPart(keyword.strip(), pageable);
+    }
+
+    public Slice<Post> searchEducation(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()){
+            return findRecentEducationPosts(pageable);
+        }
+        return postRepository.searchEducation(keyword.strip(), pageable);
     }
 
     public Slice<Post> findByPartAndOptionalFilters(Part part, Category category, Integer cardinalNumber, String  studyName, Integer week, Pageable pageable) {
@@ -67,14 +85,4 @@ public class PostFindService {
 
         return postRepository.findByCategoryWithPart(partName, category, pageable);
     }
-
-    public Slice<Post> search(String keyword, Pageable pageable) {
-        if(keyword == null || keyword.isEmpty()){
-            return findRecentPosts(pageable);
-        }
-        else{
-            return postRepository.findByTitleContainingOrContentContainingIgnoreCase(keyword, keyword, pageable);
-        }
-    }
-
 }

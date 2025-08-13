@@ -14,7 +14,47 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-	Slice<Post> findPageBy(Pageable page);
+	@Query("""
+        SELECT p FROM Post p
+        WHERE p.category IN (
+            leets.weeth.domain.board.domain.entity.enums.Category.StudyLog,
+            leets.weeth.domain.board.domain.entity.enums.Category.Article
+        )
+        ORDER BY p.id DESC
+    """)
+	Slice<Post> findRecentPart(Pageable pageable);
+
+	@Query("""
+        SELECT p FROM Post p
+        WHERE p.category = leets.weeth.domain.board.domain.entity.enums.Category.Education
+        ORDER BY p.id DESC
+    """)
+	Slice<Post> findRecentEducation(Pageable pageable);
+
+	@Query("""
+        SELECT p FROM Post p
+        WHERE p.category IN (
+            leets.weeth.domain.board.domain.entity.enums.Category.StudyLog,
+            leets.weeth.domain.board.domain.entity.enums.Category.Article
+        )
+          AND (
+                LOWER(p.title)   LIKE LOWER(CONCAT('%', :kw, '%'))
+             OR LOWER(p.content) LIKE LOWER(CONCAT('%', :kw, '%'))
+          )
+        ORDER BY p.id DESC
+    """)
+	Slice<Post> searchPart(@Param("kw") String kw, Pageable pageable);
+
+	@Query("""
+        SELECT p FROM Post p
+        WHERE p.category = leets.weeth.domain.board.domain.entity.enums.Category.Education
+          AND (
+                LOWER(p.title)   LIKE LOWER(CONCAT('%', :kw, '%'))
+             OR LOWER(p.content) LIKE LOWER(CONCAT('%', :kw, '%'))
+          )
+        ORDER BY p.id DESC
+    """)
+	Slice<Post> searchEducation(@Param("kw") String kw, Pageable pageable);
 
 	@Query("""
 		SELECT DISTINCT p.studyName
@@ -78,6 +118,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	  ORDER BY p.id DESC
 	""")
 	Slice<Post> findByCategoryAndCardinalInWithPart(@Param("partName") String partName, @Param("category") Category category, @Param("cardinals") Collection<Integer> cardinals, Pageable pageable);
-
-	Slice<Post> findByTitleContainingOrContentContainingIgnoreCase(String keyword1, String keyword2, Pageable pageable);
 }
