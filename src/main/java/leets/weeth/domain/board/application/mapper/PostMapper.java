@@ -51,7 +51,8 @@ public interface PostMapper {
             @Mapping(target = "id",            source = "post.id"),
             @Mapping(target = "name",          source = "post.user.name"),
             @Mapping(target = "parts",         source = "post.parts"),
-            @Mapping(target = "week",          source = "post.week"),
+            @Mapping(target = "position", source = "post.user.position"),
+            @Mapping(target = "role", source = "post.user.role"),
             @Mapping(target = "commentCount",  source = "post.commentCount"),
             @Mapping(target = "time",          source = "post.modifiedAt"),
             @Mapping(target = "hasFile",       expression = "java(fileExists)"),
@@ -68,4 +69,7 @@ public interface PostMapper {
     })
     PostDTO.Response toPostDto(Post post, List<FileResponse> fileUrls, List<CommentDTO.Response> comments);
 
+    default PostDTO.ResponseStudyNames toStudyNames(List<String> studyNames) {
+        return new PostDTO.ResponseStudyNames(studyNames);
+    }
 }

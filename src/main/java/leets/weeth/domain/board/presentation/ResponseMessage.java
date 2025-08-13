@@ -20,6 +20,7 @@ public enum ResponseMessage {
     POST_PART_FIND_ALL_SUCCESS("파트별 게시글 목록이 성공적으로 조회되었습니다."),
     POST_EDU_FIND_SUCCESS("교육 게시글 목록이 성공적으로 조회되었습니다."),
     POST_FIND_BY_ID_SUCCESS("게시글이 성공적으로 조회되었습니다."),
+    POST_STUDY_NAMES_FIND_SUCCESS("스터디 이름 목록이 성공적으로 조회되었습니다."),
 
     EDUCATION_UPDATED_SUCCESS("교육자료가 성공적으로 수정되었습니다.");
 

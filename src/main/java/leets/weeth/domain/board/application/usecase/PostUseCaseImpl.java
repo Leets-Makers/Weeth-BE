@@ -12,6 +12,7 @@ import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.service.PostDeleteService;
 import leets.weeth.domain.board.domain.service.PostFindService;
 import leets.weeth.domain.board.domain.service.PostSaveService;
@@ -32,15 +33,13 @@ import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -135,21 +134,30 @@ public class PostUseCaseImpl implements PostUsecase {
                     .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        int targetCardinal = (cardinalNumber != null)
-                ? cardinalNumber
-                : userCardinalGetService.getCurrentCardinal(user).getCardinalNumber();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
-        if (cardinalNumber != null
-                && userCardinalGetService.notContains(user,
-                cardinalGetService.findByUserSide(cardinalNumber))) {
-            Pageable empty = PageRequest.of(pageNumber, pageSize);
-            return new SliceImpl<>(Collections.emptyList(), empty, false);
+        if (cardinalNumber != null) {
+            if (userCardinalGetService.notContains(user, cardinalGetService.findByUserSide(cardinalNumber))) {
+                return new SliceImpl<>(Collections.emptyList(), pageable, false);
+            }
+            Slice<Post> posts = postFindService.findEducationByCardinal(cardinalNumber, pageable);
+            return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
+        List<Integer> userCardinals = userCardinalGetService.getCardinalNumbers(user);
+        if (userCardinals.isEmpty()) {
+            return new SliceImpl<>(Collections.emptyList(), pageable, false);
+        }
+        Slice<Post> posts = postFindService.findEducationByCardinals(userCardinals, pageable);
 
         return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
+    }
+
+    @Override
+    public PostDTO.ResponseStudyNames findStudyNames(Part part) {
+        List<String> names = postFindService.findByPart(part);
+
+        return mapper.toStudyNames(names);
     }
 
     @Override

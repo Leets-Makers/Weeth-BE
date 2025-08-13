@@ -96,11 +96,17 @@ public class PostDTO {
             Long id,
             String name,
             List<Part> parts,
-            int week,
+            Position position,
+            Role role,
+            String title,
+            String content,
             LocalDateTime time,
             Integer commentCount,
             boolean hasFile,
             boolean isNew
     ){}
 
+    public record ResponseStudyNames(
+            List<String> studyNames
+    ) {}
 }

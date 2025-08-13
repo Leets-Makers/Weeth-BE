@@ -1,5 +1,7 @@
 package leets.weeth.domain.board.domain.service;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import leets.weeth.domain.board.application.exception.PostNotFoundException;
 import leets.weeth.domain.board.domain.entity.Post;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,10 @@ public class PostFindService {
         return postRepository.findAll();
     }
 
+    public List<String> findByPart(Part part) {
+        return postRepository.findDistinctStudyNamesByPart(part);
+    }
+
     public Slice<Post> findRecentPosts(Pageable pageable) {
         return postRepository.findPageBy(pageable);
     }
@@ -37,6 +44,13 @@ public class PostFindService {
         return postRepository.findByPartAndOptionalFilters(
                 part, category, cardinalNumber, studyName, week, pageable
         );
+    }
+
+    public Slice<Post> findEducationByCardinals(Collection<Integer> cardinals, Pageable pageable) {
+        if (cardinals == null || cardinals.isEmpty()) {
+            return new SliceImpl<>(Collections.emptyList(), pageable, false);
+        }
+        return postRepository.findByCategoryAndCardinalIn(Category.Education, cardinals, pageable);
     }
 
     public Slice<Post> findEducationByCardinal(int cardinalNumber, Pageable pageable) {

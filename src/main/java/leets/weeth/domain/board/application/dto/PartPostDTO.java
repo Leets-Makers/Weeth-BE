@@ -6,7 +6,7 @@ import leets.weeth.domain.board.domain.entity.enums.Part;
 
 public record PartPostDTO(
         @NotNull Part part,
-        Category category,
+        @NotNull Category category,
         Integer cardinalNumber,
         Integer week,
         String studyName
