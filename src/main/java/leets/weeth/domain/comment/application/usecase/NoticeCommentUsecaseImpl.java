@@ -90,6 +90,9 @@ public class NoticeCommentUsecaseImpl implements NoticeCommentUsecase {
         Comment comment = validateOwner(commentId, userId);
         Notice notice = comment.getNotice();
 
+        List<File> fileList = getFiles(commentId);
+        fileDeleteService.delete(fileList);
+
         if (comment.getChildren().isEmpty()) {
             Comment parentComment = findParentComment(commentId);
             commentDeleteService.delete(commentId);
