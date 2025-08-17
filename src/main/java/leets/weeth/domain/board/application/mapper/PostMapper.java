@@ -1,17 +1,14 @@
 package leets.weeth.domain.board.application.mapper;
 
-import java.util.List;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.user.domain.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
+
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = CommentMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE, imports = { java.time.LocalDateTime.class })
 public interface PostMapper {
@@ -41,7 +38,7 @@ public interface PostMapper {
             @Mapping(target = "name", source = "post.user.name"),
             @Mapping(target = "position", source = "post.user.position"),
             @Mapping(target = "role", source = "post.user.role"),
-            @Mapping(target = "time", source = "post.modifiedAt"),
+            @Mapping(target = "time", source = "post.createdAt"),
             @Mapping(target = "hasFile", expression = "java(fileExists)"),
             @Mapping(target = "isNew", expression = "java(post.getCreatedAt().isAfter(LocalDateTime.now().minusHours(24)))")
     })
@@ -54,7 +51,7 @@ public interface PostMapper {
             @Mapping(target = "position", source = "post.user.position"),
             @Mapping(target = "role", source = "post.user.role"),
             @Mapping(target = "commentCount",  source = "post.commentCount"),
-            @Mapping(target = "time",          source = "post.modifiedAt"),
+            @Mapping(target = "time",          source = "post.createdAt"),
             @Mapping(target = "hasFile",       expression = "java(fileExists)"),
             @Mapping(target = "isNew",         expression = "java(post.getCreatedAt().isAfter(LocalDateTime.now().minusHours(24)))")
     })
@@ -64,7 +61,7 @@ public interface PostMapper {
             @Mapping(target = "name", source = "post.user.name"),
             @Mapping(target = "position", source = "post.user.position"),
             @Mapping(target = "role", source = "post.user.role"),
-            @Mapping(target = "time", source = "post.modifiedAt"),
+            @Mapping(target = "time", source = "post.createdAt"),
             @Mapping(target = "comments", source = "comments")
     })
     PostDTO.Response toPostDto(Post post, List<FileResponse> fileUrls, List<CommentDTO.Response> comments);
