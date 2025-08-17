@@ -92,6 +92,9 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
         Comment comment = validateOwner(commentId, userId);
         Post post = comment.getPost();
 
+        List<File> fileList = getFiles(commentId);
+        fileDeleteService.delete(fileList);
+
         /*
         1. 지우고자 하는 댓글이 맨 아래층인 경우(child, child가 없는 댓글
             - 현재 댓글.getChildren이 NULL 이면 해당
