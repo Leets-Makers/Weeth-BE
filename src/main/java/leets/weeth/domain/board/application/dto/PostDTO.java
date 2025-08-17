@@ -2,6 +2,8 @@ package leets.weeth.domain.board.application.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
@@ -11,9 +13,6 @@ import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class PostDTO {
 
     @Builder
@@ -21,8 +20,10 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull Category category,
-            @NotNull String studyName,
-            @NotNull int week,
+            String studyName,
+            int week,
+            @NotNull Part part,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
@@ -31,14 +32,28 @@ public class PostDTO {
             @NotNull String title,
             @NotNull String content,
             @NotNull List<Part> parts,
+            @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
     ){}
 
     @Builder
     public record Update(
-            @NotNull String title,
-            @NotNull String content,
-            @Valid List<@NotNull FileSaveRequest> files
+            String title,
+            String content,
+            String studyName,
+            Integer week,
+            Part part,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
+    ){}
+
+    @Builder
+    public record UpdateEducation(
+            String title,
+            String content,
+            List<Part> parts,
+            Integer cardinalNumber,
+            @Valid List<FileSaveRequest> files
     ){}
 
     @Builder
@@ -49,7 +64,12 @@ public class PostDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time, //createdAt
+            String studyName,
+            Integer week,
+            Integer cardinalNumber,
+            Part part,
+            List<Part> parts,
+            LocalDateTime time,
             Integer commentCount,
             List<CommentDTO.Response> comments,
             List<FileResponse> fileUrls
@@ -59,6 +79,7 @@ public class PostDTO {
     public record ResponseAll(
             Long id,
             String name,
+            Part part,
             Position position,
             Role role,
             String title,
@@ -76,11 +97,17 @@ public class PostDTO {
             Long id,
             String name,
             List<Part> parts,
-            int week,
+            Position position,
+            Role role,
+            String title,
+            String content,
             LocalDateTime time,
             Integer commentCount,
             boolean hasFile,
             boolean isNew
     ){}
 
+    public record ResponseStudyNames(
+            List<String> studyNames
+    ) {}
 }

@@ -1,7 +1,6 @@
 package leets.weeth.domain.board.application.usecase;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,6 +12,7 @@ import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.board.domain.service.PostDeleteService;
 import leets.weeth.domain.board.domain.service.PostFindService;
 import leets.weeth.domain.board.domain.service.PostSaveService;
@@ -27,7 +27,6 @@ import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
@@ -73,8 +72,8 @@ public class PostUseCaseImpl implements PostUsecase {
             throw new CategoryAccessDeniedException();
         }
 
-        Cardinal latest = cardinalGetService.findLatestInProgress();
-        Post post = mapper.fromPostDto(request, user, latest);
+        cardinalGetService.findByUserSide(request.cardinalNumber());
+        Post post = mapper.fromPostDto(request, user);
         postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
@@ -86,11 +85,7 @@ public class PostUseCaseImpl implements PostUsecase {
     public void saveEducation(PostDTO.SaveEducation request, Long userId) {
         User user = userGetService.find(userId);
 
-        Cardinal latest = cardinalGetService.findInProgress().stream()
-                .max(Comparator.comparing(Cardinal::getCardinalNumber))
-                .orElseThrow();
-
-        Post post = mapper.fromEducationDto(request, user, latest);
+        Post post = mapper.fromEducationDto(request, user);
 
         postSaveService.save(post);
 
@@ -105,7 +100,6 @@ public class PostUseCaseImpl implements PostUsecase {
         List<FileResponse> response = getFiles(postId).stream()
                 .map(fileMapper::toFileResponse)
                 .toList();
-
 
         return mapper.toPostDto(post, response, filterParentComments(post.getComments()));
     }
@@ -131,30 +125,38 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
-    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Integer cardinalNumber, int pageNumber, int pageSize) {
+    public Slice<PostDTO.ResponseEducationAll> findEducationPosts(Long userId, Part part, Integer cardinalNumber, int pageNumber, int pageSize) {
         User user = userGetService.find(userId);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
         if (user.hasRole(Role.ADMIN)) {
 
-            return postFindService.findByCategory(Category.Education, pageNumber, pageSize)
+            return postFindService.findByCategory(part, Category.Education, pageNumber, pageSize)
                     .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        int targetCardinal = (cardinalNumber != null)
-                ? cardinalNumber
-                : userCardinalGetService.getCurrentCardinal(user).getCardinalNumber();
-
-        if (cardinalNumber != null
-                && userCardinalGetService.notContains(user,
-                cardinalGetService.findByUserSide(cardinalNumber))) {
-            Pageable empty = PageRequest.of(pageNumber, pageSize);
-            return new SliceImpl<>(Collections.emptyList(), empty, false);
+        if (cardinalNumber != null) {
+            if (userCardinalGetService.notContains(user, cardinalGetService.findByUserSide(cardinalNumber))) {
+                return new SliceImpl<>(Collections.emptyList(), pageable, false);
+            }
+            Slice<Post> posts = postFindService.findEducationByCardinal(part, cardinalNumber, pageable);
+            return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Slice<Post> posts = postFindService.findEducationByCardinal(targetCardinal, pageable);
+        List<Integer> userCardinals = userCardinalGetService.getCardinalNumbers(user);
+        if (userCardinals.isEmpty()) {
+            return new SliceImpl<>(Collections.emptyList(), pageable, false);
+        }
+        Slice<Post> posts = postFindService.findEducationByCardinals(part, userCardinals, pageable);
 
         return posts.map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
+    }
+
+    @Override
+    public PostDTO.ResponseStudyNames findStudyNames(Part part) {
+        List<String> names = postFindService.findByPart(part);
+
+        return mapper.toStudyNames(names);
     }
 
     @Override
@@ -174,17 +176,51 @@ public class PostUseCaseImpl implements PostUsecase {
     }
 
     @Override
+    public Slice<PostDTO.ResponseEducationAll> searchEducation(String keyword, int pageNumber, int pageSize) {
+        validatePageNumber(pageNumber);
+
+        keyword = keyword.strip();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Post> posts = postFindService.searchEducation(keyword, pageable);
+
+        if(posts.isEmpty()){
+            throw new NoSearchResultException();
+        }
+
+        return posts.map(post->mapper.toEducationAll(post, checkFileExistsByPost(post.id)));
+    }
+
+    @Override
     @Transactional
     public void update(Long postId, PostDTO.Update dto, Long userId) {
         Post post = validateOwner(postId, userId);
 
-        List<File> fileList = getFiles(postId);
-        fileDeleteService.delete(fileList);
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
 
-        List<File> files = fileMapper.toFileList(dto.files(), post);
-        fileSaveService.save(files);
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
 
         postUpdateService.update(post, dto);
+    }
+
+    @Override
+    @Transactional
+    public void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) {
+        Post post = validateOwner(postId, userId);
+
+        if (dto.files() != null) {
+            List<File> fileList = getFiles(postId);
+            fileDeleteService.delete(fileList);
+
+            List<File> files = fileMapper.toFileList(dto.files(), post);
+            fileSaveService.save(files);
+        }
+
+        postUpdateService.updateEducation(post, dto);
     }
 
     @Override
@@ -232,7 +268,11 @@ public class PostUseCaseImpl implements PostUsecase {
                 .map(child -> mapToDtoWithChildren(child, commentMap))
                 .collect(Collectors.toList());
 
-        return commentMapper.toCommentDto(comment, children);
+        List<FileResponse> files = fileGetService.findAllByComment(comment.getId()).stream()
+                .map(fileMapper::toFileResponse)
+                .toList();
+
+        return commentMapper.toCommentDto(comment, children, files);
     }
 
     private void validatePageNumber(int pageNumber){

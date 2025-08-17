@@ -1,6 +1,11 @@
 package leets.weeth.domain.board.application.usecase;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
+import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
 import leets.weeth.domain.board.application.mapper.NoticeMapper;
 import leets.weeth.domain.board.domain.entity.Notice;
@@ -27,11 +32,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +83,22 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id")); // id를 기준으로 내림차순
         Slice<Notice> notices = noticeFindService.findRecentNotices(pageable);
         return notices.map(notice->mapper.toAll(notice, checkFileExistsByNotice(notice.id)));
+    }
+
+    @Override
+    public Slice<NoticeDTO.ResponseAll> searchNotice(String keyword, int pageNumber, int pageSize) {
+        validatePageNumber(pageNumber);
+
+        keyword = keyword.strip();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Slice<Notice> notices = noticeFindService.search(keyword, pageable);
+
+        if (notices.isEmpty()){
+            throw new NoSearchResultException();
+        }
+
+        return notices.map(notice -> mapper.toAll(notice, checkFileExistsByNotice(notice.id)));
     }
 
     @Override
@@ -143,7 +159,16 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
                 .map(child -> mapToDtoWithChildren(child, commentMap))
                 .collect(Collectors.toList());
 
-        return commentMapper.toCommentDto(comment, children);
+        List<FileResponse> files = fileGetService.findAllByComment(comment.getId()).stream()
+                .map(fileMapper::toFileResponse)
+                .toList();
+
+        return commentMapper.toCommentDto(comment, children, files);
     }
 
+    private void validatePageNumber(int pageNumber){
+        if (pageNumber < 0) {
+            throw new PageNotFoundException();
+        }
+    }
 }

@@ -1,11 +1,13 @@
 package leets.weeth.domain.board.presentation;
 
+import static leets.weeth.domain.board.presentation.ResponseMessage.EDUCATION_SEARCH_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_CREATED_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_DELETED_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_EDU_FIND_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_ALL_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_BY_ID_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_PART_FIND_ALL_SUCCESS;
+import static leets.weeth.domain.board.presentation.ResponseMessage.POST_SEARCH_SUCCESS;
 import static leets.weeth.domain.board.presentation.ResponseMessage.POST_UPDATED_SUCCESS;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,7 @@ import jakarta.validation.Valid;
 import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.usecase.PostUsecase;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.global.auth.annotation.CurrentUser;
 import leets.weeth.global.common.response.CommonResponse;
@@ -64,26 +67,40 @@ public class PostController {
 
     @GetMapping("/education")
     @Operation(summary="교육자료 조회 [무한스크롤]")
-    public CommonResponse<Slice<PostDTO.ResponseEducationAll>> findEducationMaterials(@RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
+    public CommonResponse<Slice<PostDTO.ResponseEducationAll>> findEducationMaterials(@RequestParam Part part, @RequestParam(required = false) Integer cardinalNumber, @RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize") int pageSize, @Parameter(hidden = true) @CurrentUser Long userId) {
 
-        return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationPosts(userId, cardinalNumber, pageNumber, pageSize));
+        return CommonResponse.createSuccess(POST_EDU_FIND_SUCCESS.getMessage(), postUsecase.findEducationPosts(userId, part, cardinalNumber, pageNumber, pageSize));
     }
 
     @GetMapping("/{boardId}")
     @Operation(summary="특정 게시글 조회")
     public CommonResponse<PostDTO.Response> findPost(@PathVariable Long boardId) {
-        return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(),postUsecase.findPost(boardId));
+        return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(), postUsecase.findPost(boardId));
     }
 
-    @GetMapping("/search")
-    @Operation(summary="게시글 검색 [무한스크롤]")
+    @GetMapping("/part/studies")
+    @Operation(summary="파트별 스터디 이름 목록 조회")
+    public CommonResponse<PostDTO.ResponseStudyNames> findStudyNames(@RequestParam Part part) {
+
+        return CommonResponse.createSuccess(ResponseMessage.POST_STUDY_NAMES_FIND_SUCCESS.getMessage(), postUsecase.findStudyNames(part));
+    }
+
+    @GetMapping("/search/part")
+    @Operation(summary="파트 게시글 검색 [무한스크롤]")
     public CommonResponse<Slice<PostDTO.ResponseAll>> findPost(@RequestParam String keyword, @RequestParam("pageNumber") int pageNumber,
                                                                     @RequestParam("pageSize") int pageSize) {
-        return CommonResponse.createSuccess(POST_FIND_BY_ID_SUCCESS.getMessage(),postUsecase.searchPost(keyword, pageNumber, pageSize));
+        return CommonResponse.createSuccess(POST_SEARCH_SUCCESS.getMessage(), postUsecase.searchPost(keyword, pageNumber, pageSize));
     }
 
-    @PatchMapping(value = "/{boardId}")
-    @Operation(summary="특정 게시글 수정")
+    @GetMapping("/search/education")
+    @Operation(summary="교육자료 검색 [무한스크롤]")
+    public CommonResponse<Slice<PostDTO.ResponseEducationAll>> findEducation(@RequestParam String keyword, @RequestParam("pageNumber") int pageNumber,
+                                                               @RequestParam("pageSize") int pageSize) {
+        return CommonResponse.createSuccess(EDUCATION_SEARCH_SUCCESS.getMessage(), postUsecase.searchEducation(keyword, pageNumber, pageSize));
+    }
+
+    @PatchMapping(value = "/{boardId}/part")
+    @Operation(summary="파트 게시글 수정")
     public CommonResponse<String> update(@PathVariable Long boardId,
                                          @RequestBody @Valid PostDTO.Update dto,
                                          @Parameter(hidden = true) @CurrentUser Long userId) throws UserNotMatchException {
@@ -97,5 +114,4 @@ public class PostController {
         postUsecase.delete(boardId, userId);
         return CommonResponse.createSuccess(POST_DELETED_SUCCESS.getMessage());
     }
-
 }

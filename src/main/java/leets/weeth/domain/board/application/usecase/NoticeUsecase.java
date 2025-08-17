@@ -17,4 +17,5 @@ public interface NoticeUsecase {
 
     void delete(Long noticeId, Long userId) throws UserNotMatchException;
 
+    Slice<NoticeDTO.ResponseAll> searchNotice(String keyword, int pageNumber, int pageSize);
 }

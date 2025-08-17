@@ -3,15 +3,20 @@ package leets.weeth.domain.comment.application.usecase;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.service.PostFindService;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
+import leets.weeth.domain.comment.application.exception.CommentNotFoundException;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.comment.domain.service.CommentDeleteService;
 import leets.weeth.domain.comment.domain.service.CommentFindService;
 import leets.weeth.domain.comment.domain.service.CommentSaveService;
+import leets.weeth.domain.file.application.mapper.FileMapper;
+import leets.weeth.domain.file.domain.entity.File;
+import leets.weeth.domain.file.domain.service.FileDeleteService;
+import leets.weeth.domain.file.domain.service.FileGetService;
+import leets.weeth.domain.file.domain.service.FileSaveService;
+import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
-import leets.weeth.domain.comment.application.exception.CommentNotFoundException;
-import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +30,11 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
     private final CommentSaveService commentSaveService;
     private final CommentFindService commentFindService;
     private final CommentDeleteService commentDeleteService;
+
+    private final FileSaveService fileSaveService;
+    private final FileGetService fileGetService;
+    private final FileDeleteService fileDeleteService;
+    private final FileMapper fileMapper;
 
     private final UserGetService userGetService;
 
@@ -45,6 +55,9 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
         Comment comment = commentMapper.fromCommentDto(dto, post, user, parentComment);
         commentSaveService.save(comment);
 
+        List<File> files = fileMapper.toFileList(dto.files(), comment);
+        fileSaveService.save(files);
+
         // 부모 댓글이 없다면 새 댓글로 추가
         if (parentComment == null) {
             post.addComment(comment);
@@ -61,6 +74,12 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
         User user = userGetService.find(userId);
         Post post = postFindService.find(postId);
         Comment comment = validateOwner(commentId, userId);
+
+        List<File> fileList = getFiles(commentId);
+        fileDeleteService.delete(fileList);
+
+        List<File> files = fileMapper.toFileList(dto.files(), comment);
+        fileSaveService.save(files);
 
         comment.update(dto);
     }
@@ -118,6 +137,10 @@ public class PostCommentUsecaseImpl implements PostCommentUsecase {
             throw new UserNotMatchException();
         }
         return comment;
+    }
+
+    private List<File> getFiles(Long commentId) {
+        return fileGetService.findAllByComment(commentId);
     }
 
 }

@@ -1,5 +1,7 @@
 package leets.weeth.domain.user.domain.service;
 
+import java.util.Comparator;
+import java.util.List;
 import leets.weeth.domain.user.application.exception.CardinalNotFoundException;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
@@ -7,9 +9,6 @@ import leets.weeth.domain.user.domain.entity.UserCardinal;
 import leets.weeth.domain.user.domain.repository.UserCardinalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +48,9 @@ public class UserCardinalGetService {
                 .map(UserCardinal::getCardinal)
                 .max(Comparator.comparing(Cardinal::getCardinalNumber))
                 .orElseThrow(CardinalNotFoundException::new);
+    }
+
+    public List<Integer> getCardinalNumbers(User user) {
+        return userCardinalRepository.findCardinalNumbersByUser(user);
     }
 }

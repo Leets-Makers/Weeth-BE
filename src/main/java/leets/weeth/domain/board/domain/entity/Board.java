@@ -68,7 +68,12 @@ public class Board extends BaseEntity {
     }
 
     public void updateUpperClass(PostDTO.Update dto) {
-        this.title = dto.title();
-        this.content = dto.content();
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.content() != null) this.content = dto.content();
+    }
+
+    public void updateUpperClass(PostDTO.UpdateEducation dto) {
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.content() != null) this.content = dto.content();
     }
 }

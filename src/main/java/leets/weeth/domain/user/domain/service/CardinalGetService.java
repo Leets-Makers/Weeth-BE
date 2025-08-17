@@ -43,11 +43,6 @@ public class CardinalGetService {
         return cardinalRepository.findAllByStatus(CardinalStatus.IN_PROGRESS);
     }
 
-    public Cardinal findLatestInProgress() {
-        return cardinalRepository
-                .findFirstByStatusOrderByCardinalNumberDesc(CardinalStatus.IN_PROGRESS);
-    }
-
     public void validateCardinal(Integer cardinal) {
         if (cardinalRepository.findByCardinalNumber(cardinal).isPresent()) {
             throw new DuplicateCardinalException();
