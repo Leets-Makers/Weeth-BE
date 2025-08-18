@@ -131,7 +131,7 @@ public class PostUseCaseImpl implements PostUsecase {
 
         if (user.hasRole(Role.ADMIN)) {
 
-            return postFindService.findByCategory(part, Category.Education, pageNumber, pageSize)
+            return postFindService.findByCategory(part, Category.Education, cardinalNumber, pageNumber, pageSize)
                     .map(post -> mapper.toEducationAll(post, checkFileExistsByPost(post.getId())));
         }
 

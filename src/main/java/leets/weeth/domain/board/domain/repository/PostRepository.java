@@ -82,14 +82,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		SELECT p
 		  FROM Post p
 		 WHERE p.category = :category
+		   AND (:cardinal IS NULL OR p.cardinalNumber = :cardinal)
 		   AND (
 				 :partName = 'ALL'
 			  OR FUNCTION('FIND_IN_SET', :partName, p.parts) > 0
 			  OR FUNCTION('FIND_IN_SET', 'ALL',    p.parts) > 0
-			 )
+			   )
 	  ORDER BY p.id DESC
 	""")
-	Slice<Post> findByCategoryWithPart(@Param("partName") String partName, @Param("category") Category category, Pageable pageable);
+	Slice<Post> findByCategoryAndOptionalCardinalWithPart(@Param("partName") String partName, @Param("category") Category category, @Param("cardinal") Integer cardinal, Pageable pageable);
 
 	@Query("""
 		SELECT p
