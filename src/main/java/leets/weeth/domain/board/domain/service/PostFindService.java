@@ -79,10 +79,10 @@ public class PostFindService {
         return postRepository.findByCategoryAndCardinalNumberWithPart(partName, Category.Education, cardinalNumber, pageable);
     }
 
-    public Slice<Post> findByCategory(Part part, Category category, int pageNumber, int pageSize) {
+    public Slice<Post> findByCategory(Part part, Category category, Integer cardinal, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         String partName = (part != null ? part.name() : Part.ALL.name());
 
-        return postRepository.findByCategoryWithPart(partName, category, pageable);
+        return postRepository.findByCategoryAndOptionalCardinalWithPart(partName, category, cardinal, pageable);
     }
 }
