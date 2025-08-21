@@ -35,6 +35,7 @@ public class PenaltyDTO {
     @Builder
     public record Penalties(
        Long penaltyId,
+       PenaltyType penaltyType,
        String penaltyDescription,
        LocalDateTime time
     ){}
