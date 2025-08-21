@@ -1,6 +1,7 @@
 package leets.weeth.domain.penalty.domain.entity;
 
 import jakarta.persistence.*;
+import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -23,10 +24,17 @@ public class Penalty extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    private PenaltyType penaltyType;
+
     private String penaltyDescription;
 
-    public void update(String penaltyDescription) {
+    public void updatePenaltyDescription(String penaltyDescription) {
         this.penaltyDescription = penaltyDescription;
+    }
+
+    public void updatePenaltyType(PenaltyType penaltyType) {
+        this.penaltyType = penaltyType;
     }
 
 }

@@ -1,5 +1,7 @@
 package leets.weeth.domain.penalty.application.dto;
 
+import jakarta.validation.constraints.NotNull;
+import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -9,13 +11,15 @@ public class PenaltyDTO {
 
     @Builder
     public record Save(
-        Long userId,
-        String penaltyDescription
+            @NotNull Long userId,
+            @NotNull PenaltyType penaltyType,
+            String penaltyDescription
     ){}
 
     @Builder
     public record Update(
-            Long penaltyId,
+            @NotNull Long penaltyId,
+            PenaltyType penaltyType,
             String penaltyDescription
     ){}
 

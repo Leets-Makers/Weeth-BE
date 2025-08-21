@@ -49,7 +49,13 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     public void update(PenaltyDTO.Update dto) {
         Penalty penalty = penaltyFindService.find(dto.penaltyId());
 
-        penalty.update(dto.penaltyDescription());
+        if(dto.penaltyType() != null ){
+            penalty.updatePenaltyType(dto.penaltyType());
+        }
+
+        if(dto.penaltyDescription() != null && !dto.penaltyDescription().isBlank()){
+            penalty.updatePenaltyDescription(dto.penaltyDescription());
+        }
     }
 
     @Override
