@@ -42,6 +42,8 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     public void save(PenaltyDTO.Save dto) {
         User user = userGetService.find(dto.userId());
         Cardinal cardinal = cardinalGetService.findByUserSide(dto.cardinal());
+        userCardinalGetService.validateHasCardinal(user, cardinal);
+
         Penalty penalty = mapper.fromPenaltyDto(dto, user, cardinal);
 
         penaltySaveService.save(penalty);
@@ -73,6 +75,8 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
         if(dto.cardinal() != null){
             Cardinal cardinal = cardinalGetService.findByUserSide(dto.cardinal());
+            userCardinalGetService.validateHasCardinal(user, cardinal);
+
             penalty.updateCardinal(cardinal);
         }
     }
