@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import leets.weeth.domain.penalty.application.dto.PenaltyDTO;
 import leets.weeth.domain.penalty.application.mapper.PenaltyMapper;
 import leets.weeth.domain.penalty.domain.entity.Penalty;
+import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
 import leets.weeth.domain.penalty.domain.service.PenaltyDeleteService;
 import leets.weeth.domain.penalty.domain.service.PenaltyFindService;
 import leets.weeth.domain.penalty.domain.service.PenaltySaveService;
@@ -45,16 +46,25 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
         penaltySaveService.save(penalty);
 
-        user.incrementPenaltyCount();
+        if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
+            user.incrementPenaltyCount();
+        }
     }
 
     @Override
     @Transactional
     public void update(PenaltyDTO.Update dto) {
         Penalty penalty = penaltyFindService.find(dto.penaltyId());
+        User user = userGetService.find(penalty.getUser().getId());
 
-        if(dto.penaltyType() != null ){
+        if(dto.penaltyType() != null && penalty.getPenaltyType() != dto.penaltyType()){
             penalty.updatePenaltyType(dto.penaltyType());
+            if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
+                user.incrementPenaltyCount();
+            }
+            else{
+                user.decrementPenaltyCount();
+            }
         }
 
         if(dto.penaltyDescription() != null && !dto.penaltyDescription().isBlank()){
@@ -92,9 +102,11 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Transactional
     public void delete(Long penaltyId) {
         Penalty penalty = penaltyFindService.find(penaltyId);
-        penalty.getUser().decrementPenaltyCount();
-
         penaltyDeleteService.delete(penaltyId);
+
+        if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
+            penalty.getUser().decrementPenaltyCount();
+        }
     }
 
     private PenaltyDTO.Response toPenaltyDto(Long userId, List<Penalty> penalties) {
@@ -105,7 +117,9 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
                 .map(mapper::toPenalties)
                 .toList();
 
-        return mapper.toPenaltyDto(user, penaltyDTOs, userCardinals);
+        Integer penaltyCount = user.getPenaltyCount() + penaltyFindService.countWarningByUserId(userId)/2;
+
+        return mapper.toPenaltyDto(user, penaltyDTOs, userCardinals, penaltyCount);
     }
 
 }

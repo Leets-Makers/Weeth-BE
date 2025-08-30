@@ -27,7 +27,9 @@ public interface PenaltyMapper {
     @Mapping(target = "Penalties", source = "penalties")
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "cardinals", expression = "java( toCardinalNumbers(userCardinals) )")
-    PenaltyDTO.Response toPenaltyDto(User user, List<PenaltyDTO.Penalties> penalties, List<UserCardinal> userCardinals);
+    @Mapping(target = "totalPenaltyCount", expression = "java(totalPenaltyCount)")
+    PenaltyDTO.Response toPenaltyDto(User user, List<PenaltyDTO.Penalties> penalties, List<UserCardinal> userCardinals,
+                                     Integer totalPenaltyCount);
 
     @Mapping(target = "time", source = "modifiedAt")
     @Mapping(target = "penaltyId", source = "id")

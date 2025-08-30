@@ -1,6 +1,7 @@
 package leets.weeth.domain.penalty.domain.service;
 
 import leets.weeth.domain.penalty.domain.entity.Penalty;
+import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
 import leets.weeth.domain.penalty.domain.repository.PenaltyRepository;
 import leets.weeth.domain.penalty.application.exception.PenaltyNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,10 @@ public class PenaltyFindService {
     public Penalty find(Long penaltyId){
         return penaltyRepository.findById(penaltyId)
                 .orElseThrow(PenaltyNotFoundException::new);
+    }
+
+    public Integer countWarningByUserId(Long userId) {
+        return penaltyRepository.countByUserIdAndPenaltyType(userId, PenaltyType.WARNING);
     }
 
     public List<Penalty> findAll(Long userId){
