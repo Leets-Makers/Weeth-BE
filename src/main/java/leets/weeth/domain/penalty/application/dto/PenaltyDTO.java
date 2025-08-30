@@ -13,6 +13,7 @@ public class PenaltyDTO {
     public record Save(
             @NotNull Long userId,
             @NotNull PenaltyType penaltyType,
+            @NotNull Integer cardinal,
             String penaltyDescription
     ){}
 
@@ -20,6 +21,7 @@ public class PenaltyDTO {
     public record Update(
             @NotNull Long penaltyId,
             PenaltyType penaltyType,
+            Integer cardinal,
             String penaltyDescription
     ){}
 
@@ -36,6 +38,7 @@ public class PenaltyDTO {
     public record Penalties(
        Long penaltyId,
        PenaltyType penaltyType,
+       Integer cardinal,
        String penaltyDescription,
        LocalDateTime time
     ){}

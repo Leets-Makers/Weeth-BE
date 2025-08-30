@@ -7,8 +7,10 @@ import leets.weeth.domain.penalty.domain.entity.Penalty;
 import leets.weeth.domain.penalty.domain.service.PenaltyDeleteService;
 import leets.weeth.domain.penalty.domain.service.PenaltyFindService;
 import leets.weeth.domain.penalty.domain.service.PenaltySaveService;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
+import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     private final UserGetService userGetService;
 
     private final UserCardinalGetService userCardinalGetService;
+    private final CardinalGetService cardinalGetService;
 
     private final PenaltyMapper mapper;
 
@@ -37,7 +40,8 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Transactional
     public void save(PenaltyDTO.Save dto) {
         User user = userGetService.find(dto.userId());
-        Penalty penalty = mapper.fromPenaltyDto(dto, user);
+        Cardinal cardinal = cardinalGetService.findByUserSide(dto.cardinal());
+        Penalty penalty = mapper.fromPenaltyDto(dto, user, cardinal);
 
         penaltySaveService.save(penalty);
 
@@ -55,6 +59,11 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
         if(dto.penaltyDescription() != null && !dto.penaltyDescription().isBlank()){
             penalty.updatePenaltyDescription(dto.penaltyDescription());
+        }
+
+        if(dto.cardinal() != null){
+            Cardinal cardinal = cardinalGetService.findByUserSide(dto.cardinal());
+            penalty.updateCardinal(cardinal);
         }
     }
 
