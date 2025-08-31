@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
 
-    List<Penalty> findByUserId(Long userId);
+    Integer countByUserIdAndCardinalIdAndPenaltyType(Long userId, Long cardinalId, PenaltyType penaltyType);
 
-    Integer countByUserIdAndPenaltyType(Long userId, PenaltyType penaltyType);
+    List<Penalty> findByUserIdAndCardinalId(Long userId, Long cardinalId);
 }

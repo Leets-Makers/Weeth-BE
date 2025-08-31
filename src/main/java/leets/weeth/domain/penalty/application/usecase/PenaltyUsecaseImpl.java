@@ -97,7 +97,8 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Override
     public PenaltyDTO.Response find(Long userId) {
         User user = userGetService.find(userId);
-        List<Penalty> penalties = penaltyFindService.findAll(userId);
+        Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
+        List<Penalty> penalties = penaltyFindService.findAllByUserIdAndCardinalId(userId, currentCardinal.getId());
 
         return toPenaltyDto(userId, penalties);
     }
@@ -121,7 +122,9 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
                 .map(mapper::toPenalties)
                 .toList();
 
-        Integer penaltyCount = user.getPenaltyCount() + penaltyFindService.countWarningByUserId(userId)/2;
+        Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
+        Integer penaltyCount = user.getPenaltyCount() + penaltyFindService.countWarningByUserIdAndCardinalId(userId,
+                currentCardinal.getId())/2;
 
         return mapper.toPenaltyDto(user, penaltyDTOs, userCardinals, penaltyCount);
     }

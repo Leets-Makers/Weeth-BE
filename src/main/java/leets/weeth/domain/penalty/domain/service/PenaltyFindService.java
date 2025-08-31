@@ -20,12 +20,12 @@ public class PenaltyFindService {
                 .orElseThrow(PenaltyNotFoundException::new);
     }
 
-    public Integer countWarningByUserId(Long userId) {
-        return penaltyRepository.countByUserIdAndPenaltyType(userId, PenaltyType.WARNING);
+    public Integer countWarningByUserIdAndCardinalId(Long userId, Long cardinalId) {
+        return penaltyRepository.countByUserIdAndCardinalIdAndPenaltyType(userId, cardinalId, PenaltyType.WARNING);
     }
 
-    public List<Penalty> findAll(Long userId){
-        return penaltyRepository.findByUserId(userId);
+    public List<Penalty> findAllByUserIdAndCardinalId(Long userId, Long cardinalId){
+        return penaltyRepository.findByUserIdAndCardinalId(userId, cardinalId);
     }
 
     public List<Penalty> findAll(){
