@@ -42,7 +42,4 @@ public class Penalty extends BaseEntity {
         this.penaltyType = penaltyType;
     }
 
-    public void updateCardinal(Cardinal cardinal) {
-        this.cardinal = cardinal;
-    }
 }

@@ -3,7 +3,6 @@ package leets.weeth.domain.user.domain.service;
 import java.util.Comparator;
 import java.util.List;
 import leets.weeth.domain.user.application.exception.CardinalNotFoundException;
-import leets.weeth.domain.user.application.exception.UserCardinalNotFoundException;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
@@ -32,13 +31,6 @@ public class UserCardinalGetService {
     public boolean notContains(User user, Cardinal cardinal) {
         return getUserCardinals(user).stream()
                 .noneMatch(userCardinal -> userCardinal.getCardinal().equals(cardinal));
-    }
-
-    public void validateHasCardinal(User user, Cardinal cardinal) {
-        getUserCardinals(user).stream()
-                .filter(userCardinal -> userCardinal.getCardinal().equals(cardinal))
-                .findAny()
-                .orElseThrow(UserCardinalNotFoundException::new);
     }
 
     public boolean isCurrent(User user, Cardinal cardinal) {
