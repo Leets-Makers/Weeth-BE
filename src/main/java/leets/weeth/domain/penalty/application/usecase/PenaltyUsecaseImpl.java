@@ -49,7 +49,10 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
         if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
             user.incrementPenaltyCount();
+        } else if (penalty.getPenaltyType().equals(PenaltyType.WARNING)){
+            user.incrementWarningCount();
         }
+
     }
 
     @Override
@@ -90,7 +93,10 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
         if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
             penalty.getUser().decrementPenaltyCount();
+        } else if (penalty.getPenaltyType().equals(PenaltyType.WARNING)) {
+            penalty.getUser().decrementWarningCount();
         }
+
     }
 
     private PenaltyDTO.Response toPenaltyDto(Long userId, List<Penalty> penalties) {
@@ -101,11 +107,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
                 .map(mapper::toPenalties)
                 .toList();
 
-        Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
-        Integer penaltyCount = user.getPenaltyCount() + penaltyFindService.countWarningByUserIdAndCardinalId(userId,
-                currentCardinal.getId())/2;
-
-        return mapper.toPenaltyDto(user, penaltyDTOs, userCardinals, penaltyCount);
+        return mapper.toPenaltyDto(user, penaltyDTOs, userCardinals);
     }
 
 }

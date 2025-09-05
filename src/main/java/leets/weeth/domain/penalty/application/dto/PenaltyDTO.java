@@ -25,7 +25,8 @@ public class PenaltyDTO {
     @Builder
     public record Response(
         Long userId,
-        Integer totalPenaltyCount,
+        Integer penaltyCount,
+        Integer warningCount,
         String name,
         List<Integer> cardinals,
         List<PenaltyDTO.Penalties> Penalties
