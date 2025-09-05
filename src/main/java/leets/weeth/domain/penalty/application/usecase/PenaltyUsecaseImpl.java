@@ -8,10 +8,10 @@ import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
 import leets.weeth.domain.penalty.domain.service.PenaltyDeleteService;
 import leets.weeth.domain.penalty.domain.service.PenaltyFindService;
 import leets.weeth.domain.penalty.domain.service.PenaltySaveService;
+import leets.weeth.domain.penalty.domain.service.PenaltyUpdateService;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
-import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +28,12 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
     private final PenaltySaveService penaltySaveService;
     private final PenaltyFindService penaltyFindService;
+    private final PenaltyUpdateService penaltyUpdateService;
     private final PenaltyDeleteService penaltyDeleteService;
 
     private final UserGetService userGetService;
 
     private final UserCardinalGetService userCardinalGetService;
-    private final CardinalGetService cardinalGetService;
 
     private final PenaltyMapper mapper;
 
@@ -56,21 +56,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Transactional
     public void update(PenaltyDTO.Update dto) {
         Penalty penalty = penaltyFindService.find(dto.penaltyId());
-        User user = userGetService.find(penalty.getUser().getId());
-
-        if(dto.penaltyType() != null && penalty.getPenaltyType() != dto.penaltyType()){
-            penalty.updatePenaltyType(dto.penaltyType());
-            if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
-                user.incrementPenaltyCount();
-            }
-            else{
-                user.decrementPenaltyCount();
-            }
-        }
-
-        if(dto.penaltyDescription() != null && !dto.penaltyDescription().isBlank()){
-            penalty.updatePenaltyDescription(dto.penaltyDescription());
-        }
+        penaltyUpdateService.update(penalty, dto);
 
     }
 

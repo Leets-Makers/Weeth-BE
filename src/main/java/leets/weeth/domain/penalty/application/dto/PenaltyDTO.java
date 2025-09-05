@@ -19,7 +19,6 @@ public class PenaltyDTO {
     @Builder
     public record Update(
             @NotNull Long penaltyId,
-            PenaltyType penaltyType,
             String penaltyDescription
     ){}
 
