@@ -2,6 +2,7 @@ package leets.weeth.domain.penalty.application.usecase;
 
 import jakarta.transaction.Transactional;
 import leets.weeth.domain.penalty.application.dto.PenaltyDTO;
+import leets.weeth.domain.penalty.application.exception.AutoPenaltyDeleteNotAllowedException;
 import leets.weeth.domain.penalty.application.mapper.PenaltyMapper;
 import leets.weeth.domain.penalty.domain.entity.Penalty;
 import leets.weeth.domain.penalty.domain.entity.enums.PenaltyType;
@@ -97,6 +98,10 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Transactional
     public void delete(Long penaltyId) {
         Penalty penalty = penaltyFindService.find(penaltyId);
+        if(penalty.getPenaltyType().equals(PenaltyType.AUTO_PENALTY)){
+            throw new AutoPenaltyDeleteNotAllowedException();
+        }
+
         User user = penalty.getUser();
 
         if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
