@@ -37,4 +37,8 @@ public class PenaltyFindService {
                         penalty.getCreatedAt()
                 ).orElse(null);
     }
+
+    public List<Penalty> findAllByCardinalId(Long cardinalId) {
+        return penaltyRepository.findByCardinalIdOrderByIdDesc(cardinalId);
+    }
 }

@@ -42,6 +42,8 @@ public interface PenaltyMapper {
 
     PenaltyDTO.Penalties toPenalties(Penalty penalty);
 
+    PenaltyDTO.ResponseAll toResponseAll(Integer cardinal, List<PenaltyDTO.Response> responses);
+
     default List<Integer> toCardinalNumbers(List<UserCardinal> userCardinals) {
         if (userCardinals == null || userCardinals.isEmpty()) {
             return Collections.emptyList();

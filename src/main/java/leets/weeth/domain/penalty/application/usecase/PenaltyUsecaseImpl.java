@@ -13,11 +13,13 @@ import leets.weeth.domain.penalty.domain.service.PenaltyUpdateService;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
+import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     private final UserGetService userGetService;
 
     private final UserCardinalGetService userCardinalGetService;
+    private final CardinalGetService cardinalGetService;
 
     private final PenaltyMapper mapper;
 
@@ -73,16 +76,32 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     }
 
     @Override
-    public List<PenaltyDTO.Response> find() {
-        List<Penalty> penalties = penaltyFindService.findAll();
+    public List<PenaltyDTO.ResponseAll> findAll(Integer cardinalNumber) {
+        List<Cardinal> cardinals = new ArrayList<>();
 
-        Map<Long, List<Penalty>> penaltiesByUser = penalties.stream()
-                .collect(Collectors.groupingBy(penalty -> penalty.getUser().getId()));
+        if (cardinalNumber == null) {
+            cardinals = cardinalGetService.findAll();
+        } else {
+            Cardinal cardinal = cardinalGetService.findByAdminSide(cardinalNumber);
+            cardinals.add(cardinal);
+        }
 
-        return penaltiesByUser.entrySet().stream()
-                .map(entry -> toPenaltyDto(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparing(PenaltyDTO.Response::userId))
-                .toList();
+        List<PenaltyDTO.ResponseAll> result = new ArrayList<>();
+
+        for (Cardinal cardinal : cardinals) {
+            List<Penalty> penalties = penaltyFindService.findAllByCardinalId(cardinal.getId());
+
+            Map<Long, List<Penalty>> penaltiesByUser = penalties.stream()
+                    .collect(Collectors.groupingBy(p -> p.getUser().getId()));
+
+            List<PenaltyDTO.Response> responses = penaltiesByUser.entrySet().stream()
+                    .map(entry -> toPenaltyDto(entry.getKey(), entry.getValue()))
+                    .sorted(Comparator.comparing(PenaltyDTO.Response::userId))
+                    .toList();
+
+            result.add(mapper.toResponseAll(cardinal.getCardinalNumber(), responses));
+        }
+        return result;
     }
 
     @Override

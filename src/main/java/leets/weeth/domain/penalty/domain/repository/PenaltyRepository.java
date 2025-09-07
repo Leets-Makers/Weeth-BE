@@ -12,10 +12,10 @@ import java.util.Optional;
 
 public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
 
-    Integer countByUserIdAndCardinalIdAndPenaltyType(Long userId, Long cardinalId, PenaltyType penaltyType);
-
     List<Penalty> findByUserIdAndCardinalIdOrderByIdDesc(Long userId, Long cardinalId);
 
     Optional<Penalty> findFirstByUserAndCardinalAndPenaltyTypeAndCreatedAtAfterOrderByCreatedAtAsc(
             User user, Cardinal cardinal, PenaltyType penaltyType, LocalDateTime createdAt);
+
+    List<Penalty> findByCardinalIdOrderByIdDesc(Long cardinalId);
 }

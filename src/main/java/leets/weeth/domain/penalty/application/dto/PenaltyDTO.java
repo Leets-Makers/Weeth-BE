@@ -23,6 +23,12 @@ public class PenaltyDTO {
     ){}
 
     @Builder
+    public record ResponseAll(
+            Integer cardinal,
+            List<Response> responses
+    ){}
+
+    @Builder
     public record Response(
         Long userId,
         Integer penaltyCount,
