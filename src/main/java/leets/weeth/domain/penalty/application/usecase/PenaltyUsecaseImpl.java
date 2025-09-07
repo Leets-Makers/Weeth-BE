@@ -75,6 +75,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
     }
 
+    // Todo: 쿼리 최적화 필요
     @Override
     public List<PenaltyDTO.ResponseAll> findAll(Integer cardinalNumber) {
         List<Cardinal> cardinals = (cardinalNumber == null)
