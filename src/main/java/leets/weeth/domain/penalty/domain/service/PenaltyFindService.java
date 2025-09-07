@@ -21,7 +21,7 @@ public class PenaltyFindService {
     }
 
     public List<Penalty> findAllByUserIdAndCardinalId(Long userId, Long cardinalId){
-        return penaltyRepository.findByUserIdAndCardinalId(userId, cardinalId);
+        return penaltyRepository.findByUserIdAndCardinalIdOrderByIdDesc(userId, cardinalId);
     }
 
     public List<Penalty> findAll(){
