@@ -77,14 +77,9 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
     @Override
     public List<PenaltyDTO.ResponseAll> findAll(Integer cardinalNumber) {
-        List<Cardinal> cardinals = new ArrayList<>();
-
-        if (cardinalNumber == null) {
-            cardinals = cardinalGetService.findAll();
-        } else {
-            Cardinal cardinal = cardinalGetService.findByAdminSide(cardinalNumber);
-            cardinals.add(cardinal);
-        }
+        List<Cardinal> cardinals = (cardinalNumber == null)
+                ? cardinalGetService.findAll()
+                : List.of(cardinalGetService.findByAdminSide(cardinalNumber));
 
         List<PenaltyDTO.ResponseAll> result = new ArrayList<>();
 
