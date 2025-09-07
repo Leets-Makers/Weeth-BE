@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PenaltyUsecaseImpl implements PenaltyUsecase{
 
+    private static final String AUTO_PENALTY_DESCRIPTION = "누적경고 %d회";
+
     private final PenaltySaveService penaltySaveService;
     private final PenaltyFindService penaltyFindService;
     private final PenaltyUpdateService penaltyUpdateService;
@@ -51,8 +53,14 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
             user.incrementPenaltyCount();
         } else if (penalty.getPenaltyType().equals(PenaltyType.WARNING)){
             user.incrementWarningCount();
-        }
 
+            Integer warningCount = user.getWarningCount();
+            if(warningCount % 2 == 0){
+                String penaltyDescription = String.format(AUTO_PENALTY_DESCRIPTION, warningCount);
+                Penalty autoPenalty = mapper.toAutoPenalty(penaltyDescription, user, cardinal, PenaltyType.AUTO_PENALTY);
+                penaltySaveService.save(autoPenalty);
+            }
+        }
     }
 
     @Override
@@ -89,14 +97,21 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
     @Transactional
     public void delete(Long penaltyId) {
         Penalty penalty = penaltyFindService.find(penaltyId);
-        penaltyDeleteService.delete(penaltyId);
+        User user = penalty.getUser();
 
         if(penalty.getPenaltyType().equals(PenaltyType.PENALTY)){
             penalty.getUser().decrementPenaltyCount();
         } else if (penalty.getPenaltyType().equals(PenaltyType.WARNING)) {
+            if(user.getWarningCount() % 2 == 0){
+                Penalty relatedAutoPenalty = penaltyFindService.getRelatedAutoPenalty(penalty);
+                if(relatedAutoPenalty != null){
+                    penaltyDeleteService.delete(relatedAutoPenalty.getId());
+                }
+            }
             penalty.getUser().decrementWarningCount();
         }
 
+        penaltyDeleteService.delete(penaltyId);
     }
 
     private PenaltyDTO.Response toPenaltyDto(Long userId, List<Penalty> penalties) {

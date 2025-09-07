@@ -20,10 +20,6 @@ public class PenaltyFindService {
                 .orElseThrow(PenaltyNotFoundException::new);
     }
 
-    public Integer countWarningByUserIdAndCardinalId(Long userId, Long cardinalId) {
-        return penaltyRepository.countByUserIdAndCardinalIdAndPenaltyType(userId, cardinalId, PenaltyType.WARNING);
-    }
-
     public List<Penalty> findAllByUserIdAndCardinalId(Long userId, Long cardinalId){
         return penaltyRepository.findByUserIdAndCardinalId(userId, cardinalId);
     }
@@ -32,4 +28,13 @@ public class PenaltyFindService {
         return penaltyRepository.findAll();
     }
 
+    public Penalty getRelatedAutoPenalty(Penalty penalty) {
+        return penaltyRepository
+                .findFirstByUserAndCardinalAndPenaltyTypeAndCreatedAtAfterOrderByCreatedAtAsc(
+                        penalty.getUser(),
+                        penalty.getCardinal(),
+                        PenaltyType.AUTO_PENALTY,
+                        penalty.getCreatedAt()
+                ).orElse(null);
+    }
 }
