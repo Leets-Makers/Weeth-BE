@@ -74,6 +74,8 @@ public class User extends BaseEntity {
 
     private Integer penaltyCount;
 
+    private Integer warningCount;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Attendance> attendances = new ArrayList<>();
 
@@ -85,6 +87,7 @@ public class User extends BaseEntity {
         absenceCount = 0;
         attendanceRate = 0;
         penaltyCount = 0;
+        warningCount = 0;
     }
 
     public void addKakaoId(long kakaoId) {
@@ -176,6 +179,16 @@ public class User extends BaseEntity {
     public void decrementPenaltyCount() {
         if (penaltyCount > 0) {
             penaltyCount--;
+        }
+    }
+
+    public void incrementWarningCount() {
+        warningCount++;
+    }
+
+    public void decrementWarningCount() {
+        if (warningCount > 0) {
+            warningCount--;
         }
     }
 

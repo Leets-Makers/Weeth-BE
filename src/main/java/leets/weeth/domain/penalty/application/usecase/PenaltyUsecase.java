@@ -10,7 +10,7 @@ public interface PenaltyUsecase {
 
     void update(PenaltyDTO.Update dto);
 
-    List<PenaltyDTO.Response> find();
+    List<PenaltyDTO.ResponseAll> findAll(Integer cardinalNumber);
 
     PenaltyDTO.Response find(Long userId);
 

@@ -39,6 +39,10 @@ public class CardinalGetService {
         return cardinalRepository.findAllByOrderByCardinalNumberAsc();
     }
 
+    public List<Cardinal> findAllCardinalNumberDesc() {
+        return cardinalRepository.findAllByOrderByCardinalNumberDesc();
+    }
+
     public List<Cardinal> findInProgress() {
         return cardinalRepository.findAllByStatus(CardinalStatus.IN_PROGRESS);
     }

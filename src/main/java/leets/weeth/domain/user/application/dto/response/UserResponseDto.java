@@ -56,6 +56,7 @@ public class UserResponseDto {
             Integer absenceCount,
             Integer attendanceRate,
             Integer penaltyCount,
+            Integer warningCount,
             LocalDateTime createdAt,
             LocalDateTime modifiedAt
     ) {
