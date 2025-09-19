@@ -81,9 +81,7 @@ jobs:
               # Docker 이미지 pull
               sudo docker pull ${{ secrets.DOCKER_USER_NAME }}/weeth
             
-              sudo docker run --name $GREEN_NAME -d -p $GREEN_PORT:$GREEN_PORT \
-                --env-file ./weeth-prod.env -e TZ=Asia/Seoul -e SERVER_PORT=$GREEN_PORT \
-                ${{ secrets.DOCKER_USER_NAME }}/weeth
+              sudo docker compose up -d $GREEN_NAME
               BEFORE_NAME=$BLUE_NAME
               AFTER_NAME=$GREEN_NAME
               BEFORE_PORT=$BLUE_PORT
@@ -95,9 +93,7 @@ jobs:
               # Docker 이미지 pull
               sudo docker pull ${{ secrets.DOCKER_USER_NAME }}/weeth
             
-              sudo docker run --name $BLUE_NAME -d -p $BLUE_PORT:$BLUE_PORT \
-                --env-file ./weeth-prod.env -e TZ=Asia/Seoul -e SERVER_PORT=$BLUE_PORT \
-                ${{ secrets.DOCKER_USER_NAME }}/weeth
+              sudo docker compose up -d $BLUE_NAME
               BEFORE_NAME=$GREEN_NAME
               AFTER_NAME=$BLUE_NAME
               BEFORE_PORT=$GREEN_PORT
@@ -109,9 +105,7 @@ jobs:
               # Docker 이미지 pull
               sudo docker pull ${{ secrets.DOCKER_USER_NAME }}/weeth
             
-              sudo docker run --name $BLUE_NAME -d -p $BLUE_PORT:$BLUE_PORT \
-                --env-file ./weeth-prod.env -e TZ=Asia/Seoul -e SERVER_PORT=$BLUE_PORT  \
-                ${{ secrets.DOCKER_USER_NAME }}/weeth
+              sudo docker compose up -d $BLUE_NAME
               BEFORE_NAME=$GREEN_NAME
               AFTER_NAME=$BLUE_NAME
               BEFORE_PORT=$GREEN_PORT
@@ -151,12 +145,12 @@ jobs:
             
               # 이전 컨테이너 중지 및 삭제
               echo "** 이전 컨테이너(${BEFORE_NAME}) 종료 및 삭제"
-              sudo docker stop $BEFORE_NAME || true
-              sudo docker rm $BEFORE_NAME || true
+              sudo docker compose stop $BEFORE_NAME || true
+              sudo docker compose rm -f $BEFORE_NAME || true
             else
               echo "** Health-Check 실패: ${AFTER_NAME} 컨테이너 제거"
-              sudo docker stop $AFTER_NAME || true
-              sudo docker rm $AFTER_NAME || true
+              sudo docker compose stop $AFTER_NAME || true
+              sudo docker compose rm -f $AFTER_NAME || true
               echo "** 이전 컨테이너(${BEFORE_NAME})를 유지합니다"
             fi
             

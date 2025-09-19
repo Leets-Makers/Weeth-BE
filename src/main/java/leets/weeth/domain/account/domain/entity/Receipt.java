@@ -2,7 +2,6 @@ package leets.weeth.domain.account.domain.entity;
 
 import jakarta.persistence.*;
 import leets.weeth.domain.account.application.dto.ReceiptDTO;
-import leets.weeth.domain.file.converter.FileListConverter;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Getter
@@ -43,4 +41,5 @@ public class Receipt extends BaseEntity {
         this.amount = dto.amount();
         this.date = dto.date();
     }
+
 }

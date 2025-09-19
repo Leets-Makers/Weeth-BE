@@ -2,6 +2,7 @@ package leets.weeth.domain.attendance.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import leets.weeth.domain.attendance.application.dto.AttendanceDTO;
 import leets.weeth.domain.attendance.application.usecase.AttendanceUseCase;
 import leets.weeth.domain.schedule.application.dto.MeetingDTO;
@@ -47,7 +48,7 @@ public class AttendanceAdminController {
 
     @PatchMapping("/status")
     @Operation(summary = "모든 인원 정기모임 개별 출석 상태 수정")
-    public CommonResponse<Void> updateAttendanceStatus(@RequestBody List<AttendanceDTO.UpdateStatus> attendanceUpdates) {
+    public CommonResponse<Void> updateAttendanceStatus(@RequestBody @Valid List<AttendanceDTO.UpdateStatus> attendanceUpdates) {
         attendanceUseCase.updateAttendanceStatus(attendanceUpdates);
         return CommonResponse.createSuccess(ATTENDANCE_UPDATED_SUCCESS.getMessage());
     }

@@ -2,6 +2,7 @@ package leets.weeth.domain.penalty.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import leets.weeth.domain.penalty.application.dto.PenaltyDTO;
 import leets.weeth.domain.penalty.application.usecase.PenaltyUsecase;
 import leets.weeth.global.common.response.CommonResponse;
@@ -22,22 +23,22 @@ public class PenaltyAdminController {
 
     @PostMapping
     @Operation(summary="패널티 부여")
-    public CommonResponse<String> assignPenalty(@RequestBody PenaltyDTO.Save dto){
+    public CommonResponse<String> assignPenalty(@Valid @RequestBody PenaltyDTO.Save dto){
         penaltyUsecase.save(dto);
         return CommonResponse.createSuccess(PENALTY_ASSIGN_SUCCESS.getMessage());
     }
 
     @PatchMapping
     @Operation(summary = "패널티 수정")
-    public CommonResponse<String> update(@RequestBody PenaltyDTO.Update dto){
+    public CommonResponse<String> update(@Valid @RequestBody PenaltyDTO.Update dto){
         penaltyUsecase.update(dto);
         return CommonResponse.createSuccess(PENALTY_UPDATE_SUCCESS.getMessage());
     }
 
     @GetMapping
     @Operation(summary="전체 패널티 조회")
-    public CommonResponse<List<PenaltyDTO.Response>> findAll(){
-        return CommonResponse.createSuccess(PENALTY_FIND_ALL_SUCCESS.getMessage(), penaltyUsecase.find());
+    public CommonResponse<List<PenaltyDTO.ResponseAll>> findAll(@RequestParam(required = false) Integer cardinal){
+        return CommonResponse.createSuccess(PENALTY_FIND_ALL_SUCCESS.getMessage(), penaltyUsecase.findAll(cardinal));
     }
 
     @DeleteMapping

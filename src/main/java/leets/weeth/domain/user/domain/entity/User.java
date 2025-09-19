@@ -1,7 +1,22 @@
 package leets.weeth.domain.user.domain.entity;
 
-import jakarta.persistence.*;
+import static leets.weeth.domain.user.application.dto.request.UserRequestDto.Update;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import leets.weeth.domain.attendance.domain.entity.Attendance;
+import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.user.domain.entity.enums.Department;
 import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
@@ -13,11 +28,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static leets.weeth.domain.user.application.dto.request.UserRequestDto.Update;
 
 @Entity
 @Getter
@@ -64,6 +74,8 @@ public class User extends BaseEntity {
 
     private Integer penaltyCount;
 
+    private Integer warningCount;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Attendance> attendances = new ArrayList<>();
 
@@ -75,6 +87,7 @@ public class User extends BaseEntity {
         absenceCount = 0;
         attendanceRate = 0;
         penaltyCount = 0;
+        warningCount = 0;
     }
 
     public void addKakaoId(long kakaoId) {
@@ -169,4 +182,21 @@ public class User extends BaseEntity {
         }
     }
 
+    public void incrementWarningCount() {
+        warningCount++;
+    }
+
+    public void decrementWarningCount() {
+        if (warningCount > 0) {
+            warningCount--;
+        }
+    }
+
+    public boolean hasRole(Role role) {
+        return this.role == role;
+    }
+
+    public Part getUserPart() {
+        return Part.valueOf(this.position.name());
+    }
 }

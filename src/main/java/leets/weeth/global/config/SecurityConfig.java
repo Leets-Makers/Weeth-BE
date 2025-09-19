@@ -75,6 +75,7 @@ public class SecurityConfig {
                                 authorize
                                         .requestMatchers("/api/v1/users/kakao/login", "api/v1/users/kakao/register", "api/v1/users/kakao/link", "/api/v1/users/apply", "/api/v1/users/email", "/api/v1/users/refresh").permitAll()
                                         .requestMatchers("/health-check").permitAll()
+                                        .requestMatchers("/oauth2/**", "/.well-known/**", "/kakao/oauth").permitAll()
                                         .requestMatchers("/admin", "/admin/login", "/admin/account", "/admin/meeting", "/admin/member", "/admin/penalty",
                                                 "/js/**", "/img/**", "/scss/**", "/vendor/**").permitAll()
                                         // 스웨거 경로
@@ -97,7 +98,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://weeth.kr", "https://www.weeth.kr", "https://dev.weeth.kr", "https://develop.d3dk7ck92jhexu.amplifyapp.com"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://weeth.kr", "https://www.weeth.kr", "https://dev.weeth.kr", "https://develop.dl97snxjdgiq1.amplifyapp.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Authorization_refresh"));

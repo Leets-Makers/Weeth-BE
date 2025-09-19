@@ -38,7 +38,7 @@ public class NoticeDTO {
             Role role,
             String title,
             String content,
-            LocalDateTime time,//modifiedAt
+            LocalDateTime time, //createdAt
             Integer commentCount,
             List<CommentDTO.Response> comments,
             List<FileResponse> fileUrls

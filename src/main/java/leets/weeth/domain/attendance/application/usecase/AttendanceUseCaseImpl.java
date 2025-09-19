@@ -11,7 +11,9 @@ import leets.weeth.domain.attendance.domain.service.AttendanceUpdateService;
 import leets.weeth.domain.schedule.application.exception.MeetingNotFoundException;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -26,9 +29,12 @@ import java.util.List;
 public class AttendanceUseCaseImpl implements AttendanceUseCase {
 
     private final UserGetService userGetService;
+    private final UserCardinalGetService userCardinalGetService;
+
     private final AttendanceGetService attendanceGetService;
     private final AttendanceUpdateService attendanceUpdateService;
     private final AttendanceMapper mapper;
+
     private final MeetingGetService meetingGetService;
 
     @Override
@@ -63,19 +69,19 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
         return mapper.toMainDto(user, todayMeeting);
     }
 
-    /*
-    todo 출석 끝난 후 다음 기수 진행 시 다음 기수의 출석 정보만 나오는지 확인 필요
-     */
-    @Override
-    public AttendanceDTO.Detail findAll(Long userId) {
+    public AttendanceDTO.Detail findAllDetailsByCurrentCardinal(Long userId) {
         User user = userGetService.find(userId);
+        Cardinal currentCardinal = userCardinalGetService.getCurrentCardinal(user);
 
         List<AttendanceDTO.Response> responses = user.getAttendances().stream()
+                .filter(attendance -> attendance.getMeeting().getCardinal().equals(currentCardinal.getCardinalNumber()))
+                .sorted(Comparator.comparing(attendance -> attendance.getMeeting().getStart()))
                 .map(mapper::toResponseDto)
                 .toList();
 
         return mapper.toDetailDto(user, responses);
     }
+
     @Override
     public List<AttendanceDTO.AttendanceInfo> findAllAttendanceByMeeting(Long meetingId) {
         Meeting meeting = meetingGetService.find(meetingId);
@@ -86,6 +92,7 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
                 .map(mapper::toAttendanceInfoDto)
                 .toList();
     }
+
     @Override
     public void close(LocalDate now, Integer cardinal) {
         List<Meeting> meetings = meetingGetService.find(cardinal);
@@ -103,6 +110,7 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
 
         attendanceUpdateService.close(attendanceList);
     }
+
     @Override
     @Transactional
     public void updateAttendanceStatus(List<AttendanceDTO.UpdateStatus> attendanceUpdates) {
@@ -110,7 +118,9 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
             Attendance attendance = attendanceGetService.findByAttendanceId(update.attendanceId());
             User user = attendance.getUser();
 
-            if (attendance.getStatus() == Status.ATTEND) {
+            Status newStatus = Status.valueOf(update.status());
+
+            if (newStatus == Status.ABSENT) {
                 attendance.close();
                 user.removeAttend();
                 user.absent();

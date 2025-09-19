@@ -1,10 +1,18 @@
 package leets.weeth.domain.board.domain.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import java.util.List;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.comment.domain.entity.Comment;
-import leets.weeth.domain.file.converter.FileListConverter;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.common.entity.BaseEntity;
 import lombok.AccessLevel;
@@ -13,9 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @MappedSuperclass
@@ -45,10 +50,6 @@ public class Board extends BaseEntity {
         commentCount = 0;
     }
 
-    public void increaseCommentCount() {
-        commentCount++;
-    }
-
     public void decreaseCommentCount() {
         if (commentCount > 0) {
             commentCount--;
@@ -67,8 +68,12 @@ public class Board extends BaseEntity {
     }
 
     public void updateUpperClass(PostDTO.Update dto) {
-        this.title = dto.title();
-        this.content = dto.content();
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.content() != null) this.content = dto.content();
     }
 
+    public void updateUpperClass(PostDTO.UpdateEducation dto) {
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.content() != null) this.content = dto.content();
+    }
 }
