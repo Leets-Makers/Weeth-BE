@@ -63,6 +63,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
                 String penaltyDescription = String.format(AUTO_PENALTY_DESCRIPTION, warningCount);
                 Penalty autoPenalty = mapper.toAutoPenalty(penaltyDescription, user, cardinal, PenaltyType.AUTO_PENALTY);
                 penaltySaveService.save(autoPenalty);
+                user.incrementPenaltyCount();
             }
         }
     }
@@ -127,6 +128,7 @@ public class PenaltyUsecaseImpl implements PenaltyUsecase{
                 if(relatedAutoPenalty != null){
                     penaltyDeleteService.delete(relatedAutoPenalty.getId());
                 }
+                user.decrementPenaltyCount();
             }
             penalty.getUser().decrementWarningCount();
         }
