@@ -1,6 +1,7 @@
 package leets.weeth.domain.board.application.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,8 +18,8 @@ public class PostDTO {
 
     @Builder
     public record Save(
-            @NotNull String title,
-            @NotNull String content,
+            @NotBlank(message = "제목 입력은 필수입니다.") String title,
+            @NotBlank(message = "내용 입력은 필수입니다.") String content,
             @NotNull Category category,
             String studyName,
             int week,
