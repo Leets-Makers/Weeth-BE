@@ -39,3 +39,13 @@ auth:
       scopes: ${LEENK_SCOPES}
       accessTokenTtl: ${LEENK_ACCESS_TOKEN_TTL}
       refreshTokenTtl: ${LEENK_REFRESH_TOKEN_TTL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
