@@ -47,6 +47,8 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             if (jwtProvider.validate(accessToken)) {
                 saveAuthentication(accessToken);
             }
+        } catch (TokenNotFoundException e) {
+            // 로그 생략
         } catch (RuntimeException e) {
             log.info("error token: {}", e.getMessage());
         }
