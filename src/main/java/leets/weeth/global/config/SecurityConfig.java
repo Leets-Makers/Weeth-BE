@@ -80,6 +80,7 @@ public class SecurityConfig {
                                                 "/js/**", "/img/**", "/scss/**", "/vendor/**").permitAll()
                                         // 스웨거 경로
                                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger/**").permitAll()
+                                        .requestMatchers("/actuator/prometheus").permitAll()
                                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
                 )
