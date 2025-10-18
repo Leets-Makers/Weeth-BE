@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import leets.weeth.domain.user.application.dto.request.CardinalSaveRequest;
+import leets.weeth.domain.user.application.dto.request.CardinalUpdateRequest;
 import leets.weeth.domain.user.application.mapper.CardinalMapper;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.enums.CardinalStatus;
@@ -112,18 +113,22 @@ public class CardinalUseCaseTest {
 
 
 	@Test
-	void update_진행상태가_변하지_않는다면_단순_업데이트만() {
+	void update_연도와_학기를_변경한다() {
 		//given
+		var cardinal = Cardinal.builder()
+			.year(2024)
+			.semester(2)
+			.build();
+		var dto = new CardinalUpdateRequest(1L, 2025,1,false);
+
 		//when
+		cardinal.update(dto);
+
 		//then
+		assertThat(cardinal.getYear()).isEqualTo(2025);
+		assertThat(cardinal.getSemester()).isEqualTo(1);
 	}
 
-	@Test
-	void update_진행중으로_변경되면_기존은_done처리_현재는_inProgress() {
-		//given
-		//when
-		//then
-	}
 
 	@Test
 	void finaALl_조회된_모든_기수를_DTO로_매핑처리() {
