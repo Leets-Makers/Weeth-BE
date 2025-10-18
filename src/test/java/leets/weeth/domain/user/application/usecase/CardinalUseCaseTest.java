@@ -1,6 +1,10 @@
 package leets.weeth.domain.user.application.usecase;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,10 +70,46 @@ public class CardinalUseCaseTest {
 
 	@Test
 	void save_새_기수가_진행중이라면_기존_기수는_done_현재기수는_inProgress() {
-		//given
-		//when
-		//then
+		// given
+		var request = new CardinalSaveRequest(7, 2025,1,true);
+
+		var oldCardinal = Cardinal.builder()
+			.cardinalNumber(6)
+			.year(2024)
+			.semester(2)
+			.status(CardinalStatus.IN_PROGRESS)
+			.build();
+
+		var newCardinalBeforeSave = Cardinal.builder()
+			.cardinalNumber(7)
+			.year(2025)
+			.semester(1)
+			.status(CardinalStatus.DONE)
+			.build();
+
+		var newCardinalAfterSave = Cardinal.builder()
+			.cardinalNumber(7)
+			.year(2025)
+			.semester(1)
+			.status(CardinalStatus.IN_PROGRESS)
+			.build();
+
+
+		given(cardinalGetService.findInProgress()).willReturn(List.of(oldCardinal));
+		given(cardinalMapper.from(request)).willReturn(newCardinalBeforeSave);
+		given(cardinalSaveService.save(newCardinalBeforeSave)).willReturn(newCardinalAfterSave);
+
+		// when
+		useCase.save(request);
+
+		// then
+		then(cardinalGetService).should().findInProgress();
+		then(cardinalSaveService).should().save(newCardinalBeforeSave);
+
+		assertThat(oldCardinal.getStatus()).isEqualTo(CardinalStatus.DONE);
+		assertThat(newCardinalAfterSave.getStatus()).isEqualTo(CardinalStatus.IN_PROGRESS);
 	}
+
 
 	@Test
 	void update_진행상태가_변하지_않는다면_단순_업데이트만() {
