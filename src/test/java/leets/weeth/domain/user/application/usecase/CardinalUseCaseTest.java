@@ -1,8 +1,10 @@
 package leets.weeth.domain.user.application.usecase;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.InstanceOfAssertFactories.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import leets.weeth.domain.user.application.dto.request.CardinalSaveRequest;
 import leets.weeth.domain.user.application.dto.request.CardinalUpdateRequest;
+import leets.weeth.domain.user.application.dto.response.CardinalResponse;
 import leets.weeth.domain.user.application.mapper.CardinalMapper;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.enums.CardinalStatus;
@@ -131,12 +134,67 @@ public class CardinalUseCaseTest {
 
 
 	@Test
-	void finaALl_조회된_모든_기수를_DTO로_매핑처리() {
+	void findAll_조회된_모든_기수를_DTO로_매핑처리() {
 
+		//given
+		var cardinal1 = Cardinal.builder()
+			.id(1L)
+			.cardinalNumber(6)
+			.year(2024)
+			.semester(2)
+			.status(CardinalStatus.DONE)
+			.build();
+
+		var cardinal2 = Cardinal.builder()
+			.id(2L)
+			.cardinalNumber(7)
+			.year(2025)
+			.semester(1)
+			.status(CardinalStatus.IN_PROGRESS)
+			.build();
+
+		var cardinals = List.of(cardinal1, cardinal2);
+
+		var now = LocalDateTime.now();
+
+		var response1 = new CardinalResponse(
+			1L, 6, 2024, 2,
+			CardinalStatus.DONE,
+			now.minusDays(5),
+			now.minusDays(3)
+		);
+
+		var response2 = new CardinalResponse(
+			2L, 7, 2025, 1,
+			CardinalStatus.IN_PROGRESS,
+			now.minusDays(2),
+			now
+		);
+
+		given(cardinalGetService.findAll()).willReturn(cardinals);
+		given(cardinalMapper.to(cardinal1)).willReturn(response1);
+		given(cardinalMapper.to(cardinal2)).willReturn(response2);
+
+		//when
+		List<CardinalResponse> responses = useCase.findAll();
+
+
+		//then
+		then(cardinalGetService).should().findAll();
+		then(cardinalMapper).should(times(2)).to(any(Cardinal.class));
+
+		assertThat(responses)
+			.asInstanceOf(list(CardinalResponse.class))
+			.hasSize(2)
+			.extracting(CardinalResponse::cardinalNumber)
+			.containsExactly(6, 7);
+
+		assertThat(responses)
+			.asInstanceOf(list(CardinalResponse.class))
+			.extracting(CardinalResponse::status)
+			.containsExactly(CardinalStatus.DONE, CardinalStatus.IN_PROGRESS);
+
+		assertThat(responses.get(0).createdAt()).isBefore(responses.get(1).createdAt());
 	}
-
-
-
-
 
 }
