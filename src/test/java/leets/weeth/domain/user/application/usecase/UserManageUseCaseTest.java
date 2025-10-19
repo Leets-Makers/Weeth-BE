@@ -2,7 +2,7 @@ package leets.weeth.domain.user.application.usecase;
 
 
 import static org.assertj.core.api.Assertions.*;
-
+import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,13 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.BDDMockito.given;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import leets.weeth.domain.attendance.domain.service.AttendanceSaveService;
+import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
+import leets.weeth.domain.user.application.dto.request.UserRequestDto;
 import leets.weeth.domain.user.application.dto.response.UserResponseDto;
 import leets.weeth.domain.user.application.exception.InvalidUserOrderException;
 import leets.weeth.domain.user.application.mapper.UserMapper;
@@ -133,6 +134,35 @@ public class UserManageUseCaseTest {
 		assertThat(result).hasSize(2);
 		assertThat(result.get(0).name()).isEqualTo("aaa");
 		assertThat(result.get(1).name()).isEqualTo("bbb");
+
+	}
+
+
+	@Test
+	void accept_비활성유저_승인시_출석초기화_정상호출되는지() {
+		//given
+		var user1 = User.builder()
+			.id(1L)
+			.name("aaa")
+			.status(Status.WAITING)
+			.build();
+		var userIds = new UserRequestDto.UserId(List.of(1L));
+		var cardinal = Cardinal.builder()
+			.id(1L)
+			.cardinalNumber(8)
+			.build();
+		var meetings = List.of(mock(Meeting.class));
+
+		given(userGetService.findAll(userIds.userId())).willReturn(List.of(user1));
+		given(userCardinalGetService.getCurrentCardinal(user1)).willReturn(cardinal);
+		given(meetingGetService.find(8)).willReturn(meetings);
+
+		//when
+		useCase.accept(userIds);
+
+		//then
+		then(userUpdateService).should().accept(user1);
+		then(attendanceSaveService).should().init(user1,meetings);
 
 	}
 
