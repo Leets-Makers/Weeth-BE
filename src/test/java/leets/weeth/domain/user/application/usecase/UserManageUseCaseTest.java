@@ -184,4 +184,23 @@ public class UserManageUseCaseTest {
 		then(jwtRedisService).should().updateRole(1L, "ADMIN");
 	}
 
+	@Test
+	void leave_회원탈퇴시_토큰무효화_및_유저상태변경되는지() {
+		//given
+		var user1 = User.builder().
+			id(1L)
+			.status(Status.ACTIVE)
+			.build();
+		given(userGetService.find((Long)1L)).willReturn(user1);
+
+		//when
+		useCase.leave(1L);
+
+		//then
+		then(jwtRedisService).should().delete(1L);
+		then(userDeleteService).should().leave(user1);
+
+	}
+
+
 }
