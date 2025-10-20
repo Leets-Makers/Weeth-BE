@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -220,5 +221,36 @@ public class UserManageUseCaseTest {
 		then(jwtRedisService).should().delete(1L);
 		then(userDeleteService).should().ban(user1);
 
+	}
+
+	@Test
+	void applyOB_현재기수_OB신청시_출석초기화_및_기수업데이트() {
+		//given
+		var user = User.builder()
+			.id(1L)
+			.status(Status.ACTIVE)
+			.attendances(new ArrayList<>())
+			.build();
+
+		var nextCardinal = Cardinal.builder()
+			.id(1L)
+			.cardinalNumber(4)
+			.build();
+
+		var request = new UserRequestDto.UserApplyOB(1L,4);
+		var meeting = List.of(mock(Meeting.class));
+
+		given(userGetService.find((Long)1L)).willReturn(user);
+		given(cardinalGetService.findByAdminSide(4)).willReturn(nextCardinal);
+		given(userCardinalGetService.notContains(user, nextCardinal)).willReturn(true);
+		given(userCardinalGetService.isCurrent(user, nextCardinal)).willReturn(true);
+		given(meetingGetService.find(4)).willReturn(meeting);
+
+		//when
+		useCase.applyOB(List.of(request));
+
+		//then
+		then(attendanceSaveService).should().init(user,meeting);
+		then(userCardinalSaveService).should().save(any(UserCardinal.class));
 	}
 }
