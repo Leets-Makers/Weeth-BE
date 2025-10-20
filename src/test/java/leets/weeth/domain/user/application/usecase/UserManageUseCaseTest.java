@@ -253,4 +253,33 @@ public class UserManageUseCaseTest {
 		then(attendanceSaveService).should().init(user,meeting);
 		then(userCardinalSaveService).should().save(any(UserCardinal.class));
 	}
+
+	@Test
+	void reset_비밀번호초기화시_모든유저에_reset호출되는지() {
+		// given
+		var user1 = User.builder()
+			.id(1L)
+			.name("aaa")
+			.status(Status.ACTIVE)
+			.build();
+
+		var user2 = User.builder()
+			.id(2L)
+			.name("bbb")
+			.status(Status.ACTIVE)
+			.build();
+
+		var ids = new UserRequestDto.UserId(List.of(1L, 2L));
+
+		given(userGetService.findAll(ids.userId())).willReturn(List.of(user1, user2));
+
+		// when
+		useCase.reset(ids);
+
+		// then
+		then(userGetService).should().findAll(ids.userId());
+		then(userUpdateService).should().reset(user1, passwordEncoder);
+		then(userUpdateService).should().reset(user2, passwordEncoder);
+	}
+
 }
