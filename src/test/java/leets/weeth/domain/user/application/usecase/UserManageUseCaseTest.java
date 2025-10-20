@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,7 @@ import leets.weeth.domain.user.application.mapper.UserMapper;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
+import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.entity.enums.Status;
 import leets.weeth.domain.user.domain.entity.enums.UsersOrderBy;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
@@ -164,6 +166,22 @@ public class UserManageUseCaseTest {
 		then(userUpdateService).should().accept(user1);
 		then(attendanceSaveService).should().init(user1,meetings);
 
+	}
+
+	@Test
+	void update_유저권한변경시_DB와_Redis_모두갱신되는지() {
+		// given
+		var user1 = User.builder().id(1L).build();
+		var request = new UserRequestDto.UserRoleUpdate(1L, Role.ADMIN);
+
+		lenient().when(userGetService.find((Long)1L)).thenReturn(user1);
+
+		// when
+		useCase.update(List.of(request));
+
+		// then
+		then(userUpdateService).should().update(user1, "ADMIN");
+		then(jwtRedisService).should().updateRole(1L, "ADMIN");
 	}
 
 }
