@@ -202,5 +202,23 @@ public class UserManageUseCaseTest {
 
 	}
 
+	@Test
+	void ban_회원ban시_토큰무효화_및_유저상태변경되는지() {
+		//given
+		var user1 = User.builder().
+			id(1L)
+			.status(Status.ACTIVE)
+			.build();
 
+		var ids = new UserRequestDto.UserId(List.of(1L));
+		given(userGetService.findAll(ids.userId())).willReturn(List.of(user1));
+
+		//when
+		useCase.ban(ids);
+
+		//then
+		then(jwtRedisService).should().delete(1L);
+		then(userDeleteService).should().ban(user1);
+
+	}
 }
