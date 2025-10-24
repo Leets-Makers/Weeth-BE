@@ -14,10 +14,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @DataJpaTest
-@Import(TestContainersConfig.class)
+@Import({TestContainersConfig.class, NoticeSaveService.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class NoticeSaveServiceTest {
 
@@ -26,7 +28,8 @@ class NoticeSaveServiceTest {
     @Autowired
     NoticeRepository noticeRepository;
 
-
+    @Autowired
+    NoticeSaveService noticeSaveService;
 
     @Test
     void save() {
@@ -46,10 +49,12 @@ class NoticeSaveServiceTest {
                 .build();
 
         // when
-        Notice savedNotice = noticeRepository.save(notice);
+        noticeSaveService.save(notice);
 
         // then
-        assertThat(noticeRepository.findAll()).hasSize(1);
+        List<Notice> notices = noticeRepository.findAll();
+        assertThat(notices).hasSize(1);
+        Notice savedNotice = notices.get(0);
         assertThat(savedNotice.getTitle()).isEqualTo(notice.getTitle());
         assertThat(savedNotice.getContent()).isEqualTo(notice.getContent());
         assertThat(savedNotice.getUser().getId()).isEqualTo(user.getId());
