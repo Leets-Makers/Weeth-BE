@@ -66,6 +66,10 @@ dependencies {
 	// Spring Authorization Server
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
 
+    // Prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 tasks.named('test') {
