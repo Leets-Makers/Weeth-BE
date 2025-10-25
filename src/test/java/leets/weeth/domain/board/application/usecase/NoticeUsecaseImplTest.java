@@ -5,6 +5,7 @@ import leets.weeth.domain.board.application.mapper.NoticeMapper;
 import leets.weeth.domain.board.domain.entity.Notice;
 import leets.weeth.domain.board.domain.fixture.NoticeFixture;
 import leets.weeth.domain.board.domain.service.NoticeFindService;
+import leets.weeth.domain.file.domain.entity.File;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Department;
@@ -92,7 +93,78 @@ class NoticeUsecaseImplTest {
     }
 
     @Test
-    void searchNotice() {
+    void 공지사항_검색시_결과와_파일_존재여부가_정상적으로_반환() {
+        // given
+        User user = User.builder()
+                .email("abc@test.com")
+                .name("홍길동")
+                .position(Position.BE)
+                .department(Department.SW)
+                .role(Role.USER)
+                .build();
+
+        List<Notice> notices = new ArrayList<>();
+        for(int i = 0; i<3; i++){
+            Notice notice = NoticeFixture.createNotice("공지" + i, user);
+            ReflectionTestUtils.setField(notice, "id", (long) i + 1);
+            notices.add(notice);
+        }
+        for(int i = 3; i<6; i++){
+            Notice notice = NoticeFixture.createNotice("검색" + i, user);
+            ReflectionTestUtils.setField(notice, "id", (long) i + 1);
+            notices.add(notice);
+        }
+
+
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
+
+        Slice<Notice> slice = new SliceImpl<>(List.of(notices.get(5), notices.get(4), notices.get(3)), pageable, false);
+
+        when(noticeFindService.search(any(String.class), any(Pageable.class))).thenReturn(slice);
+        // 짝수 id - 파일 존재, 홀수 id - 파일 없음 (빈 리스트)
+        when(fileGetService.findAllByNotice(any()))
+                .thenAnswer(invocation -> {
+                    Long noticeId = invocation.getArgument(0);
+                    if (noticeId % 2 == 0) {
+                        return List.of(File.builder()
+                                .notice(notices.get((int)(noticeId-1)))
+                                .build());
+                    } else {
+                        return List.of();
+                    }
+                });
+
+        when(noticeMapper.toAll(any(Notice.class), anyBoolean()))
+                .thenAnswer(invocation -> {
+                    Notice notice = invocation.getArgument(0);
+                    boolean fileExists = invocation.getArgument(1);
+                    return new NoticeDTO.ResponseAll(
+                            notice.getId(),
+                            notice.getUser() != null ? notice.getUser().getName() : "",
+                            notice.getUser() != null ? notice.getUser().getPosition() : Position.BE,
+                            notice.getUser() != null ? notice.getUser().getRole() : Role.USER,
+                            notice.getTitle(),
+                            notice.getContent(),
+                            notice.getCreatedAt(),
+                            notice.getCommentCount(),
+                            fileExists
+                    );
+                });
+
+        // when
+        Slice<NoticeDTO.ResponseAll> noticeResponses = noticeUsecase.searchNotice("검색", 0, 5);
+
+        // then
+        assertThat(noticeResponses).isNotNull();
+        assertThat(noticeResponses.getContent()).hasSize(3);
+        assertThat(noticeResponses.getContent().get(0).title()).isEqualTo(notices.get(5).getTitle());
+        assertThat(noticeResponses.hasNext()).isFalse();
+        
+        // 짝수 id : 파일 존재, 홀수 id : 파일 없음 검증
+        assertThat(noticeResponses.getContent().get(0).hasFile()).isTrue();
+        assertThat(noticeResponses.getContent().get(1).hasFile()).isFalse();
+
+        verify(noticeFindService, times(1)).search("검색", pageable);
     }
 
     @Test
