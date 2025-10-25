@@ -62,7 +62,7 @@ class NoticeUsecaseImplTest {
         Slice<Notice> slice = new SliceImpl<>(List.of(notices.get(4), notices.get(3), notices.get(2)), pageable, true);
 
         when(noticeFindService.findRecentNotices(any(Pageable.class))).thenReturn(slice);
-        when(fileGetService.findAllByNotice(nullable(Long.class))).thenReturn(List.of());
+        when(fileGetService.findAllByNotice(any())).thenReturn(List.of());
 
         when(noticeMapper.toAll(any(Notice.class), anyBoolean()))
                 .thenAnswer(invocation -> {
@@ -87,6 +87,7 @@ class NoticeUsecaseImplTest {
         assertThat(noticeResponses).isNotNull();
         assertThat(noticeResponses.getContent()).hasSize(3);
         assertThat(noticeResponses.getContent().get(0).title()).isEqualTo(notices.get(4).getTitle());
+        assertThat(noticeResponses.hasNext()).isTrue();
 
         verify(noticeFindService, times(1)).findRecentNotices(pageable);
 
