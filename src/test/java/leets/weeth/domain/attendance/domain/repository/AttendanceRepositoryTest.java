@@ -58,12 +58,17 @@ public class AttendanceRepositoryTest {
 	@Test
 	@DisplayName("특정 정기모임 + 사용자 상태로 출석 목록 조회")
 	void findAllByMeetingAndUserStatus() {
+		// given
+		Status active = activeUser1.getStatus();
+
 		// when
-		List<Attendance> attendances = attendanceRepository.findAllByMeetingAndUserStatus(meeting, Status.ACTIVE);
+		List<Attendance> attendances =
+			attendanceRepository.findAllByMeetingAndUserStatus(meeting, active);
 
 		// then
 		assertThat(attendances).hasSize(2);
-		assertThat(attendances).extracting(a -> a.getUser().getName())
+		assertThat(attendances)
+			.extracting(a -> a.getUser().getName())
 			.containsExactlyInAnyOrder("이지훈", "이강혁");
 	}
 
