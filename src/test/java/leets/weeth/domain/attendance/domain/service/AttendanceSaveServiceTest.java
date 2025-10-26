@@ -34,7 +34,6 @@ class AttendanceSaveServiceTest {
 		Meeting meetingFirst = createMeeting();
 		Meeting meetingSecond = createMeeting();
 
-		// save가 새로운 Attendance를 반환하는 동작을 그대로 흉내 (인자로 받은 객체를 그대로 반환)
 		when(attendanceRepository.save(any(Attendance.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
 
