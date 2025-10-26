@@ -27,7 +27,7 @@ class AttendanceSaveServiceTest {
 	@InjectMocks private AttendanceSaveService attendanceSaveService;
 
 	@Test
-	@DisplayName("init(user, meetings): 각 미팅에 대한 Attendance 저장 후 user.add 호출")
+	@DisplayName("init(user, meetings): 각 정기모임에 대한 Attendance 저장 후 user.add 호출")
 	void init_createsAttendanceAndLinkToUser() {
 		// given
 		User user = mock(User.class);
