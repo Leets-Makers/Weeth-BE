@@ -1,5 +1,7 @@
 package leets.weeth.domain.attendance.domain.service;
 
+import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
+import static leets.weeth.domain.schedule.test.fixture.ScheduleTestFixture.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.user.domain.entity.User;
 
 @ExtendWith(MockitoExtension.class)
-public class AttendanceSaveServiceTest {
+class AttendanceSaveServiceTest {
 
 	@Mock private AttendanceRepository attendanceRepository;
 	@InjectMocks private AttendanceSaveService attendanceSaveService;
@@ -29,18 +31,17 @@ public class AttendanceSaveServiceTest {
 	void init_createsAttendanceAndLinkToUser() {
 		// given
 		User user = mock(User.class);
-		Meeting m1 = mock(Meeting.class);
-		Meeting m2 = mock(Meeting.class);
+		Meeting meetingFirst = createMeeting();
+		Meeting meetingSecond = createMeeting();
 
-		// when
-		// save 시 반환될 Attendance를 목으로 대체
+		// save가 새로운 Attendance를 반환하는 동작을 그대로 흉내 (인자로 받은 객체를 그대로 반환)
 		when(attendanceRepository.save(any(Attendance.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
 
-		attendanceSaveService.init(user, List.of(m1, m2));
+		// when
+		attendanceSaveService.init(user, List.of(meetingFirst, meetingSecond));
 
 		// then
-		// 저장은 2회, user.add는 2회
 		verify(attendanceRepository, times(2)).save(any(Attendance.class));
 		verify(user, times(2)).add(any(Attendance.class));
 	}
@@ -49,18 +50,25 @@ public class AttendanceSaveServiceTest {
 	@DisplayName("saveAll(users, meeting): 사용자 수만큼 Attendance 생성 후 saveAll 호출")
 	void saveAll_bulkInsert() {
 		// given
-		User u1 = mock(User.class);
-		User u2 = mock(User.class);
-		Meeting meeting = mock(Meeting.class);
+		Meeting meeting = createMeeting();
+		User userFirst = createActiveUser("이지훈");
+		User userSecond = createActiveUser("이강혁");
 
 		// when
-		attendanceSaveService.saveAll(List.of(u1, u2), meeting);
+		attendanceSaveService.saveAll(List.of(userFirst, userSecond), meeting);
 
 		// then
-		ArgumentCaptor<List<Attendance>> captor = ArgumentCaptor.forClass(List.class);
-		verify(attendanceRepository).saveAll(captor.capture());
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<List<Attendance>> listCaptor = ArgumentCaptor.forClass(List.class);
+		verify(attendanceRepository).saveAll(listCaptor.capture());
 
-		List<Attendance> saved = captor.getValue();
-		Assertions.assertThat(saved).hasSize(2);
+		List<Attendance> savedAttendances = listCaptor.getValue();
+		Assertions.assertThat(savedAttendances).hasSize(2);
+
+		Assertions.assertThat(savedAttendances)
+			.allSatisfy(att -> Assertions.assertThat(att.getMeeting()).isSameAs(meeting));
+		Assertions.assertThat(savedAttendances)
+			.extracting(Attendance::getUser)
+			.containsExactlyInAnyOrder(userFirst, userSecond);
 	}
 }

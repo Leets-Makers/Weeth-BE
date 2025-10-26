@@ -1,5 +1,7 @@
 package leets.weeth.domain.attendance.domain.service;
 
+import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
+import static leets.weeth.domain.schedule.test.fixture.ScheduleTestFixture.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -9,9 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import leets.weeth.domain.attendance.domain.entity.Attendance;
 import leets.weeth.domain.attendance.domain.entity.enums.Status;
+import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.user.domain.entity.User;
 
-public class AttendanceUpdateServiceTest {
+class AttendanceUpdateServiceTest {
 
 	private final AttendanceUpdateService attendanceUpdateService = new AttendanceUpdateService();
 
@@ -19,61 +22,86 @@ public class AttendanceUpdateServiceTest {
 	@DisplayName("attend(): attendance.attend() + user.attend() 호출")
 	void attend_callsEntityMethods() {
 		// given
-		Attendance attendance = mock(Attendance.class);
-		User user = mock(User.class);
-		when(attendance.getUser()).thenReturn(user);
+		Meeting meeting = createMeeting();
+		User realUser = createActiveUser("이지훈");
+		User userSpy = spy(realUser);
+
+		doNothing().when(userSpy).attend();
+
+		Attendance realAttendance = createAttendance(meeting, userSpy);
+		Attendance attendanceSpy = spy(realAttendance);
 
 		// when
-		attendanceUpdateService.attend(attendance);
+		attendanceUpdateService.attend(attendanceSpy);
 
 		// then
-		verify(attendance).attend();
-		verify(user).attend();
+		verify(attendanceSpy).attend();
+		verify(userSpy).attend();
 	}
 
 	@Test
 	@DisplayName("close(): pending만 close() + user.absent() 호출")
 	void close_onlyPendingIsClosed() {
 		// given
-		Attendance pending = mock(Attendance.class);
-		Attendance nonPending = mock(Attendance.class);
-		User pendingUser = mock(User.class);
-		User nonPendingUser = mock(User.class);
+		Meeting meeting = createMeeting();
 
-		when(pending.isPending()).thenReturn(true);
-		when(nonPending.isPending()).thenReturn(false);
-		when(pending.getUser()).thenReturn(pendingUser);
-		when(nonPending.getUser()).thenReturn(nonPendingUser);
+		User pendingUserReal = createActiveUser("pending-user");
+		User nonPendingUserReal = createActiveUser("non-pending-user");
+		User pendingUserSpy = spy(pendingUserReal);
+		User nonPendingUserSpy = spy(nonPendingUserReal);
+
+		doNothing().when(pendingUserSpy).absent();
+		doNothing().when(nonPendingUserSpy).absent();
+
+		Attendance pendingAttendanceReal = createAttendance(meeting, pendingUserSpy);
+		Attendance nonPendingAttendanceReal = createAttendance(meeting, nonPendingUserSpy);
+		Attendance pendingAttendanceSpy = spy(pendingAttendanceReal);
+		Attendance nonPendingAttendanceSpy = spy(nonPendingAttendanceReal);
+
+		doReturn(true).when(pendingAttendanceSpy).isPending();
+		doReturn(false).when(nonPendingAttendanceSpy).isPending();
 
 		// when
-		attendanceUpdateService.close(List.of(pending, nonPending));
+		attendanceUpdateService.close(List.of(pendingAttendanceSpy, nonPendingAttendanceSpy));
 
 		// then
-		verify(pending).close();
-		verify(pendingUser).absent();
-		verify(nonPending, never()).close();
-		verify(nonPendingUser, never()).absent();
+		verify(pendingAttendanceSpy).close();
+		verify(pendingUserSpy).absent();
+
+		verify(nonPendingAttendanceSpy, never()).close();
+		verify(nonPendingUserSpy, never()).absent();
 	}
 
 	@Test
-	@DisplayName("updateUserAttendanceByStatus가 ATTEND면 user.removeAttend(), 그 외에는 user.removeAbsent() 처리")
+	@DisplayName("updateUserAttendanceByStatus: ATTEND면 user.removeAttend(), 그 외에는 user.removeAbsent()")
 	void updateUserAttendanceByStatus() {
 		// given
-		Attendance attend = mock(Attendance.class);
-		Attendance absent = mock(Attendance.class);
-		User userA = mock(User.class);
-		User userB = mock(User.class);
+		Meeting meeting = createMeeting();
 
-		when(attend.getStatus()).thenReturn(Status.ATTEND);
-		when(absent.getStatus()).thenReturn(Status.ABSENT);
-		when(attend.getUser()).thenReturn(userA);
-		when(absent.getUser()).thenReturn(userB);
+		User attendUserReal = createActiveUser("attend-user");
+		User absentUserReal = createActiveUser("absent-user");
+
+		User attendUserSpy = spy(attendUserReal);
+		User absentUserSpy = spy(absentUserReal);
+
+		doNothing().when(attendUserSpy).removeAttend();
+		doNothing().when(absentUserSpy).removeAbsent();
+
+		Attendance attendAttendanceReal = createAttendance(meeting, attendUserSpy);
+		Attendance absentAttendanceReal = createAttendance(meeting, absentUserSpy);
+		Attendance attendAttendanceSpy = spy(attendAttendanceReal);
+		Attendance absentAttendanceSpy = spy(absentAttendanceReal);
+
+		doReturn(Status.ATTEND).when(attendAttendanceSpy).getStatus();
+		doReturn(Status.ABSENT).when(absentAttendanceSpy).getStatus();
+		doReturn(attendUserSpy).when(attendAttendanceSpy).getUser();
+		doReturn(absentUserSpy).when(absentAttendanceSpy).getUser();
 
 		// when
-		attendanceUpdateService.updateUserAttendanceByStatus(List.of(attend, absent));
+		attendanceUpdateService.updateUserAttendanceByStatus(List.of(attendAttendanceSpy, absentAttendanceSpy));
 
 		// then
-		verify(userA).removeAttend();
-		verify(userB).removeAbsent();
+		verify(attendUserSpy).removeAttend();
+		verify(absentUserSpy).removeAbsent();
 	}
 }
