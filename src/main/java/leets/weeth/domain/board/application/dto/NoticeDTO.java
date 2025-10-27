@@ -1,5 +1,6 @@
 package leets.weeth.domain.board.application.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
@@ -56,6 +57,13 @@ public class NoticeDTO {
             LocalDateTime time,//modifiedAt
             Integer commentCount,
             boolean hasFile
+    ) {
+    }
+
+    @Builder
+    public record SaveResponse(
+            @Schema(description = "공지사항 생성 응답", example = "1")
+            long id
     ) {
     }
 
