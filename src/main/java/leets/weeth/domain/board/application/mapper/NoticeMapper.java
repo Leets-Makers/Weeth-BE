@@ -37,4 +37,6 @@ public interface NoticeMapper {
     })
     NoticeDTO.Response toNoticeDto(Notice notice, List<FileResponse> fileUrls, List<CommentDTO.Response> comments);
 
+    NoticeDTO.SaveResponse  toSaveResponse(Notice notice);
+
 }

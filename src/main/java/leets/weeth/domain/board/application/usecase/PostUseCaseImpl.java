@@ -1,9 +1,5 @@
 package leets.weeth.domain.board.application.usecase;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
@@ -33,13 +29,14 @@ import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +61,7 @@ public class PostUseCaseImpl implements PostUsecase {
 
     @Override
     @Transactional
-    public void save(PostDTO.Save request, Long userId) {
+    public PostDTO.SaveResponse save(PostDTO.Save request, Long userId) {
         User user = userGetService.find(userId);
 
         if (request.category() == Category.Education
@@ -74,23 +71,26 @@ public class PostUseCaseImpl implements PostUsecase {
 
         cardinalGetService.findByUserSide(request.cardinalNumber());
         Post post = mapper.fromPostDto(request, user);
-        postSaveService.save(post);
+        Post savedPost = postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
         fileSaveService.save(files);
+
+        return mapper.toSaveResponse(savedPost);
     }
 
     @Override
     @Transactional
-    public void saveEducation(PostDTO.SaveEducation request, Long userId) {
+    public PostDTO.SaveResponse saveEducation(PostDTO.SaveEducation request, Long userId) {
         User user = userGetService.find(userId);
 
         Post post = mapper.fromEducationDto(request, user);
-
-        postSaveService.save(post);
+        Post saverPost = postSaveService.save(post);
 
         List<File> files = fileMapper.toFileList(request.files(), post);
         fileSaveService.save(files);
+
+        return mapper.toSaveResponse(saverPost);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class PostUseCaseImpl implements PostUsecase {
 
     @Override
     @Transactional
-    public void update(Long postId, PostDTO.Update dto, Long userId) {
+    public PostDTO.SaveResponse update(Long postId, PostDTO.Update dto, Long userId) {
         Post post = validateOwner(postId, userId);
 
         if (dto.files() != null) {
@@ -205,11 +205,13 @@ public class PostUseCaseImpl implements PostUsecase {
         }
 
         postUpdateService.update(post, dto);
+
+        return mapper.toSaveResponse(post);
     }
 
     @Override
     @Transactional
-    public void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) {
+    public PostDTO.SaveResponse updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) {
         Post post = validateOwner(postId, userId);
 
         if (dto.files() != null) {
@@ -221,6 +223,8 @@ public class PostUseCaseImpl implements PostUsecase {
         }
 
         postUpdateService.updateEducation(post, dto);
+
+        return mapper.toSaveResponse(post);
     }
 
     @Override
