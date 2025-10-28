@@ -16,6 +16,8 @@ import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
 import leets.weeth.domain.user.domain.entity.enums.Status;
+import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
+import leets.weeth.domain.user.test.fixture.UserTestFixture;
 
 @DataJpaTest
 @Import(TestContainersConfig.class)
@@ -34,32 +36,13 @@ public class UsesrCardinalRepositoryTest {
 	@Test
 	void 유저별_기수_내림차순_조회되는지() {
 		//given
-		User user = User.builder()
-			.email("test@test.com")
-			.name("문적순")
-			.status(Status.ACTIVE)
-			.build();
+		var user = UserTestFixture.createActiveUser1();
 
 		userRepository.save(user);
 
-		Cardinal cardinal1 = cardinalRepository.save(Cardinal.builder()
-			.cardinalNumber(5)
-			.year(2023)
-			.semester(1)
-			.build());
-
-		Cardinal cardinal2 = cardinalRepository.save(Cardinal.builder()
-			.cardinalNumber(6)
-			.year(2023)
-			.semester(2)
-			.build());
-
-		Cardinal cardinal3 = cardinalRepository.save(Cardinal.builder()
-			.cardinalNumber(7)
-			.year(2024)
-			.semester(1)
-			.build());
-
+		var cardinal1 = cardinalRepository.save(CardinalTestFixture.createCardinal(5,2023,1));
+		var cardinal2 = cardinalRepository.save(CardinalTestFixture.createCardinal(6,2023,2));
+		var cardinal3 = cardinalRepository.save(CardinalTestFixture.createCardinal(7,2024,1));
 
 		userCardinalRepository.saveAll(List.of(
 			new UserCardinal(user, cardinal1),
@@ -81,13 +64,16 @@ public class UsesrCardinalRepositoryTest {
 	@Test
 	void 여러_유저의_기수를_유저별_내림차순으로_조회한다() {
 		//given
-		User user1 = userRepository.save(User.builder().email("user1@test.com").name("적순").status(Status.ACTIVE).build());
-		User user2 = userRepository.save(User.builder().email("user2@test.com").name("순적").status(Status.ACTIVE).build());
+		var user1 = UserTestFixture.createActiveUser1();
+		var user2 = UserTestFixture.createActiveUser2();
 
-		Cardinal c1 = cardinalRepository.save(Cardinal.builder().cardinalNumber(5).year(2023).semester(1).build());
-		Cardinal c2 = cardinalRepository.save(Cardinal.builder().cardinalNumber(6).year(2023).semester(2).build());
-		Cardinal c3 = cardinalRepository.save(Cardinal.builder().cardinalNumber(7).year(2024).semester(1).build());
-		Cardinal c4 = cardinalRepository.save(Cardinal.builder().cardinalNumber(8).year(2024).semester(2).build());
+		userRepository.save(user1);
+		userRepository.save(user2);
+
+		var c1 = cardinalRepository.save(CardinalTestFixture.createCardinal(5,2023,1));
+		var c2 = cardinalRepository.save(CardinalTestFixture.createCardinal(6,2023,2));
+		var c3 = cardinalRepository.save(CardinalTestFixture.createCardinal(7,2024,1));
+		var c4 = cardinalRepository.save(CardinalTestFixture.createCardinal(8,2024,2));
 
 		userCardinalRepository.saveAll(List.of(
 			new UserCardinal(user1, c3),

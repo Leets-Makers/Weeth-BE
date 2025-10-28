@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 
 import leets.weeth.config.TestContainersConfig;
 import leets.weeth.domain.user.domain.entity.Cardinal;
+import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
 
 @DataJpaTest
 @Import(TestContainersConfig.class)
@@ -22,12 +23,7 @@ public class CardinalRepositoryTest {
 	@Test
 	void 기수번호로_조회되는지() {
 		//given
-		Cardinal cardinal = Cardinal.builder()
-			.id(1L)
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.build();
+		var cardinal = CardinalTestFixture.createCardinal(7,2025,1);
 		cardinalRepository.save(cardinal);
 
 		//when
