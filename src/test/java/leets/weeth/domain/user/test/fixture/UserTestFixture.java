@@ -5,7 +5,7 @@ import leets.weeth.domain.user.domain.entity.enums.Status;
 
 public class UserTestFixture {
 
-	public static User createActiveUser() {
+	public static User createActiveUser1() {
 		return User.builder()
 			.name("적순")
 			.email("test1@test.com")
@@ -13,7 +13,7 @@ public class UserTestFixture {
 			.build();
 	}
 
-	public static User createActiveUser(Long id) {
+	public static User createActiveUser1(Long id) {
 		return User.builder()
 			.id(id)
 			.name("적순")
@@ -22,7 +22,24 @@ public class UserTestFixture {
 			.build();
 	}
 
-	public static User createWaitingUser() {
+	public static User createActiveUser2() {
+		return User.builder()
+			.name("적순2")
+			.email("test2@test.com")
+			.status(Status.ACTIVE)
+			.build();
+	}
+
+	public static User createActiveUser2(Long id) {
+		return User.builder()
+			.id(id)
+			.name("적순")
+			.email("test2@test.com")
+			.status(Status.ACTIVE)
+			.build();
+	}
+
+	public static User createWaitingUser1() {
 		return User.builder()
 			.name("순적")
 			.email("test2@test.com")
@@ -30,7 +47,7 @@ public class UserTestFixture {
 			.build();
 	}
 
-	public static User createWaitingUser(Long id) {
+	public static User createWaitingUser1(Long id) {
 		return User.builder()
 			.id(id)
 			.name("순적")
@@ -39,5 +56,21 @@ public class UserTestFixture {
 			.build();
 	}
 
+	public static User createWaitingUser2() {
+		return User.builder()
+			.name("순적2")
+			.email("test3@test.com")
+			.status(Status.WAITING)
+			.build();
+	}
+
+	public static User createWaitingUser2(Long id) {
+		return User.builder()
+			.id(id)
+			.name("순적2")
+			.email("test3@test.com")
+			.status(Status.WAITING)
+			.build();
+	}
 
 }
