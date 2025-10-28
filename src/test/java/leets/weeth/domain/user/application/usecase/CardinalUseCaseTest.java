@@ -22,6 +22,7 @@ import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.enums.CardinalStatus;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.CardinalSaveService;
+import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
 
 @ExtendWith(MockitoExtension.class)
 public class CardinalUseCaseTest {
@@ -46,18 +47,8 @@ public class CardinalUseCaseTest {
 		//given
 		var request = new CardinalSaveRequest(7, 2025,1,false);
 
-		var toSave = Cardinal.builder() //DB저장되기 전의 객체
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.build();
-
-		var saved = Cardinal.builder()// 저장되고 난 후 반환된 객체
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.status(CardinalStatus.DONE)
-			.build();
+		var toSave = CardinalTestFixture.createCardinal(7, 2025, 1);
+		var saved =  CardinalTestFixture.createCardinal(7,2025 ,1);
 
 		willDoNothing().given(cardinalGetService).validateCardinal(7);
 		given(cardinalMapper.from(request)).willReturn(toSave);
@@ -77,27 +68,9 @@ public class CardinalUseCaseTest {
 		// given
 		var request = new CardinalSaveRequest(7, 2025,1,true);
 
-		var oldCardinal = Cardinal.builder()
-			.cardinalNumber(6)
-			.year(2024)
-			.semester(2)
-			.status(CardinalStatus.IN_PROGRESS)
-			.build();
-
-		var newCardinalBeforeSave = Cardinal.builder()
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.status(CardinalStatus.DONE)
-			.build();
-
-		var newCardinalAfterSave = Cardinal.builder()
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.status(CardinalStatus.IN_PROGRESS)
-			.build();
-
+		var oldCardinal = CardinalTestFixture.createCardinalInProgress(6, 2024, 2);
+		var newCardinalBeforeSave = CardinalTestFixture.createCardinal(7, 2025, 1);
+		var newCardinalAfterSave = CardinalTestFixture.createCardinal(7, 2025, 1);
 
 		given(cardinalGetService.findInProgress()).willReturn(List.of(oldCardinal));
 		given(cardinalMapper.from(request)).willReturn(newCardinalBeforeSave);
@@ -118,10 +91,7 @@ public class CardinalUseCaseTest {
 	@Test
 	void update_연도와_학기를_변경한다() {
 		//given
-		var cardinal = Cardinal.builder()
-			.year(2024)
-			.semester(2)
-			.build();
+		var cardinal = CardinalTestFixture.createCardinal(6, 2024, 2);
 		var dto = new CardinalUpdateRequest(1L, 2025,1,false);
 
 		//when
@@ -137,24 +107,9 @@ public class CardinalUseCaseTest {
 	void findAll_조회된_모든_기수를_DTO로_매핑처리() {
 
 		//given
-		var cardinal1 = Cardinal.builder()
-			.id(1L)
-			.cardinalNumber(6)
-			.year(2024)
-			.semester(2)
-			.status(CardinalStatus.DONE)
-			.build();
-
-		var cardinal2 = Cardinal.builder()
-			.id(2L)
-			.cardinalNumber(7)
-			.year(2025)
-			.semester(1)
-			.status(CardinalStatus.IN_PROGRESS)
-			.build();
-
+		var cardinal1 = CardinalTestFixture.createCardinal(1L,6,2024,2);
+		var cardinal2 = CardinalTestFixture.createCardinalInProgress(2L,7,2025,1);
 		var cardinals = List.of(cardinal1, cardinal2);
-
 		var now = LocalDateTime.now();
 
 		var response1 = new CardinalResponse(
