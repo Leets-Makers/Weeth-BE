@@ -36,6 +36,8 @@ import leets.weeth.domain.user.domain.service.UserCardinalSaveService;
 import leets.weeth.domain.user.domain.service.UserDeleteService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import leets.weeth.domain.user.domain.service.UserUpdateService;
+import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
+import leets.weeth.domain.user.test.fixture.UserTestFixture;
 import leets.weeth.global.auth.jwt.service.JwtRedisService;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,32 +77,10 @@ public class UserManageUseCaseTest {
 		//given
 		UsersOrderBy orderBy = UsersOrderBy.NAME_ASCENDING;
 
-		var user1  = User.builder()
-			.id(1L)
-			.name("aaa")
-			.status(Status.ACTIVE)
-			.build();
-
-		var user2  = User.builder()
-			.id(2L)
-			.name("bbb")
-			.status(Status.WAITING)
-			.build();
-
-		var cd1 = Cardinal.builder()
-			.id(1L)
-			.cardinalNumber(6)
-			.year(2020)
-			.semester(2)
-			.build();
-
-		var cd2 = Cardinal.builder()
-			.id(2L)
-			.cardinalNumber(7)
-			.year(2021)
-			.semester(1)
-			.build();
-
+		var user1 = UserTestFixture.createActiveUser1();
+		var user2 = UserTestFixture.createWaitingUser2();
+		var cd1 = CardinalTestFixture.createCardinal(1L,6,2020,2);
+		var cd2 = CardinalTestFixture.createCardinal(2L,7,2021,1);
 		var uc1 = new UserCardinal(user1, cd1);
 		var uc2 = new UserCardinal(user2, cd2);
 
@@ -119,8 +99,6 @@ public class UserManageUseCaseTest {
 			LocalDateTime.now().minusDays(2),
 			LocalDateTime.now()
 		);
-
-
 
 		given(userCardinalGetService.getUserCardinals(user1)).willReturn(List.of(uc1));
 		given(userCardinalGetService.getUserCardinals(user2)).willReturn(List.of(uc2));
@@ -144,16 +122,9 @@ public class UserManageUseCaseTest {
 	@Test
 	void accept_비활성유저_승인시_출석초기화_정상호출되는지() {
 		//given
-		var user1 = User.builder()
-			.id(1L)
-			.name("aaa")
-			.status(Status.WAITING)
-			.build();
+		var user1 = UserTestFixture.createWaitingUser1(1L);
 		var userIds = new UserRequestDto.UserId(List.of(1L));
-		var cardinal = Cardinal.builder()
-			.id(1L)
-			.cardinalNumber(8)
-			.build();
+		var cardinal = CardinalTestFixture.createCardinal(1L,8,2020,2);
 		var meetings = List.of(mock(Meeting.class));
 
 		given(userGetService.findAll(userIds.userId())).willReturn(List.of(user1));
@@ -172,7 +143,7 @@ public class UserManageUseCaseTest {
 	@Test
 	void update_유저권한변경시_DB와_Redis_모두갱신되는지() {
 		// given
-		var user1 = User.builder().id(1L).build();
+		var user1 = UserTestFixture.createActiveUser1(1L);
 		var request = new UserRequestDto.UserRoleUpdate(1L, Role.ADMIN);
 
 		lenient().when(userGetService.find((Long)1L)).thenReturn(user1);
@@ -188,10 +159,7 @@ public class UserManageUseCaseTest {
 	@Test
 	void leave_회원탈퇴시_토큰무효화_및_유저상태변경되는지() {
 		//given
-		var user1 = User.builder().
-			id(1L)
-			.status(Status.ACTIVE)
-			.build();
+		var user1 = UserTestFixture.createActiveUser1(1L);
 		given(userGetService.find((Long)1L)).willReturn(user1);
 
 		//when
@@ -206,11 +174,7 @@ public class UserManageUseCaseTest {
 	@Test
 	void ban_회원ban시_토큰무효화_및_유저상태변경되는지() {
 		//given
-		var user1 = User.builder().
-			id(1L)
-			.status(Status.ACTIVE)
-			.build();
-
+		var user1 = UserTestFixture.createActiveUser1(1L);
 		var ids = new UserRequestDto.UserId(List.of(1L));
 		given(userGetService.findAll(ids.userId())).willReturn(List.of(user1));
 
@@ -226,17 +190,8 @@ public class UserManageUseCaseTest {
 	@Test
 	void applyOB_현재기수_OB신청시_출석초기화_및_기수업데이트() {
 		//given
-		var user = User.builder()
-			.id(1L)
-			.status(Status.ACTIVE)
-			.attendances(new ArrayList<>())
-			.build();
-
-		var nextCardinal = Cardinal.builder()
-			.id(1L)
-			.cardinalNumber(4)
-			.build();
-
+		var user = User.builder().id(1L).name("aaa").status(Status.ACTIVE).attendances(new ArrayList<>()).build();
+		var nextCardinal = CardinalTestFixture.createCardinal(1L,4,2020,2);
 		var request = new UserRequestDto.UserApplyOB(1L,4);
 		var meeting = List.of(mock(Meeting.class));
 
@@ -257,18 +212,8 @@ public class UserManageUseCaseTest {
 	@Test
 	void reset_비밀번호초기화시_모든유저에_reset호출되는지() {
 		// given
-		var user1 = User.builder()
-			.id(1L)
-			.name("aaa")
-			.status(Status.ACTIVE)
-			.build();
-
-		var user2 = User.builder()
-			.id(2L)
-			.name("bbb")
-			.status(Status.ACTIVE)
-			.build();
-
+		var user1 = UserTestFixture.createActiveUser1(1L);
+		var user2 = UserTestFixture.createActiveUser2(2L);
 		var ids = new UserRequestDto.UserId(List.of(1L, 2L));
 
 		given(userGetService.findAll(ids.userId())).willReturn(List.of(user1, user2));
