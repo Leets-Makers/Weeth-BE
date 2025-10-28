@@ -5,40 +5,40 @@ import leets.weeth.domain.user.domain.entity.enums.CardinalStatus;
 
 public class CardinalTestFixture {
 
-	public static Cardinal createCardinal() {
+	public static Cardinal createCardinal(int cardinalNumber, int year, int semester) {
 		return Cardinal.builder()
-			.cardinalNumber(3)
-			.year(2024)
-			.semester(1)
+			.cardinalNumber(cardinalNumber)
+			.year(year)
+			.semester(semester)
 			.status(CardinalStatus.DONE)
 			.build();
 	}
 
-	public static Cardinal createCardinal(Long id) {
+	public static Cardinal createCardinal(Long id, int cardinalNumber, int year, int semester) {
 		return Cardinal.builder()
 			.id(id)
-			.cardinalNumber(3)
-			.year(2024)
-			.semester(1)
+			.cardinalNumber(cardinalNumber)
+			.year(year)
+			.semester(semester)
 			.status(CardinalStatus.DONE)
 			.build();
 	}
 
-	public static Cardinal createCardinalInProgress() {
+	public static Cardinal createCardinalInProgress ( int cardinalNumber, int year, int semester) {
 		return Cardinal.builder()
-			.cardinalNumber(3)
-			.year(2024)
-			.semester(1)
+			.cardinalNumber(cardinalNumber)
+			.year(year)
+			.semester(semester)
 			.status(CardinalStatus.IN_PROGRESS)
 			.build();
 	}
 
-	public static Cardinal createCardinalInProgress(Long id) {
+	public static Cardinal createCardinalInProgress(Long id, int cardinalNumber, int year, int semester) {
 		return Cardinal.builder()
 			.id(id)
-			.cardinalNumber(3)
-			.year(2024)
-			.semester(1)
+			.cardinalNumber(cardinalNumber)
+			.year(year)
+			.semester(semester)
 			.status(CardinalStatus.IN_PROGRESS)
 			.build();
 	}
