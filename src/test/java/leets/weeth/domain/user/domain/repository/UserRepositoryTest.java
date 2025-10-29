@@ -50,11 +50,12 @@ public class UserRepositoryTest {
 
 		user1.accept();
 		user2.accept();
+		userCardinalRepository.flush();
 
 		userCardinalRepository.save(UserCardinalTestFixture.linkUserCardinal(user1, cardinal7));
 		userCardinalRepository.save(UserCardinalTestFixture.linkUserCardinal(user2, cardinal8));
 		userCardinalRepository.save(UserCardinalTestFixture.linkUserCardinal(user3, cardinal7));
-		userCardinalRepository.flush();
+
 	}
 
 	@Test
