@@ -1,10 +1,9 @@
 package leets.weeth.domain.board.application.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.List;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
@@ -13,6 +12,9 @@ import leets.weeth.domain.file.application.dto.response.FileResponse;
 import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class PostDTO {
 
@@ -26,7 +28,8 @@ public class PostDTO {
             @NotNull Part part,
             @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
-    ){}
+    ) {
+    }
 
     @Builder
     public record SaveEducation(
@@ -35,7 +38,15 @@ public class PostDTO {
             @NotNull List<Part> parts,
             @NotNull Integer cardinalNumber,
             @Valid List<@NotNull FileSaveRequest> files
-    ){}
+    ) {
+    }
+
+    @Builder
+    public record SaveResponse(
+            @Schema(description = "게시글 생성시 응답", example = "1")
+            long id
+    ) {
+    }
 
     @Builder
     public record Update(
@@ -46,7 +57,8 @@ public class PostDTO {
             Part part,
             Integer cardinalNumber,
             @Valid List<FileSaveRequest> files
-    ){}
+    ) {
+    }
 
     @Builder
     public record UpdateEducation(
@@ -55,7 +67,8 @@ public class PostDTO {
             List<Part> parts,
             Integer cardinalNumber,
             @Valid List<FileSaveRequest> files
-    ){}
+    ) {
+    }
 
     @Builder
     public record Response(
@@ -74,7 +87,8 @@ public class PostDTO {
             Integer commentCount,
             List<CommentDTO.Response> comments,
             List<FileResponse> fileUrls
-    ){}
+    ) {
+    }
 
     @Builder
     public record ResponseAll(
@@ -91,7 +105,8 @@ public class PostDTO {
             Integer commentCount,
             boolean hasFile,
             boolean isNew
-    ){}
+    ) {
+    }
 
     @Builder
     public record ResponseEducationAll(
@@ -106,9 +121,11 @@ public class PostDTO {
             Integer commentCount,
             boolean hasFile,
             boolean isNew
-    ){}
+    ) {
+    }
 
     public record ResponseStudyNames(
             List<String> studyNames
-    ) {}
+    ) {
+    }
 }
