@@ -35,7 +35,6 @@ class PostMapperTest {
                 .title("테스트 게시글")
                 .user(testUser)
                 .content("테스트 내용입니다.")
-                .user(testUser)
                 .build();
     }
 
