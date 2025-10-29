@@ -102,7 +102,7 @@ public class UserManageUseCaseTest {
 
 		given(userCardinalGetService.getUserCardinals(user1)).willReturn(List.of(uc1));
 		given(userCardinalGetService.getUserCardinals(user2)).willReturn(List.of(uc2));
-		given(userCardinalGetService.findAll()).willReturn(List.of(uc1, uc2));
+		given(userCardinalGetService.findAll()).willReturn(List.of(uc2, uc1));
 		given(userMapper.toAdminResponse(user1, List.of(uc1))).willReturn(adminResponse1);
 		given(userMapper.toAdminResponse(user2, List.of(uc2))).willReturn(adminResponse2);
 
