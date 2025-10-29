@@ -33,7 +33,7 @@ public class UserTestFixture {
 	public static User createActiveUser2(Long id) {
 		return User.builder()
 			.id(id)
-			.name("적순")
+			.name("적순2")
 			.email("test2@test.com")
 			.status(Status.ACTIVE)
 			.build();
