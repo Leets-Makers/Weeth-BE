@@ -12,17 +12,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import leets.weeth.config.TestContainersConfig;
-import leets.weeth.domain.user.domain.entity.Cardinal;
-import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
-import leets.weeth.domain.user.domain.entity.enums.Status;
 import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
 import leets.weeth.domain.user.test.fixture.UserTestFixture;
 
 @DataJpaTest
 @Import(TestContainersConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UsesrCardinalRepositoryTest {
+public class UserCardinalRepositoryTest {
 
 	@Autowired
 	UserRepository userRepository;
