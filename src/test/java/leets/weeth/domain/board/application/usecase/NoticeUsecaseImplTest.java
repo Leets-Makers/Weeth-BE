@@ -30,6 +30,7 @@ class NoticeUsecaseImplTest {
 
     @Mock
     private NoticeFindService noticeFindService;
+
     @Mock
     private FileGetService fileGetService;
 
