@@ -1,4 +1,4 @@
-package leets.weeth.domain.attendance.application;
+package leets.weeth.domain.attendance.application.usecase;
 
 import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
 import static org.assertj.core.api.Assertions.*;
@@ -19,7 +19,6 @@ import leets.weeth.domain.attendance.application.dto.AttendanceDTO;
 import leets.weeth.domain.attendance.application.exception.AttendanceCodeMismatchException;
 import leets.weeth.domain.attendance.application.exception.AttendanceNotFoundException;
 import leets.weeth.domain.attendance.application.mapper.AttendanceMapper;
-import leets.weeth.domain.attendance.application.usecase.AttendanceUseCaseImpl;
 import leets.weeth.domain.attendance.domain.entity.Attendance;
 import leets.weeth.domain.attendance.domain.entity.enums.Status;
 import leets.weeth.domain.attendance.domain.service.AttendanceGetService;
@@ -130,28 +129,6 @@ public class AttendanceUseCaseImplTest {
 		// then
 		assertThat(actualDetail).isSameAs(expectedDetail);
 		verify(attendanceMapper).toDetailDto(eq(user), argThat(list -> list.size() == 2));
-	}
-
-	@Test
-	@DisplayName("findAllAttendanceByMeeting: 정기모임 조회 후 해당 출석들을 DTO로 매핑")
-	void findAllAttendanceByMeeting() {
-		// given
-		Meeting meeting = createOneDayMeeting(LocalDate.now(), 1, 1111, "Today");
-		Attendance a1 = createAttendance(meeting, createActiveUser("A"));
-		Attendance a2 = createAttendance(meeting, createActiveUser("B"));
-
-		when(meetingGetService.find(99L)).thenReturn(meeting);
-		when(attendanceGetService.findAllByMeeting(meeting)).thenReturn(List.of(a1, a2));
-		AttendanceDTO.AttendanceInfo i1 = mock(AttendanceDTO.AttendanceInfo.class);
-		AttendanceDTO.AttendanceInfo i2 = mock(AttendanceDTO.AttendanceInfo.class);
-		when(attendanceMapper.toAttendanceInfoDto(a1)).thenReturn(i1);
-		when(attendanceMapper.toAttendanceInfoDto(a2)).thenReturn(i2);
-
-		// when
-		List<AttendanceDTO.AttendanceInfo> actual = attendanceUseCase.findAllAttendanceByMeeting(99L);
-
-		// then
-		assertThat(actual).containsExactly(i1, i2);
 	}
 
 	@Test

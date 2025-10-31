@@ -1,5 +1,6 @@
 package leets.weeth.domain.attendance.test.fixture;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.List;
 import leets.weeth.domain.attendance.domain.entity.Attendance;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.entity.enums.Department;
+import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Status;
 
 public class AttendanceTestFixture {
@@ -62,5 +65,47 @@ public class AttendanceTestFixture {
 			.code(code)
 			.cardinal(cardinal)
 			.build();
+	}
+
+	private static void set(Object target, String fieldName, Object value) {
+		try {
+			Field f = target.getClass().getDeclaredField(fieldName);
+			f.setAccessible(true);
+			f.set(target, value);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void setField(Object target, String fieldName, Object value) {
+		try {
+			Field field = target.getClass().getDeclaredField(fieldName);
+			field.setAccessible(true);
+			field.set(target, value);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void setAttendanceId(Attendance attendance, Long id) {
+		setField(attendance, "id", id);
+	}
+
+	public static void setUserAttendanceStats(User user, Integer attendanceCount, Integer absenceCount) {
+		setField(user, "attendanceCount", attendanceCount);
+		setField(user, "absenceCount", absenceCount);
+	}
+
+	public static void enrichUserProfile(User user, Position position, Department department, String studentId) {
+		setField(user, "position", position);
+		setField(user, "department", department);
+		setField(user, "studentId", studentId);
+	}
+
+	public static void enrichUserProfile(User user, Position position, String departmentKoreanValue, String studentId) {
+		setField(user, "position", position);
+		Department department = Department.to(departmentKoreanValue); // ← 핵심
+		setField(user, "department", department);
+		setField(user, "studentId", studentId);
 	}
 }
