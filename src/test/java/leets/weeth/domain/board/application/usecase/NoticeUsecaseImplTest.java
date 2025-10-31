@@ -11,6 +11,7 @@ import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Department;
 import leets.weeth.domain.user.domain.entity.enums.Position;
 import leets.weeth.domain.user.domain.entity.enums.Role;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,8 +23,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.BDDMockito.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NoticeUsecaseImplTest {
@@ -62,11 +63,11 @@ class NoticeUsecaseImplTest {
 
         Slice<Notice> slice = new SliceImpl<>(List.of(notices.get(4), notices.get(3), notices.get(2)), pageable, true);
 
-        when(noticeFindService.findRecentNotices(any(Pageable.class))).thenReturn(slice);
-        when(fileGetService.findAllByNotice(any())).thenReturn(List.of());
+        given(noticeFindService.findRecentNotices(any(Pageable.class))).willReturn(slice);
+        given(fileGetService.findAllByNotice(any())).willReturn(List.of());
 
-        when(noticeMapper.toAll(any(Notice.class), anyBoolean()))
-                .thenAnswer(invocation -> {
+        given(noticeMapper.toAll(any(Notice.class), anyBoolean()))
+                .willAnswer(invocation -> {
                     Notice notice = invocation.getArgument(0);
                     return new NoticeDTO.ResponseAll(
                             notice.getId(),
@@ -122,10 +123,10 @@ class NoticeUsecaseImplTest {
 
         Slice<Notice> slice = new SliceImpl<>(List.of(notices.get(5), notices.get(4), notices.get(3)), pageable, false);
 
-        when(noticeFindService.search(any(String.class), any(Pageable.class))).thenReturn(slice);
+        given(noticeFindService.search(any(String.class), any(Pageable.class))).willReturn(slice);
         // 짝수 id - 파일 존재, 홀수 id - 파일 없음 (빈 리스트)
-        when(fileGetService.findAllByNotice(any()))
-                .thenAnswer(invocation -> {
+        given(fileGetService.findAllByNotice(any()))
+                .willAnswer(invocation -> {
                     Long noticeId = invocation.getArgument(0);
                     if (noticeId % 2 == 0) {
                         return List.of(File.builder()
@@ -136,8 +137,8 @@ class NoticeUsecaseImplTest {
                     }
                 });
 
-        when(noticeMapper.toAll(any(Notice.class), anyBoolean()))
-                .thenAnswer(invocation -> {
+        given(noticeMapper.toAll(any(Notice.class), anyBoolean()))
+                .willAnswer(invocation -> {
                     Notice notice = invocation.getArgument(0);
                     boolean fileExists = invocation.getArgument(1);
                     return new NoticeDTO.ResponseAll(
