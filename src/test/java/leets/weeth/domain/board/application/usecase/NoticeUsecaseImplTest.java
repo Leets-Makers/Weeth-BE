@@ -170,10 +170,12 @@ class NoticeUsecaseImplTest {
         verify(noticeFindService, times(1)).search("검색", pageable);
     }
 
+    @Disabled("TODO: update 기능 테스트 구현 필요")
     @Test
     void update() {
     }
 
+    @Disabled("TODO: delete 기능 테스트 구현 필요")
     @Test
     void delete() {
     }
