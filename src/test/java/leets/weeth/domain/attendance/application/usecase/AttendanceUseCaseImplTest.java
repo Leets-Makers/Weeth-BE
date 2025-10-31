@@ -2,7 +2,7 @@ package leets.weeth.domain.attendance.application.usecase;
 
 import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,28 +49,31 @@ public class AttendanceUseCaseImplTest {
 		// given
 		LocalDate today = LocalDate.now();
 
-		Meeting yesterdayMeeting = createOneDayMeeting(today.minusDays(1), 1, 1111, "Yesterday");
-		Meeting todayMeeting     = createOneDayMeeting(today,            1, 2222, "Today");
-		Meeting tomorrowMeeting  = createOneDayMeeting(today.plusDays(1),1, 3333, "Tomorrow");
+		Meeting meetingYesterday = createOneDayMeeting(today.minusDays(1), 1, 1111, "Yesterday");
+		Meeting meetingToday     = createOneDayMeeting(today,            1, 2222, "Today");
+		Meeting meetingTomorrow  = createOneDayMeeting(today.plusDays(1),1, 3333, "Tomorrow");
 
-		User user = createActiveUserWithAttendances("이지훈",
-			List.of(yesterdayMeeting, todayMeeting, tomorrowMeeting));
+		User user = createActiveUserWithAttendances(
+			"이지훈", List.of(meetingYesterday, meetingToday, meetingTomorrow)
+		);
 
 		Attendance expectedTodayAttendance = user.getAttendances().stream()
-			.filter(a -> a.getMeeting().getTitle().equals("Today"))
+			.filter(attendance -> "Today".equals(attendance.getMeeting().getTitle()))
 			.findFirst()
 			.orElseThrow();
 
-		when(userGetService.find(userId)).thenReturn(user);
 		AttendanceDTO.Main mapped = mock(AttendanceDTO.Main.class);
-		when(attendanceMapper.toMainDto(user, expectedTodayAttendance)).thenReturn(mapped);
+
+		given(userGetService.find(userId)).willReturn(user);
+		given(attendanceMapper.toMainDto(eq(user), eq(expectedTodayAttendance))).willReturn(mapped);
 
 		// when
 		AttendanceDTO.Main actual = attendanceUseCase.find(userId);
 
 		// then
 		assertThat(actual).isSameAs(mapped);
-		verify(attendanceMapper).toMainDto(user, expectedTodayAttendance);
+		then(attendanceMapper).should().toMainDto(eq(user), eq(expectedTodayAttendance));
+		then(attendanceMapper).shouldHaveNoMoreInteractions();
 	}
 
 	@Test
