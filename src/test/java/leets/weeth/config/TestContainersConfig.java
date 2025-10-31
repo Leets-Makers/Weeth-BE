@@ -8,6 +8,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
 public class TestContainersConfig {
+
     private static final String MYSQL_IMAGE = "mysql:8.0.41";
 
     @Bean

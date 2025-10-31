@@ -1,9 +1,5 @@
 package leets.weeth.domain.board.application.usecase;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.exception.NoSearchResultException;
 import leets.weeth.domain.board.application.exception.PageNotFoundException;
@@ -33,6 +29,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class NoticeUsecaseImpl implements NoticeUsecase {
@@ -54,14 +55,16 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
 
     @Override
     @Transactional
-    public void save(NoticeDTO.Save request, Long userId) {
+    public NoticeDTO.SaveResponse save(NoticeDTO.Save request, Long userId) {
         User user = userGetService.find(userId);
 
         Notice notice = mapper.fromNoticeDto(request, user);
-        noticeSaveService.save(notice);
+        Notice savedNotice = noticeSaveService.save(notice);
 
         List<File> files = fileMapper.toFileList(request.files(), notice);
         fileSaveService.save(files);
+
+        return mapper.toSaveResponse(savedNotice);
     }
 
     @Override
@@ -103,7 +106,7 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
 
     @Override
     @Transactional
-    public void update(Long noticeId, NoticeDTO.Update dto, Long userId) {
+    public NoticeDTO.SaveResponse update(Long noticeId, NoticeDTO.Update dto, Long userId) {
         Notice notice = validateOwner(noticeId, userId);
 
         List<File> fileList = getFiles(noticeId);
@@ -113,6 +116,8 @@ public class NoticeUsecaseImpl implements NoticeUsecase {
         fileSaveService.save(files);
 
         noticeUpdateService.update(notice, dto);
+
+        return mapper.toSaveResponse(notice);
     }
 
     @Override

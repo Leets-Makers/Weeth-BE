@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -80,6 +81,13 @@ public class SecurityConfig {
                                                 "/js/**", "/img/**", "/scss/**", "/vendor/**").permitAll()
                                         // 스웨거 경로
                                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger/**").permitAll()
+                                        .requestMatchers("/actuator/prometheus")
+                                            .access((authentication, context) -> {
+                                                String ip = context.getRequest().getRemoteAddr();
+                                                boolean allowed = ip.startsWith("172.") || ip.equals("127.0.0.1");
+                                                return new AuthorizationDecision(allowed);
+                                            })
+                                        .requestMatchers("/actuator/health").permitAll()
                                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
                 )
