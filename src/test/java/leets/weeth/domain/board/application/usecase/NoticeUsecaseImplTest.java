@@ -88,7 +88,13 @@ class NoticeUsecaseImplTest {
         // then
         assertThat(noticeResponses).isNotNull();
         assertThat(noticeResponses.getContent()).hasSize(3);
-        assertThat(noticeResponses.getContent().get(0).title()).isEqualTo(notices.get(4).getTitle());
+        assertThat(noticeResponses.getContent())
+                .extracting(NoticeDTO.ResponseAll::title)
+                        .containsExactly(
+                                notices.get(4).getTitle(),
+                                notices.get(3).getTitle(),
+                                notices.get(2).getTitle()
+                        );
         assertThat(noticeResponses.hasNext()).isTrue();
 
         verify(noticeFindService, times(1)).findRecentNotices(pageable);
@@ -160,7 +166,13 @@ class NoticeUsecaseImplTest {
         // then
         assertThat(noticeResponses).isNotNull();
         assertThat(noticeResponses.getContent()).hasSize(3);
-        assertThat(noticeResponses.getContent().get(0).title()).isEqualTo(notices.get(5).getTitle());
+        assertThat(noticeResponses.getContent())
+                .extracting(NoticeDTO.ResponseAll::title)
+                .containsExactly(
+                        notices.get(5).getTitle(),
+                        notices.get(4).getTitle(),
+                        notices.get(3).getTitle()
+                );
         assertThat(noticeResponses.hasNext()).isFalse();
         
         // 짝수 id : 파일 존재, 홀수 id : 파일 없음 검증
