@@ -45,24 +45,57 @@ public class AttendanceUseCaseImplTest {
 	@InjectMocks private AttendanceUseCaseImpl attendanceUseCase;
 
 	@Test
-	@DisplayName("find: 오늘 날짜의 정기모임이 있으면 해당 정기모임으로 Main 매핑")
-	void find_todayMeeting() {
+	@DisplayName("find: 여러 날짜의 출석 목록 중 '시작/종료 날짜가 모두 오늘'인 출석정보를 선택")
+	void find_todayMeeting_filtersDispersedAttendances() {
 		// given
 		LocalDate today = LocalDate.now();
-		Meeting todayMeeting = createOneDayMeeting(today, 1, 1111, "Today Meeting");
-		User user = createActiveUserWithAttendances("이지훈", List.of(todayMeeting));
-		Attendance todayAttendance = user.getAttendances().get(0);
+
+		Meeting yesterdayMeeting = createOneDayMeeting(today.minusDays(1), 1, 1111, "Yesterday");
+		Meeting todayMeeting     = createOneDayMeeting(today,            1, 2222, "Today");
+		Meeting tomorrowMeeting  = createOneDayMeeting(today.plusDays(1),1, 3333, "Tomorrow");
+
+		User user = createActiveUserWithAttendances("이지훈",
+			List.of(yesterdayMeeting, todayMeeting, tomorrowMeeting));
+
+		Attendance expectedTodayAttendance = user.getAttendances().stream()
+			.filter(a -> a.getMeeting().getTitle().equals("Today"))
+			.findFirst()
+			.orElseThrow();
 
 		when(userGetService.find(userId)).thenReturn(user);
-		when(attendanceMapper.toMainDto(eq(user), eq(todayAttendance)))
-			.thenReturn(mock(AttendanceDTO.Main.class));
+		AttendanceDTO.Main mapped = mock(AttendanceDTO.Main.class);
+		when(attendanceMapper.toMainDto(user, expectedTodayAttendance)).thenReturn(mapped);
 
 		// when
 		AttendanceDTO.Main actual = attendanceUseCase.find(userId);
 
 		// then
-		assertThat(actual).isNotNull();
-		verify(attendanceMapper).toMainDto(eq(user), eq(todayAttendance));
+		assertThat(actual).isSameAs(mapped);
+		verify(attendanceMapper).toMainDto(user, expectedTodayAttendance);
+	}
+
+	@Test
+	@DisplayName("find: '시작/종료 날짜가 모두 오늘'인 출석이 없다면, mapper.toMainDto(user, null)을 호출")
+	void find_noExactToday_returnsNullMapped() {
+		// given
+		LocalDate today = LocalDate.now();
+
+		Meeting yesterdayMeeting = createOneDayMeeting(today.minusDays(1), 1, 1111, "Yesterday");
+		Meeting tomorrowMeeting  = createOneDayMeeting(today.plusDays(1), 1, 3333, "Tomorrow");
+
+		User user = createActiveUserWithAttendances("이지훈",
+			List.of(yesterdayMeeting, tomorrowMeeting));
+
+		when(userGetService.find(userId)).thenReturn(user);
+		AttendanceDTO.Main mapped = mock(AttendanceDTO.Main.class);
+		when(attendanceMapper.toMainDto(user, null)).thenReturn(mapped);
+
+		// when
+		AttendanceDTO.Main actual = attendanceUseCase.find(userId);
+
+		// then
+		assertThat(actual).isSameAs(mapped);
+		verify(attendanceMapper).toMainDto(user, null);
 	}
 
 	@Test
