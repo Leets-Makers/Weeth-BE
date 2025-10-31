@@ -39,10 +39,10 @@ class NoticeRepositoryTest {
         Pageable pageable = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"));
 
         // when
-        Slice<Notice> pagedNotices  = noticeRepository.findPageBy(pageable);
+        Slice<Notice> pagedNotices = noticeRepository.findPageBy(pageable);
 
         // then
-        assertThat(pagedNotices .getSize()).isEqualTo(3);
+        assertThat(pagedNotices.getSize()).isEqualTo(3);
         assertThat(pagedNotices)
                 .extracting(Notice::getTitle)
                         .containsExactly(
@@ -50,7 +50,7 @@ class NoticeRepositoryTest {
                                 notices.get(3).getTitle(),
                                 notices.get(2).getTitle()
                         );
-        assertThat(pagedNotices .hasNext()).isTrue();
+        assertThat(pagedNotices.hasNext()).isTrue();
     }
 
     @Test
