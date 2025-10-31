@@ -8,12 +8,13 @@ import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
 public class TestContainersConfig {
-	private static final String MYSQL_IMAGE = "mysql:8.0.41";
 
-	@Bean
-	@ServiceConnection
-	public MySQLContainer mysqlContainer() {
-		return new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE))
-			.withReuse(true);
-	}
+    private static final String MYSQL_IMAGE = "mysql:8.0.41";
+
+    @Bean
+    @ServiceConnection
+    public MySQLContainer mysqlContainer() {
+        return new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE))
+                .withReuse(true);
+    }
 }
