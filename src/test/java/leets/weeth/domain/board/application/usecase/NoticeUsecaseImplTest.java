@@ -3,7 +3,7 @@ package leets.weeth.domain.board.application.usecase;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.mapper.NoticeMapper;
 import leets.weeth.domain.board.domain.entity.Notice;
-import leets.weeth.domain.board.domain.fixture.NoticeFixture;
+import leets.weeth.domain.board.domain.test.fixture.NoticeFixture;
 import leets.weeth.domain.board.domain.service.NoticeFindService;
 import leets.weeth.domain.file.domain.entity.File;
 import leets.weeth.domain.file.domain.service.FileGetService;

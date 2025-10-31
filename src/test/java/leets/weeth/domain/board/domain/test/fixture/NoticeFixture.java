@@ -1,4 +1,4 @@
-package leets.weeth.domain.board.domain.fixture;
+package leets.weeth.domain.board.domain.test.fixture;
 
 import leets.weeth.domain.board.domain.entity.Notice;
 import leets.weeth.domain.user.domain.entity.User;
@@ -9,6 +9,14 @@ public class NoticeFixture {
                 .title(title)
                 .content("내용")
                 .user(user)
+                .commentCount(0)
+                .build();
+    }
+
+    public static Notice createNotice(String title){
+        return Notice.builder()
+                .title(title)
+                .content("내용")
                 .commentCount(0)
                 .build();
     }
