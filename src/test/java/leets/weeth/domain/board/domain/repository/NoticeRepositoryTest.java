@@ -24,13 +24,9 @@ class NoticeRepositoryTest {
     @Autowired
     private NoticeRepository noticeRepository;
 
-    @InjectMocks
-    private UserSaveService userSaveService;
-
     @Test
     void findPageBy() {
         // given
-
         Notice notice1 = noticeRepository.save(Notice.builder()
                 .title("제목1")
                 .content("내용1")
