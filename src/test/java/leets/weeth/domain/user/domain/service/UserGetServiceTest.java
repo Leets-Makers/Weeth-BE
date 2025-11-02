@@ -26,13 +26,24 @@ class UserGetServiceTest {
 
 	@Test
 	@DisplayName("find(Long Id) : 존재하지 않는 유저일 때 예외를 던진다")
-	void find_userNotFound_throwsException() {
+	void find_id_userNotFound_throwsException() {
 		//given
 		Long userId = Long.valueOf(1L);
 		given(userRepository.findById(userId)).willReturn(Optional.empty());
 
 		// when & then
 		assertThrows(UserNotFoundException.class, () -> userGetService.find(userId));
+	}
+
+	@Test
+	@DisplayName("find(String email) : 존재하지 않는 유저일 때 예외를 던진다")
+	void find_email_userNotFound_throwsException() {
+		//given
+		String email = "test@test.com";
+		given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+		//when & then
+		assertThrows(UserNotFoundException.class, () -> userGetService.find(email));
 	}
 
 }
