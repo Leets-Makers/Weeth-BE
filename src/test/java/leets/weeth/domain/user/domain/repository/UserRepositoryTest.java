@@ -75,7 +75,7 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("finALlByStatusOrderByCardinalAndName() : 상태별로 최신 기수순 + 이름 오름차순으로 정렬된다")
+	@DisplayName("finAllByStatusOrderByCardinalAndName() : 상태별로 최신 기수순 + 이름 오름차순으로 정렬된다")
 	void finAllByStatusOrderByCardinalAndName() {
 		//given
 		Pageable pageable = PageRequest.of(0,10);
@@ -89,6 +89,23 @@ public class UserRepositoryTest {
 			.hasSize(2)
 			.extracting(User::getName)
 			.containsExactly("적순2", "적순");
+	}
+
+	@Test
+	@DisplayName("findAllByCardinalOrderByNameAsc() : Active인 유저들 중 특정 기수 + 이름 오름차순으로 정렬한다.")
+	void findAllByCardinalOrderByNameAsc() {
+		//given
+		Pageable pageable = PageRequest.of(0,10);
+
+		//when
+		Slice<User> resultSlice = userRepository.findAllByCardinalOrderByNameAsc(Status.ACTIVE, cardinal7,pageable);
+		List<User> result = resultSlice.getContent();
+
+		//then
+		assertThat(result)
+			.hasSize(1)
+			.extracting(User::getName)
+			.containsExactly("적순");
 	}
 
 }
