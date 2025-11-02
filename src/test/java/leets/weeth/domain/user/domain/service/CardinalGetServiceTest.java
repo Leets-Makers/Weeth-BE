@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import leets.weeth.domain.user.application.exception.DuplicateCardinalException;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.repository.CardinalRepository;
 
@@ -40,6 +41,30 @@ public class CardinalGetServiceTest {
 
 		//then
 		assertThat(result.getCardinalNumber()).isEqualTo(7);
+	}
+
+	@Test
+	@DisplayName("validateCardinal() : 중복된 기수 저장을 방지하고 예외를 던지는지 확인")
+	void validateCardinal() {
+		//given
+		given(cardinalRepository.findByCardinalNumber(7))
+			.willReturn(Optional.of(Cardinal.builder().cardinalNumber(7).build()));
+
+		//when&then
+		assertThatThrownBy(() -> cardinalGetService.validateCardinal(7))
+			.isInstanceOf(DuplicateCardinalException.class);
+	}
+
+	@Test
+	@DisplayName("validateCardinal() : 중복되지 않는 기수라면 예외를 던지지않고 잘 저장하는지 확인")
+	void validateCardinal_noException() {
+		//given
+		given(cardinalRepository.findByCardinalNumber(7))
+			.willReturn(Optional.empty());
+
+		//when&then
+		assertThatCode(() -> cardinalGetService.validateCardinal(7))
+			.doesNotThrowAnyException();
 	}
 
 }
