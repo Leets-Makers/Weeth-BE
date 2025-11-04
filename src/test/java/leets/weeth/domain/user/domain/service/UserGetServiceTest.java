@@ -35,7 +35,7 @@ class UserGetServiceTest {
 	@DisplayName("find(Long Id) : 존재하지 않는 유저일 때 예외를 던진다")
 	void find_id_userNotFound_throwsException() {
 		//given
-		Long userId = Long.valueOf(1L);
+		Long userId = 1L;
 		given(userRepository.findById(userId)).willReturn(Optional.empty());
 
 		// when & then
