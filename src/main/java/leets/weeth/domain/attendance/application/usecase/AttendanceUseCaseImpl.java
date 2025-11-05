@@ -44,7 +44,7 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
 
         LocalDateTime now = LocalDateTime.now();
         Attendance todayMeeting = user.getAttendances().stream()
-                .filter(attendance -> attendance.getMeeting().getStart().isBefore(now)
+                .filter(attendance -> attendance.getMeeting().getStart().minusMinutes(10).isBefore(now)
                         && attendance.getMeeting().getEnd().isAfter(now))
                 .findAny()
                 .orElseThrow(AttendanceNotFoundException::new);
