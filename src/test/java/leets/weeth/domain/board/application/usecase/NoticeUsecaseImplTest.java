@@ -3,7 +3,7 @@ package leets.weeth.domain.board.application.usecase;
 import leets.weeth.domain.board.application.dto.NoticeDTO;
 import leets.weeth.domain.board.application.mapper.NoticeMapper;
 import leets.weeth.domain.board.domain.entity.Notice;
-import leets.weeth.domain.board.domain.test.fixture.NoticeFixture;
+import leets.weeth.domain.board.test.fixture.NoticeTestFixture;
 import leets.weeth.domain.board.domain.service.NoticeFindService;
 import leets.weeth.domain.file.domain.entity.File;
 import leets.weeth.domain.file.domain.service.FileGetService;
@@ -54,7 +54,7 @@ class NoticeUsecaseImplTest {
 
         List<Notice> notices = new ArrayList<>();
         for(int i = 0; i<5; i++){
-            Notice notice = NoticeFixture.createNotice("공지" + i, user);
+            Notice notice = NoticeTestFixture.createNotice("공지" + i, user);
             ReflectionTestUtils.setField(notice, "id", (long) i + 1);
             notices.add(notice);
         }
@@ -114,12 +114,12 @@ class NoticeUsecaseImplTest {
 
         List<Notice> notices = new ArrayList<>();
         for(int i = 0; i<3; i++){
-            Notice notice = NoticeFixture.createNotice("공지" + i, user);
+            Notice notice = NoticeTestFixture.createNotice("공지" + i, user);
             ReflectionTestUtils.setField(notice, "id", (long) i + 1);
             notices.add(notice);
         }
         for(int i = 3; i<6; i++){
-            Notice notice = NoticeFixture.createNotice("검색" + i, user);
+            Notice notice = NoticeTestFixture.createNotice("검색" + i, user);
             ReflectionTestUtils.setField(notice, "id", (long) i + 1);
             notices.add(notice);
         }
