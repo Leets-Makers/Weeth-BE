@@ -5,8 +5,9 @@ import leets.weeth.domain.comment.domain.entity.Comment;
 import leets.weeth.domain.user.domain.entity.User;
 
 public class CommentTestFixture {
-    public static Comment createComment(String content, User user, Notice noice){
+    public static Comment createComment(Long id, String content, User user, Notice noice){
         return Comment.builder()
+                .id(id)
                 .content(content)
                 .notice(noice)
                 .user(user)
