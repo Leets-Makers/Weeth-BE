@@ -1,20 +1,5 @@
 package leets.weeth.domain.attendance.application.usecase;
 
-import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import leets.weeth.domain.attendance.application.dto.AttendanceDTO;
 import leets.weeth.domain.attendance.application.exception.AttendanceCodeMismatchException;
 import leets.weeth.domain.attendance.application.exception.AttendanceNotFoundException;
@@ -30,6 +15,23 @@ import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AttendanceUseCaseImplTest {
@@ -76,6 +78,55 @@ public class AttendanceUseCaseImplTest {
 		then(attendanceMapper).shouldHaveNoMoreInteractions();
 	}
 
+	@Test
+	@DisplayName("10분 전부터 출석이 가능한지 확인")
+	void checkIn_10MinutesBeforeMeeting_ShouldSucceed() {
+		// given
+		LocalDateTime now = LocalDateTime.now();
+		Meeting meeting = Meeting.builder()
+				.start(now.plusMinutes(5))  // 5분 뒤 시작 (checkIn 로직의 '10분 전' 범위 내)
+				.end(now.plusHours(2))
+				.code(1234)
+				.title("Today")
+				.cardinal(1)
+				.build();
+
+		User user = createActiveUserWithAttendances(
+				"이지훈", List.of(meeting)
+		);
+
+		when(userGetService.find(userId)).thenReturn(user);
+
+
+		// when & then
+		assertDoesNotThrow(() -> attendanceUseCase.checkIn(userId, 1234));
+		verify(attendanceUpdateService, times(1)).attend(any(Attendance.class));
+	}
+
+	@Test
+	@DisplayName("11분 전에 출석시 오류 확인")
+	void checkIn_10MinutesBeforeMeeting_ShouldFailed() {
+		// given
+		LocalDateTime now = LocalDateTime.now();
+		Meeting meeting = Meeting.builder()
+				.start(now.plusMinutes(11))  // 11분뒤 시작  -> 오류 발생해야함
+				.end(now.plusHours(2))
+				.code(1234)
+				.title("Today")
+				.cardinal(1)
+				.build();
+
+		User user = createActiveUserWithAttendances(
+				"이지훈", List.of(meeting)
+		);
+
+		when(userGetService.find(userId)).thenReturn(user);
+
+
+		// when & then
+		assertThatThrownBy(() -> attendanceUseCase.checkIn(userId, 1234))
+				.isInstanceOf(AttendanceNotFoundException.class);
+	}
 	@Test
 	@DisplayName("find: '시작/종료 날짜가 모두 오늘'인 출석이 없다면, mapper.toMainDto(user, null)을 호출")
 	void find_noExactToday_returnsNullMapped() {
