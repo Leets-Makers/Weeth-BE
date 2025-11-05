@@ -109,7 +109,7 @@ public class AttendanceUseCaseImplTest {
 		// given
 		LocalDateTime now = LocalDateTime.now();
 		Meeting meeting = Meeting.builder()
-				.start(now.plusMinutes(11))  // 5분 뒤 시작 (checkIn 로직의 '10분 전' 범위 내)
+				.start(now.plusMinutes(11))  // 11분뒤 시작  -> 오류 발생해야함
 				.end(now.plusHours(2))
 				.code(1234)
 				.title("Today")
