@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import leets.weeth.config.TestContainersConfig;
 import leets.weeth.domain.user.domain.entity.Cardinal;
@@ -70,4 +73,39 @@ public class UserRepositoryTest {
 			.extracting(User::getName)
 			.containsExactly("적순");
 	}
+
+	@Test
+	@DisplayName("findAllByStatusOrderByCardinalAndName() : 상태별로 최신 기수순 + 이름 오름차순으로 정렬된다")
+	void findAllByStatusOrderByCardinalAndName() {
+		//given
+		Pageable pageable = PageRequest.of(0,10);
+
+		//when
+		Slice<User> resultSlice = userRepository.findAllByStatusOrderedByCardinalAndName(Status.ACTIVE, pageable);
+		List<User> result = resultSlice.getContent();
+
+		//then
+		assertThat(result)
+			.hasSize(2)
+			.extracting(User::getName)
+			.containsExactly("적순2", "적순");
+	}
+
+	@Test
+	@DisplayName("findAllByCardinalOrderByNameAsc() : Active인 유저들 중 특정 기수 + 이름 오름차순으로 정렬한다.")
+	void findAllByCardinalOrderByNameAsc() {
+		//given
+		Pageable pageable = PageRequest.of(0,10);
+
+		//when
+		Slice<User> resultSlice = userRepository.findAllByCardinalOrderByNameAsc(Status.ACTIVE, cardinal7,pageable);
+		List<User> result = resultSlice.getContent();
+
+		//then
+		assertThat(result)
+			.hasSize(1)
+			.extracting(User::getName)
+			.containsExactly("적순");
+	}
+
 }
