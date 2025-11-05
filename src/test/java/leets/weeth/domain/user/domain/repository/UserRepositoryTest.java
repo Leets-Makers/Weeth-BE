@@ -75,7 +75,7 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("finAllByStatusOrderByCardinalAndName() : 상태별로 최신 기수순 + 이름 오름차순으로 정렬된다")
+	@DisplayName("findAllByStatusOrderByCardinalAndName() : 상태별로 최신 기수순 + 이름 오름차순으로 정렬된다")
 	void findAllByStatusOrderByCardinalAndName() {
 		//given
 		Pageable pageable = PageRequest.of(0,10);
