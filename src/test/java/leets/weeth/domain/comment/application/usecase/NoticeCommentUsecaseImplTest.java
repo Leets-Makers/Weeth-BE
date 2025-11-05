@@ -14,6 +14,7 @@ import leets.weeth.domain.file.application.mapper.FileMapper;
 import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
+import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import leets.weeth.domain.user.test.fixture.UserTestFixture;
@@ -26,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -46,7 +48,7 @@ class NoticeCommentUsecaseImplTest {
 
     @Mock UserGetService userGetService;
     @Mock CommentMapper commentMapper;
-    
+
     @Test
     @DisplayName("부모 댓글이 없는 공지사항 댓글 작성")
     void saveNoticeComment() {
@@ -80,7 +82,28 @@ class NoticeCommentUsecaseImplTest {
     }
 
     @Test
-    void updateNoticeComment() {
+    @DisplayName("공지사항 댓글 수정 시 작성자와 수정 요청자가 다르면 예외가 발생한다")
+    void updateNoticeComment_throwsException_whenUserIsNotOwner() {
+        Long userId = 1L;
+        Long different = 2L;
+        Long noticeId = 1L;
+        // given
+        User user  = UserTestFixture.createActiveUser1(1L);
+        User user2  = UserTestFixture.createActiveUser1(2L);
+        Notice notice = NoticeTestFixture.createNotice(noticeId, "제목1");
+
+        CommentDTO.Update dto = new CommentDTO.Update("수정 완료", List.of());
+
+        Comment comment = CommentTestFixture.createComment(dto.content(), user, notice);
+
+        given(userGetService.find(user2.getId())).willReturn(user2);
+        given(noticeFindService.find(notice.getId())).willReturn(notice);
+        given(commentFindService.find(comment.getId())).willReturn(comment);
+
+        // when & then
+        assertThrows(UserNotMatchException.class, () ->
+                noticeCommentUsecase.updateNoticeComment(dto, noticeId, comment.getId(), different)
+        );
     }
 
     @Test
