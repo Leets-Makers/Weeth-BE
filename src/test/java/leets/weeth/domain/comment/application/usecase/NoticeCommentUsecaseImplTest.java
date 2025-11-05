@@ -20,6 +20,7 @@ import leets.weeth.domain.user.test.fixture.UserTestFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,7 +31,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class NoticeCommentUsecaseImplTest {
-    @Mock NoticeCommentUsecaseImpl noticeCommentUsecase;
+    @InjectMocks NoticeCommentUsecaseImpl noticeCommentUsecase;
 
     @Mock CommentSaveService commentSaveService;
     @Mock CommentFindService commentFindService;
@@ -75,7 +76,6 @@ class NoticeCommentUsecaseImplTest {
         verify(commentMapper).fromCommentDto(dto, notice, user, null);
 
         assertThat(notice.getComments()).contains(comment);
-
 
     }
 
