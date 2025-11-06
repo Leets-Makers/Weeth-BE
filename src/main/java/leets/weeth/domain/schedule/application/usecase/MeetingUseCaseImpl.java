@@ -47,7 +47,7 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     private final CardinalGetService cardinalGetService;
 
     @PersistenceContext
-    private final EntityManager em;
+    private EntityManager em;
 
     @Override
     public Response find(Long userId, Long meetingId) {
