@@ -111,7 +111,6 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
         em.flush();
         em.clear();
 
-
         attendanceDeleteService.deleteAll(meeting);
         meetingDeleteService.delete(meeting);
     }
