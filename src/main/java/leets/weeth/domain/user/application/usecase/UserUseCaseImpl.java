@@ -250,6 +250,7 @@ public class UserUseCaseImpl implements UserUseCase {
         AppleUserInfo userInfo = appleAuthService.verifyAndDecodeIdToken(tokenResponse.id_token());
 
         String appleIdToken = tokenResponse.id_token();
+        log.info("appleIdToken: {}", appleIdToken);
         String appleId = userInfo.appleId();
 
         Optional<User> optionalUser = userGetService.findByAppleId(appleId);
@@ -283,12 +284,13 @@ public class UserUseCaseImpl implements UserUseCase {
         User user = mapper.from(dto);
         // Apple ID 설정
         user.addAppleId(appleUserInfo.appleId());
-        // dev 전용: 바로 ACTIVE 상태로 설정
-        user.accept();
 
         UserCardinal userCardinal = new UserCardinal(user, cardinal);
 
         userSaveService.save(user);
         userCardinalSaveService.save(userCardinal);
+
+        // dev 전용: 바로 ACTIVE 상태로 설정 (save 이후 호출하여 @PrePersist 이후 더티 체킹으로 반영)
+        user.accept();
     }
 }
