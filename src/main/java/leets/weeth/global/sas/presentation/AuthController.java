@@ -7,7 +7,6 @@ import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.global.sas.application.dto.OauthUserInfoResponse;
 import leets.weeth.global.sas.application.usecase.AuthUsecase;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,6 +35,24 @@ public class AuthController {
                               HttpServletResponse response) throws Exception {
 
         User findUser = authUsecase.login(code);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(SecurityUser.from(findUser), null, List.of(new SimpleGrantedAuthority(findUser.getRole().name())));
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+        securityContextRepository.saveContext(context, request, response);
+
+        savedRequestHandler.onAuthenticationSuccess(request, response, auth);
+    }
+
+    @GetMapping("/apple/oauth")
+    public void appleCallback(@RequestParam String code,
+                              @RequestParam(required = false) String id_token,
+                              HttpServletRequest request,
+                              HttpServletResponse response) throws Exception {
+
+        User findUser = authUsecase.appleLogin(code, id_token);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(SecurityUser.from(findUser), null, List.of(new SimpleGrantedAuthority(findUser.getRole().name())));
 
