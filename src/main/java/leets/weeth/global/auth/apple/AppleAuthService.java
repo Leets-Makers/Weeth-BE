@@ -16,8 +16,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -134,10 +137,9 @@ public class AppleAuthService {
      * ES256 알고리즘으로 JWT 생성 (p8 키 파일 사용)
      */
     private String generateClientSecret() {
-        try {
+        try (InputStream inputStream = getInputStream(privateKeyPath)) {
             // p8 파일에서 Private Key 읽기
-            ClassPathResource resource = new ClassPathResource(privateKeyPath);
-            String privateKeyContent = new String(Files.readAllBytes(resource.getFile().toPath()));
+            String privateKeyContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
             // PEM 형식의 헤더/푸터 제거
             privateKeyContent = privateKeyContent
@@ -172,6 +174,19 @@ public class AppleAuthService {
             log.error("애플 Client Secret 생성 실패", e);
             throw new RuntimeException("애플 Client Secret 생성 실패: " + e.getMessage());
         }
+    }
+
+    /**
+     * 파일 경로에서 InputStream 가져오기
+     * 절대 경로면 파일 시스템에서, 상대 경로면 classpath에서 읽음
+     */
+    private InputStream getInputStream(String path) throws IOException {
+        // 절대 경로인 경우 파일 시스템에서 읽기
+        if (path.startsWith("/") || path.matches("^[A-Za-z]:.*")) {
+            return new FileInputStream(path);
+        }
+        // 상대 경로는 classpath에서 읽기
+        return new ClassPathResource(path).getInputStream();
     }
 
     /**

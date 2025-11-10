@@ -34,7 +34,7 @@ auth:
       redirect_uri: ${APPLE_REDIRECT_URI}
       token_uri: https://appleid.apple.com/auth/token
       keys_uri: https://appleid.apple.com/auth/keys
-      private_key_path: AuthKey_5JL5Z7K6J7.p8
+      private_key_path: ${APPLE_PRIVATE_KEY_PATH}
   jwt:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
