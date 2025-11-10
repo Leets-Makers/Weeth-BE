@@ -11,6 +11,8 @@ import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.UserCardinal;
 import leets.weeth.domain.user.domain.service.*;
+import leets.weeth.global.auth.apple.dto.AppleTokenResponse;
+import leets.weeth.global.auth.apple.dto.AppleUserInfo;
 import leets.weeth.global.auth.jwt.application.dto.JwtDto;
 import leets.weeth.global.auth.jwt.application.usecase.JwtManageUseCase;
 import leets.weeth.global.auth.kakao.KakaoAuthService;
@@ -44,6 +46,7 @@ public class UserUseCaseImpl implements UserUseCase {
     private final UserGetService userGetService;
     private final UserUpdateService userUpdateService;
     private final KakaoAuthService kakaoAuthService;
+    private final leets.weeth.global.auth.apple.AppleAuthService appleAuthService;
     private final CardinalGetService cardinalGetService;
     private final UserCardinalSaveService userCardinalSaveService;
     private final UserCardinalGetService userCardinalGetService;
@@ -237,5 +240,55 @@ public class UserUseCaseImpl implements UserUseCase {
         List<UserCardinal> userCardinals = userCardinalGetService.getUserCardinals(user);
 
         return cardinalMapper.toUserCardinalDto(user, userCardinals);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SocialLoginResponse appleLogin(Login dto) {
+        // Apple Token 요청 및 유저 정보 요청
+        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(dto.authCode());
+        AppleUserInfo userInfo = appleAuthService.verifyAndDecodeIdToken(tokenResponse.id_token());
+
+        String appleIdToken = tokenResponse.id_token();
+        String appleId = userInfo.appleId();
+
+        Optional<User> optionalUser = userGetService.findByAppleId(appleId);
+
+        //todo: 추후 애플 로그인 연동을 위해 appleIdToken을 반환
+        // 애플 로그인 연동 API 요청시 appleIdToken을 함께 넣어주면 그때 디코딩해서 appleId를 추출
+        if (optionalUser.isEmpty()) {
+            return mapper.toAppleIntegrateResponse(appleIdToken);
+        }
+
+        User user = optionalUser.get();
+        if (user.isInactive()) {
+            throw new UserInActiveException();
+        }
+
+        JwtDto token = jwtManageUseCase.create(user.getId(), user.getEmail(), user.getRole());
+        return mapper.toAppleLoginResponse(user, token);
+    }
+
+    @Override
+    @Transactional
+    public void appleRegister(Register dto) {
+        validate(dto);
+
+        // Apple authCode로 토큰 교환 후 ID Token 검증 및 사용자 정보 추출
+        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(dto.appleAuthCode());
+        AppleUserInfo appleUserInfo = appleAuthService.verifyAndDecodeIdToken(tokenResponse.id_token());
+
+        Cardinal cardinal = cardinalGetService.findByUserSide(dto.cardinal());
+
+        User user = mapper.from(dto);
+        // Apple ID 설정
+        user.addAppleId(appleUserInfo.appleId());
+        // dev 전용: 바로 ACTIVE 상태로 설정
+        user.accept();
+
+        UserCardinal userCardinal = new UserCardinal(user, cardinal);
+
+        userSaveService.save(user);
+        userCardinalSaveService.save(userCardinal);
     }
 }

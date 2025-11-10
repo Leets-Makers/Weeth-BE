@@ -49,11 +49,15 @@ public interface UserMapper {
             @Mapping(target = "status", expression = "java(LoginStatus.LOGIN)"),
             @Mapping(target = "id", source = "user.id"),
             @Mapping(target = "kakaoId", source = "user.kakaoId"),
+            @Mapping(target = "appleIdToken", expression = "java(null)")
     })
     SocialLoginResponse toLoginResponse(User user, JwtDto dto);
 
     @Mappings({
             @Mapping(target = "status", expression = "java(LoginStatus.INTEGRATE)"),
+            @Mapping(target = "appleIdToken", expression = "java(null)"),
+            @Mapping(target = "accessToken", expression = "java(null)"),
+            @Mapping(target = "refreshToken", expression = "java(null)")
     })
     SocialLoginResponse toIntegrateResponse(Long kakaoId);
 
@@ -65,6 +69,24 @@ public interface UserMapper {
 
     @Mapping(target = "cardinals", expression = "java( toCardinalNumbers(userCardinals) )")
     UserResponseDto.UserInfo toUserInfoDto(User user, List<UserCardinal> userCardinals);
+
+    @Mappings({
+            @Mapping(target = "status", expression = "java(LoginStatus.LOGIN)"),
+            @Mapping(target = "id", source = "user.id"),
+            @Mapping(target = "appleIdToken", expression = "java(null)"),
+            @Mapping(target = "kakaoId", expression = "java(null)")
+    })
+    SocialLoginResponse toAppleLoginResponse(User user, JwtDto dto);
+
+    @Mappings({
+            @Mapping(target = "status", expression = "java(LoginStatus.INTEGRATE)"),
+            @Mapping(target = "id", expression = "java(null)"),
+            @Mapping(target = "appleIdToken", source = "appleIdToken"),
+            @Mapping(target = "kakaoId", expression = "java(null)"),
+            @Mapping(target = "accessToken", expression = "java(null)"),
+            @Mapping(target = "refreshToken", expression = "java(null)")
+    })
+    SocialLoginResponse toAppleIntegrateResponse(String appleIdToken);
 
     default String toString(Department department) {
         return department.getValue();

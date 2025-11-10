@@ -44,6 +44,8 @@ public class User extends BaseEntity {
 
     private Long kakaoId;
 
+    private String appleId;
+
     private String name;
 
     private String email;
@@ -92,6 +94,10 @@ public class User extends BaseEntity {
 
     public void addKakaoId(long kakaoId) {
         this.kakaoId = kakaoId;
+    }
+
+    public void addAppleId(String appleId) {
+        this.appleId = appleId;
     }
 
     public void leave() {

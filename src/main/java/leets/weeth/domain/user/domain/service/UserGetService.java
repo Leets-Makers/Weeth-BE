@@ -33,6 +33,10 @@ public class UserGetService {
         return userRepository.findByKakaoId(kakaoId);
     }
 
+    public Optional<User> findByAppleId(String appleId){
+        return userRepository.findByAppleId(appleId);
+    }
+
     public List<User> search(String keyword) {
         return userRepository.findAllByNameContainingAndStatus(keyword, Status.ACTIVE);
     }

@@ -68,6 +68,20 @@ public class UserController {
         return CommonResponse.createSuccess(SOCIAL_INTEGRATE_SUCCESS.getMessage(), userUseCase.integrate(dto));
     }
 
+    @PostMapping("/apple/login")
+    @Operation(summary = "애플 소셜 로그인 API")
+    public CommonResponse<SocialLoginResponse> appleLogin(@RequestBody @Valid Login dto) {
+        SocialLoginResponse response = userUseCase.appleLogin(dto);
+        return CommonResponse.createSuccess(SOCIAL_LOGIN_SUCCESS.getMessage(), response);
+    }
+
+    @PostMapping("/apple/register")
+    @Operation(summary = "애플 소셜 회원가입 (dev 전용 - 바로 ACTIVE)")
+    public CommonResponse<Void> appleRegister(@RequestBody @Valid Register dto) {
+        userUseCase.appleRegister(dto);
+        return CommonResponse.createSuccess(USER_APPLY_SUCCESS.getMessage());
+    }
+
     @GetMapping("/email")
     @Operation(summary = "이메일 중복 확인")
     public CommonResponse<Boolean> checkEmail(@RequestParam String email) {
