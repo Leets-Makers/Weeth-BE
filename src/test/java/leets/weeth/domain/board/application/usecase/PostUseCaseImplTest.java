@@ -120,10 +120,11 @@ class PostUseCaseImplTest {
 
         int pageNumber = 0;
         int pageSize = 5;
+        User user = UserTestFixture.createActiveUser1();
 
-        Post post1 = PostTestFixture.createEducationPost(1L, "게시글1", Category.Education, List.of(Part.BE),
+        Post post1 = PostTestFixture.createEducationPost(1L, user, "게시글1", Category.Education, List.of(Part.BE),
                 1, 1);
-        Post post2 = PostTestFixture.createEducationPost(2L, "게시글2", Category.Education, List.of(Part.BE),
+        Post post2 = PostTestFixture.createEducationPost(2L, user, "게시글2", Category.Education, List.of(Part.BE),
                 1, 2);
 
         List<Post> postList = List.of(post2);
@@ -166,7 +167,45 @@ class PostUseCaseImplTest {
     }
 
     @Test
-    void findEducationPosts() {
+    @DisplayName("관리자 권한 사용자가 교육 게시글 목록 조회 시 성공적으로 반환한다")
+    void findEducationPosts_success_adminUser() {
+        // given
+        Long userId = 1L;
+        Part part = Part.BE;
+        Integer cardinalNumber = 1;
+        int pageNumber = 0;
+        int pageSize = 5;
+
+        User adminUser = UserTestFixture.createAdmin(userId);
+
+        Post post1 = PostTestFixture.createEducationPost(1L, adminUser, "교육글1", Category.Education, List.of(Part.BE), 1, 1);
+        Post post2 = PostTestFixture.createEducationPost(2L, adminUser, "교육글2", Category.Education, List.of(Part.BE), 1, 2);
+        List<Post> postList = List.of(post1, post2);
+        Slice<Post> postSlice = new SliceImpl<>(postList);
+
+        PostDTO.ResponseEducationAll response1 = PostTestFixture.createResponseEducationAll(post1, false);
+        PostDTO.ResponseEducationAll response2 = PostTestFixture.createResponseEducationAll(post2, false);
+
+        given(userGetService.find(userId)).willReturn(adminUser);
+        given(postFindService.findByCategory(part, Category.Education, cardinalNumber, pageNumber, pageSize))
+                .willReturn(postSlice);
+        given(mapper.toEducationAll(post1, postUseCase.checkFileExistsByPost(post1.getId()))).willReturn(response1);
+        given(mapper.toEducationAll(post2, postUseCase.checkFileExistsByPost(post2.getId()))).willReturn(response2);
+
+        // when
+        Slice<PostDTO.ResponseEducationAll> result =
+                postUseCase.findEducationPosts(userId, part, cardinalNumber, pageNumber, pageSize);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent())
+                .extracting(PostDTO.ResponseEducationAll::title)
+                .containsExactly("교육글1", "교육글2");
+
+        verify(postFindService).findByCategory(part, Category.Education, cardinalNumber, pageNumber, pageSize);
+        verify(mapper).toEducationAll(post1, postUseCase.checkFileExistsByPost(post1.getId()));
+        verify(mapper).toEducationAll(post2, postUseCase.checkFileExistsByPost(post2.getId()));
     }
 
     @Test

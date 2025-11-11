@@ -4,6 +4,7 @@ import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import leets.weeth.domain.board.domain.entity.enums.Part;
+import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Role;
 
 import java.time.LocalDateTime;
@@ -22,10 +23,11 @@ public class PostTestFixture {
                 .build();
     }
 
-    public static Post createEducationPost(Long id, String title, Category category, List<Part> parts,
+    public static Post createEducationPost(Long id, User user, String title, Category category, List<Part> parts,
                                            int cardinalNumber, int week){
         return Post.builder()
                 .id(id)
+                .user(user)
                 .title(title)
                 .content("내용")
                 .parts(parts)
@@ -52,5 +54,22 @@ public class PostTestFixture {
                 .isNew(false)
                 .build();
     }
+
+    public static PostDTO.ResponseEducationAll createResponseEducationAll(Post post, boolean fileExists) {
+        return PostDTO.ResponseEducationAll.builder()
+                .id(post.getId())
+                .name(post.getUser().getName())
+                .parts(post.getParts())
+                .position(post.getUser().getPosition())
+                .role(post.getUser().getRole())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .time(post.getCreatedAt())
+                .commentCount(post.getCommentCount())
+                .hasFile(fileExists)
+                .isNew(false)
+                .build();
+    }
+
 
 }
