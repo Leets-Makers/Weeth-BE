@@ -26,6 +26,17 @@ public class NoticeTestFixture {
                 .build();
     }
 
+    public static Notice createNotice(Long id, String title, User user){
+        return Notice.builder()
+                .id(id)
+                .title(title)
+                .content("내용")
+                .user(user)
+                .comments(new ArrayList<>())
+                .commentCount(0)
+                .build();
+    }
+
     public static Notice createNotice(String title){
         return Notice.builder()
                 .title(title)
