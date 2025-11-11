@@ -268,7 +268,7 @@ class PostUseCaseImplTest {
     void fileExists_returnsTrue() {
         // given
         Long postId = 1L;
-        File file = FileTestFixture.createFile(postId, "파일1", "url1", null);
+        File file = FileTestFixture.createFile(postId, "파일1", "url1");
 
         given(fileGetService.findAllByPost(postId)).willReturn(List.of(file));
         // when
