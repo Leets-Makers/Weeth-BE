@@ -20,6 +20,7 @@ import leets.weeth.global.auth.kakao.dto.KakaoTokenResponse;
 import leets.weeth.global.auth.kakao.dto.KakaoUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,10 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static leets.weeth.domain.user.application.dto.request.UserRequestDto.*;
@@ -54,6 +52,7 @@ public class UserUseCaseImpl implements UserUseCase {
     private final UserMapper mapper;
     private final CardinalMapper cardinalMapper;
     private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
 
     @Override
     @Transactional(readOnly = true)
@@ -250,7 +249,6 @@ public class UserUseCaseImpl implements UserUseCase {
         AppleUserInfo userInfo = appleAuthService.verifyAndDecodeIdToken(tokenResponse.id_token());
 
         String appleIdToken = tokenResponse.id_token();
-        log.info("appleIdToken: {}", appleIdToken);
         String appleId = userInfo.appleId();
 
         Optional<User> optionalUser = userGetService.findByAppleId(appleId);
@@ -273,6 +271,7 @@ public class UserUseCaseImpl implements UserUseCase {
     @Override
     @Transactional
     public void appleRegister(Register dto) {
+        isDevEnvironment();
         validate(dto);
 
         // Apple authCode로 토큰 교환 후 ID Token 검증 및 사용자 정보 추출
@@ -290,7 +289,27 @@ public class UserUseCaseImpl implements UserUseCase {
         userSaveService.save(user);
         userCardinalSaveService.save(userCardinal);
 
-        // dev 전용: 바로 ACTIVE 상태로 설정 (save 이후 호출하여 @PrePersist 이후 더티 체킹으로 반영)
-        user.accept();
+        // dev 환경에서만 바로 ACTIVE 상태로 설정
+        if (isDevEnvironment()) {
+            log.info("dev 환경 감지: 사용자 자동 승인 처리 (userId: {})", user.getId());
+            user.accept();
+        }
+    }
+
+    /**
+     * 현재 환경이 dev 프로파일인지 확인
+     * @return dev 프로파일이 활성화되어 있으면 true
+     */
+    private boolean isDevEnvironment() {
+        String[] activeProfiles = environment.getActiveProfiles();
+        for (String profile : activeProfiles) {
+            if ("dev".equals(profile)) {
+                return true;
+            }
+            if ("local".equals(profile)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
