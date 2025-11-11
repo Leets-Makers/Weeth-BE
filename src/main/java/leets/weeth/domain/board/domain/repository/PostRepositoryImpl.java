@@ -9,17 +9,21 @@ import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import jakarta.persistence.EntityManager;
 import leets.weeth.domain.board.domain.entity.Post;
 import leets.weeth.domain.board.domain.entity.QPost;
 import leets.weeth.domain.board.domain.entity.enums.Category;
 import lombok.RequiredArgsConstructor;
 
-@Repository
-@RequiredArgsConstructor
+
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
 	private final JPAQueryFactory queryFactory;
 	private final QPost post = QPost.post;
+
+	public PostRepositoryImpl(EntityManager em) {
+		this.queryFactory = new JPAQueryFactory(em);
+	}
 
 	@Override
 	public Slice<Post> findRecentPart(Pageable pageable) {
