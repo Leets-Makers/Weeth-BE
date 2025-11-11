@@ -76,6 +76,7 @@ public class UserTestFixture {
 
     public static User createAdmin(Long id) {
         return User.builder()
+                .id(id)
                 .name("적순")
                 .email("admin@test.com")
                 .status(Status.ACTIVE)
