@@ -6,13 +6,10 @@ import leets.weeth.domain.board.test.fixture.NoticeTestFixture;
 import leets.weeth.domain.comment.application.dto.CommentDTO;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.comment.domain.entity.Comment;
-import leets.weeth.domain.comment.domain.service.CommentDeleteService;
 import leets.weeth.domain.comment.domain.service.CommentFindService;
 import leets.weeth.domain.comment.domain.service.CommentSaveService;
 import leets.weeth.domain.comment.test.fixture.CommentTestFixture;
 import leets.weeth.domain.file.application.mapper.FileMapper;
-import leets.weeth.domain.file.domain.service.FileDeleteService;
-import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
 import leets.weeth.domain.user.application.exception.UserNotMatchException;
 import leets.weeth.domain.user.domain.entity.User;
@@ -37,11 +34,8 @@ class NoticeCommentUsecaseImplTest {
 
     @Mock CommentSaveService commentSaveService;
     @Mock CommentFindService commentFindService;
-    @Mock CommentDeleteService commentDeleteService;
 
     @Mock FileSaveService fileSaveService;
-    @Mock FileGetService fileGetService;
-    @Mock FileDeleteService fileDeleteService;
     @Mock FileMapper fileMapper;
 
     @Mock NoticeFindService noticeFindService;
@@ -137,9 +131,5 @@ class NoticeCommentUsecaseImplTest {
         assertThrows(UserNotMatchException.class, () ->
                 noticeCommentUsecase.updateNoticeComment(dto, noticeId, comment.getId(), different)
         );
-    }
-
-    @Test
-    void deleteNoticeComment() {
     }
 }
