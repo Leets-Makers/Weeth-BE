@@ -17,10 +17,12 @@ import leets.weeth.domain.file.application.mapper.FileMapper;
 import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
+import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
+import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
 import leets.weeth.domain.user.test.fixture.UserTestFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 import java.util.List;
 
@@ -229,11 +228,37 @@ class PostUseCaseImplTest {
     }
 
     @Test
-    void searchEducation() {
-    }
+    @DisplayName("본인이 속하지 않은 교육 자료를 검색하면 빈 리스트를 반환한다")
+    void findEducationPosts_whenUserNotInCardinal_returnsEmptyList() {
+        // given
+        Long userId = 1L;
+        Part part = Part.BE;
+        Integer cardinalNumber = 3;
+        int pageNumber = 0;
+        int pageSize = 5;
 
-    @Test
-    void updateEducation() {
+        User user = UserTestFixture.createActiveUser1(userId);
+
+        Cardinal cardinal = CardinalTestFixture.createCardinal(1, 2025, 1);
+
+        given(userGetService.find(userId)).willReturn(user);
+        given(cardinalGetService.findByUserSide(cardinalNumber)).willReturn(cardinal);
+        given(userCardinalGetService.notContains(user, cardinal)).willReturn(true);
+
+        // when
+        Slice<PostDTO.ResponseEducationAll> result =
+                postUseCase.findEducationPosts(userId, part, cardinalNumber, pageNumber, pageSize);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.hasNext()).isFalse();
+
+        verify(userGetService).find(userId);
+        verify(cardinalGetService).findByUserSide(cardinalNumber);
+        verify(userCardinalGetService).notContains(user, cardinal);
+
+        verify(postFindService, never()).findEducationByCardinal(any(), anyInt(), any(Pageable.class));
     }
 
     @Test
