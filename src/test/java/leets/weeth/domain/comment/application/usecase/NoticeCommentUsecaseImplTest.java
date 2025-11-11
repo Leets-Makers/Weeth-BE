@@ -54,13 +54,14 @@ class NoticeCommentUsecaseImplTest {
     void saveNoticeComment() {
         Long userId = 1L;
         Long noticeId = 1L;
+        Long commentId = 1L;
         // given
         User user  = UserTestFixture.createActiveUser1(1L);
         Notice notice = NoticeTestFixture.createNotice(noticeId, "제목1");
 
         CommentDTO.Save dto = new CommentDTO.Save(null, "댓글1", List.of());
 
-        Comment comment = CommentTestFixture.createComment(dto.content(), user, notice);
+        Comment comment = CommentTestFixture.createComment(commentId, dto.content(), user, notice);
 
         given(commentMapper.fromCommentDto(dto, notice, user, null)).willReturn(comment);
         given(userGetService.find(user.getId())).willReturn(user);
@@ -94,7 +95,7 @@ class NoticeCommentUsecaseImplTest {
 
         CommentDTO.Update dto = new CommentDTO.Update("수정 완료", List.of());
 
-        Comment comment = CommentTestFixture.createComment(dto.content(), user, notice);
+        Comment comment = CommentTestFixture.createComment(commentId, dto.content(), user, notice);
 
         given(userGetService.find(user2.getId())).willReturn(user2);
         given(noticeFindService.find(notice.getId())).willReturn(notice);
