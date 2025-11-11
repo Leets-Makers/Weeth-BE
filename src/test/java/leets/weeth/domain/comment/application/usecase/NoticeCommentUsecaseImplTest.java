@@ -83,11 +83,43 @@ class NoticeCommentUsecaseImplTest {
     }
 
     @Test
+    @DisplayName("부모 댓글이 있는 경우 공지사항 댓글 작성")
+    void saveChildNoticeComment() {
+        Long userId = 1L;
+        Long noticeId = 1L;
+        Long parentCommentId = 1L;
+        Long childCommentId = 2L;
+        // given
+        User user  = UserTestFixture.createActiveUser1(parentCommentId);
+        Notice notice = NoticeTestFixture.createNotice(noticeId, "제목1");
+
+        Comment parentComment = CommentTestFixture.createComment(parentCommentId, "부모 댓글", user, notice);
+
+        CommentDTO.Save childCommentDTO = new CommentDTO.Save(parentCommentId, "자식 댓글", List.of());
+        Comment childComment = CommentTestFixture.createComment(childCommentId, childCommentDTO.content(), user, notice);
+
+        given(commentMapper.fromCommentDto(childCommentDTO, notice, user, parentComment)).willReturn(childComment);
+        given(userGetService.find(user.getId())).willReturn(user);
+        given(commentFindService.find(parentComment.getId())).willReturn(parentComment);
+        given(noticeFindService.find(notice.getId())).willReturn(notice);
+        given(fileMapper.toFileList(childCommentDTO.files(), childComment)).willReturn(List.of());
+
+        // when
+        noticeCommentUsecase.saveNoticeComment(childCommentDTO, noticeId, userId);
+
+        // then
+        verify(commentFindService).find(parentComment.getId());
+        verify(commentSaveService).save(childComment);
+        verify(fileSaveService).save(List.of());
+        assertThat(parentComment.getChildren()).contains(childComment);
+    }
+
+    @Test
     @DisplayName("공지사항 댓글 수정 시 작성자와 수정 요청자가 다르면 예외가 발생한다")
     void updateNoticeComment_throwsException_whenUserIsNotOwner() {
-        Long userId = 1L;
         Long different = 2L;
         Long noticeId = 1L;
+        Long commentId = 1L;
         // given
         User user  = UserTestFixture.createActiveUser1(1L);
         User user2  = UserTestFixture.createActiveUser1(2L);
