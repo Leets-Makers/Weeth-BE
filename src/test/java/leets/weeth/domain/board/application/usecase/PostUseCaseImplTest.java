@@ -1,5 +1,6 @@
 package leets.weeth.domain.board.application.usecase;
 
+import leets.weeth.domain.board.application.dto.PartPostDTO;
 import leets.weeth.domain.board.application.dto.PostDTO;
 import leets.weeth.domain.board.application.exception.CategoryAccessDeniedException;
 import leets.weeth.domain.board.application.mapper.PostMapper;
@@ -16,12 +17,10 @@ import leets.weeth.domain.file.application.mapper.FileMapper;
 import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
-import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
-import leets.weeth.domain.user.test.fixture.CardinalTestFixture;
 import leets.weeth.domain.user.test.fixture.UserTestFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -104,8 +107,62 @@ class PostUseCaseImplTest {
     }
 
     @Test
-    void findPartPosts() {
+    @DisplayName("특정 파트와 주차 조건으로 게시글 목록 조회 성공")
+    void findPartPosts_success() {
+        // given
+        PartPostDTO dto = new PartPostDTO(
+                Part.BE,
+                Category.Education,
+                1,
+                2,
+                "스터디1"
+        );
 
+        int pageNumber = 0;
+        int pageSize = 5;
+
+        Post post1 = PostTestFixture.createEducationPost(1L, "게시글1", Category.Education, List.of(Part.BE),
+                1, 1);
+        Post post2 = PostTestFixture.createEducationPost(2L, "게시글2", Category.Education, List.of(Part.BE),
+                1, 2);
+
+        List<Post> postList = List.of(post2);
+        Slice<Post> postSlice = new SliceImpl<>(postList);
+
+        PostDTO.ResponseAll response2 = PostTestFixture.createResponseAll(post2);
+
+        given(postFindService.findByPartAndOptionalFilters(
+                dto.part(),
+                dto.category(),
+                dto.cardinalNumber(),
+                dto.studyName(),
+                dto.week(),
+                PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"))
+        )).willReturn(postSlice);
+
+        given(mapper.toAll(post2, postUseCase.checkFileExistsByPost(post2.getId()))).willReturn(response2);
+
+        // when
+        Slice<PostDTO.ResponseAll> result = postUseCase.findPartPosts(dto, pageNumber, pageSize);
+
+        // then
+        // 2주차 게시글만 포함되어 있어야 함
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+
+        PostDTO.ResponseAll first = result.getContent().get(0);
+
+        assertThat(first.title()).isEqualTo("게시글2");
+        assertThat(first.hasFile()).isFalse();
+
+        verify(postFindService).findByPartAndOptionalFilters(
+                dto.part(),
+                dto.category(),
+                dto.cardinalNumber(),
+                dto.studyName(),
+                dto.week(),
+                PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"))
+        );
     }
 
     @Test
