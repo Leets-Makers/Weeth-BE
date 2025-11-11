@@ -7,6 +7,7 @@ import leets.weeth.global.auth.apple.dto.ApplePublicKey;
 import leets.weeth.global.auth.apple.dto.ApplePublicKeys;
 import leets.weeth.global.auth.apple.dto.AppleTokenResponse;
 import leets.weeth.global.auth.apple.dto.AppleUserInfo;
+import leets.weeth.global.auth.apple.exception.AppleAuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -102,7 +103,7 @@ public class AppleAuthService {
             ApplePublicKey matchedKey = publicKeys.keys().stream()
                     .filter(key -> key.kid().equals(kid))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("일치하는 애플 공개키를 찾을 수 없습니다."));
+                    .orElseThrow(AppleAuthenticationException::new);
 
             // 4. 공개키로 ID Token 검증
             PublicKey publicKey = generatePublicKey(matchedKey);
@@ -128,7 +129,7 @@ public class AppleAuthService {
 
         } catch (Exception e) {
             log.error("애플 ID Token 검증 실패", e);
-            throw new RuntimeException("애플 ID Token 검증 실패: " + e.getMessage());
+            throw new AppleAuthenticationException();
         }
     }
 
@@ -172,7 +173,7 @@ public class AppleAuthService {
 
         } catch (Exception e) {
             log.error("애플 Client Secret 생성 실패", e);
-            throw new RuntimeException("애플 Client Secret 생성 실패: " + e.getMessage());
+            throw new AppleAuthenticationException();
         }
     }
 
@@ -206,7 +207,7 @@ public class AppleAuthService {
             return keyFactory.generatePublic(publicKeySpec);
         } catch (Exception ex) {
             log.error("애플 공개키 생성 실패", ex);
-            throw new RuntimeException("애플 공개키 생성 실패: " + ex.getMessage());
+            throw new AppleAuthenticationException();
         }
     }
 
@@ -240,7 +241,7 @@ public class AppleAuthService {
             com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
             return objectMapper.readValue(json, Map.class);
         } catch (Exception e) {
-            throw new RuntimeException("JSON 파싱 실패: " + e.getMessage());
+            throw new RuntimeException("JSON 파싱 실패");
         }
     }
 }
