@@ -35,6 +35,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -209,7 +210,22 @@ class PostUseCaseImplTest {
     }
 
     @Test
-    void findStudyNames() {
+    @DisplayName("스터디가 없을 시 예외가 발생하지 않는다")
+    void findStudyNames_noStudies_doesNotThrowException() {
+        Part part = Part.BE;
+        List<String> emptyNames = List.of();
+
+        PostDTO.ResponseStudyNames expectedResponse = new PostDTO.ResponseStudyNames(emptyNames);
+
+        given(postFindService.findByPart(part)).willReturn(emptyNames);
+        given(mapper.toStudyNames(emptyNames)).willReturn(expectedResponse);
+
+        // when & then
+        assertThatCode(() -> postUseCase.findStudyNames(part))
+                .doesNotThrowAnyException();
+
+        verify(postFindService).findByPart(part);
+        verify(mapper).toStudyNames(emptyNames);
     }
 
     @Test
