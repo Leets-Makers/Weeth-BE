@@ -14,9 +14,11 @@ import leets.weeth.domain.board.domain.service.PostUpdateService;
 import leets.weeth.domain.board.test.fixture.PostTestFixture;
 import leets.weeth.domain.comment.application.mapper.CommentMapper;
 import leets.weeth.domain.file.application.mapper.FileMapper;
+import leets.weeth.domain.file.domain.entity.File;
 import leets.weeth.domain.file.domain.service.FileDeleteService;
 import leets.weeth.domain.file.domain.service.FileGetService;
 import leets.weeth.domain.file.domain.service.FileSaveService;
+import leets.weeth.domain.file.test.fixture.FileTestFixture;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.CardinalGetService;
@@ -262,6 +264,18 @@ class PostUseCaseImplTest {
     }
 
     @Test
-    void checkFileExistsByPost() {
+    @DisplayName("파일이 존재하는 경우 true를 반환한다")
+    void fileExists_returnsTrue() {
+        // given
+        Long postId = 1L;
+        File file = FileTestFixture.createFile(postId, "파일1", "url1", null);
+
+        given(fileGetService.findAllByPost(postId)).willReturn(List.of(file));
+        // when
+        boolean fileExists = postUseCase.checkFileExistsByPost(postId);
+
+        // then
+        assertThat(fileExists).isTrue();
+        verify(fileGetService).findAllByPost(postId);
     }
 }
