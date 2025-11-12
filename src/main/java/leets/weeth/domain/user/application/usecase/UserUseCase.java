@@ -37,4 +37,8 @@ public interface UserUseCase {
 
     List<SummaryResponse> searchUser(String keyword);
 
+    SocialLoginResponse appleLogin(Login dto);
+
+    void appleRegister(Register dto);
+
 }

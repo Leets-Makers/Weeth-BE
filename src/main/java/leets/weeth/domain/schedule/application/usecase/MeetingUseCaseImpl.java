@@ -1,5 +1,7 @@
 package leets.weeth.domain.schedule.application.usecase;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import leets.weeth.domain.attendance.domain.entity.Attendance;
 import leets.weeth.domain.attendance.domain.service.AttendanceDeleteService;
 import leets.weeth.domain.attendance.domain.service.AttendanceGetService;
@@ -43,6 +45,9 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     private final AttendanceDeleteService attendanceDeleteService;
     private final AttendanceUpdateService attendanceUpdateService;
     private final CardinalGetService cardinalGetService;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public Response find(Long userId, Long meetingId) {
@@ -102,6 +107,9 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
         List<Attendance> attendances = attendanceGetService.findAllByMeeting(meeting);
 
         attendanceUpdateService.updateUserAttendanceByStatus(attendances);
+
+        em.flush();
+        em.clear();
 
         attendanceDeleteService.deleteAll(meeting);
         meetingDeleteService.delete(meeting);

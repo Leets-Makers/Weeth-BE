@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -73,13 +74,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize ->
                                 authorize
-                                        .requestMatchers("/api/v1/users/kakao/login", "api/v1/users/kakao/register", "api/v1/users/kakao/link", "/api/v1/users/apply", "/api/v1/users/email", "/api/v1/users/refresh").permitAll()
+                                        .requestMatchers("/api/v1/users/kakao/login", "api/v1/users/kakao/register", "api/v1/users/kakao/link", "/api/v1/users/apple/login", "/api/v1/users/apple/register", "/api/v1/users/apply", "/api/v1/users/email", "/api/v1/users/refresh").permitAll()
                                         .requestMatchers("/health-check").permitAll()
-                                        .requestMatchers("/oauth2/**", "/.well-known/**", "/kakao/oauth").permitAll()
+                                        .requestMatchers("/oauth2/**", "/.well-known/**", "/kakao/oauth", "/apple/oauth").permitAll()
                                         .requestMatchers("/admin", "/admin/login", "/admin/account", "/admin/meeting", "/admin/member", "/admin/penalty",
                                                 "/js/**", "/img/**", "/scss/**", "/vendor/**").permitAll()
                                         // 스웨거 경로
                                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger/**").permitAll()
+                                        .requestMatchers("/actuator/prometheus")
+                                            .access((authentication, context) -> {
+                                                String ip = context.getRequest().getRemoteAddr();
+                                                boolean allowed = ip.startsWith("172.") || ip.equals("127.0.0.1");
+                                                return new AuthorizationDecision(allowed);
+                                            })
+                                        .requestMatchers("/actuator/health").permitAll()
                                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                                         .anyRequest().authenticated()
                 )

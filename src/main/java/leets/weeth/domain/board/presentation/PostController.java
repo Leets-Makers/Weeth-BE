@@ -1,15 +1,5 @@
 package leets.weeth.domain.board.presentation;
 
-import static leets.weeth.domain.board.presentation.ResponseMessage.EDUCATION_SEARCH_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_CREATED_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_DELETED_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_EDU_FIND_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_ALL_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_FIND_BY_ID_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_PART_FIND_ALL_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_SEARCH_SUCCESS;
-import static leets.weeth.domain.board.presentation.ResponseMessage.POST_UPDATED_SUCCESS;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,16 +13,9 @@ import leets.weeth.global.auth.annotation.CurrentUser;
 import leets.weeth.global.common.response.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static leets.weeth.domain.board.presentation.ResponseMessage.*;
 
 @Tag(name = "BOARD", description = "게시판 API")
 @RestController
@@ -44,10 +27,10 @@ public class PostController {
 
     @PostMapping
     @Operation(summary="파트 게시글 생성 (스터디 로그, 아티클)")
-    public CommonResponse<String> save(@RequestBody @Valid PostDTO.Save dto, @Parameter(hidden = true) @CurrentUser Long userId) {
-        postUsecase.save(dto, userId);
+    public CommonResponse<PostDTO.SaveResponse> save(@RequestBody @Valid PostDTO.Save dto, @Parameter(hidden = true) @CurrentUser Long userId) {
+        PostDTO.SaveResponse response = postUsecase.save(dto, userId);
 
-        return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage());
+        return CommonResponse.createSuccess(POST_CREATED_SUCCESS.getMessage(),  response);
     }
 
     @GetMapping
@@ -101,11 +84,12 @@ public class PostController {
 
     @PatchMapping(value = "/{boardId}/part")
     @Operation(summary="파트 게시글 수정")
-    public CommonResponse<String> update(@PathVariable Long boardId,
+    public CommonResponse<PostDTO.SaveResponse> update(@PathVariable Long boardId,
                                          @RequestBody @Valid PostDTO.Update dto,
                                          @Parameter(hidden = true) @CurrentUser Long userId) throws UserNotMatchException {
-        postUsecase.update(boardId, dto, userId);
-        return CommonResponse.createSuccess(POST_UPDATED_SUCCESS.getMessage());
+        PostDTO.SaveResponse response = postUsecase.update(boardId, dto, userId);
+
+        return CommonResponse.createSuccess(POST_UPDATED_SUCCESS.getMessage(), response);
     }
 
     @DeleteMapping("/{boardId}")

@@ -13,6 +13,7 @@ public class UserResponseDto {
     public record SocialLoginResponse(
             Long id,
             Long kakaoId,
+            String appleIdToken,
             LoginStatus status,
             String accessToken,
             String refreshToken

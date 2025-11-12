@@ -5,13 +5,12 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import leets.weeth.domain.user.domain.entity.SecurityUser;
 import leets.weeth.domain.user.domain.service.UserGetService;
+import leets.weeth.global.auth.apple.AppleAuthService;
 import leets.weeth.global.auth.kakao.KakaoAuthService;
 import leets.weeth.global.sas.application.exception.Oauth2JwtTokenException;
 import leets.weeth.global.sas.application.property.OauthProperties;
 import leets.weeth.global.sas.config.authentication.ProviderAwareEntryPoint;
-import leets.weeth.global.sas.config.grant.KakaoAccessTokenAuthenticationConverter;
-import leets.weeth.global.sas.config.grant.KakaoAuthenticationProvider;
-import leets.weeth.global.sas.config.grant.KakaoGrantType;
+import leets.weeth.global.sas.config.grant.*;
 import leets.weeth.global.sas.domain.repository.OAuth2AuthorizationGrantAuthorizationRepository;
 import leets.weeth.global.sas.domain.service.RedisOAuth2AuthorizationService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -56,6 +54,7 @@ public class OAuth2AuthorizationServerConfig {
 
     private final ProviderAwareEntryPoint entryPoint;
     private final KakaoAuthService kakaoAuthService;
+    private final AppleAuthService appleAuthService;
     private final UserGetService userGetService;
 
     private final OauthProperties props;
@@ -68,25 +67,57 @@ public class OAuth2AuthorizationServerConfig {
     @Order(1) // 우선순위를 기본 filter보다 높게 설정
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
                                                                       KakaoAccessTokenAuthenticationConverter kakaoConverter,
-                                                                      KakaoAuthenticationProvider kakaoProvider) throws Exception {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+                                                                      KakaoAuthenticationProvider kakaoProvider,
+                                                                      AppleIdentityTokenAuthenticationConverter appleConverter,
+                                                                      AppleAuthenticationProvider appleProvider) throws Exception { // entryPoint 주입
 
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults())
-                .tokenEndpoint(token -> token
-                        .accessTokenRequestConverters(c -> c.add(kakaoConverter))
-                        .authenticationProviders(p  -> p.add(kakaoProvider))
-                );
+        // 1. Configurer 인스턴스 생성 (공식 템플릿 방식)
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                OAuth2AuthorizationServerConfigurer.authorizationServer();
 
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+        http
+                // 2. 이 필터체인이 적용될 엔드포인트를 명시적으로 지정 (템플릿 방식)
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
 
-        // 커스텀 EntryPoint (provider 파라미터 해석 → 302 /oauth2/authorization/{provider})
-        http.exceptionHandling(e -> e.defaultAuthenticationEntryPointFor(
-                entryPoint, rq -> rq.getRequestURI().startsWith("/oauth2/authorize")));
+                // 3. .with()를 사용하여 Configurer 적용 및 커스텀 (템플릿 방식)
+                .with(authorizationServerConfigurer, (authorizationServer) ->
+                        authorizationServer
+                                .oidc(Customizer.withDefaults()) // OIDC 활성화
 
-        return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/**", "/.well-known/**"))
-                .build();
+                                // 4. [사용자 정의] 토큰 엔드포인트 커스텀 로직 삽입
+                                .tokenEndpoint(token -> token
+                                        .accessTokenRequestConverters(c -> {
+                                            c.add(kakaoConverter);
+                                            c.add(appleConverter);
+                                        })
+                                        .authenticationProviders(p  -> {
+                                            p.add(kakaoProvider);
+                                            p.add(appleProvider);
+                                        })
+                                )
+                )
+
+                // 5. 엔드포인트에 대한 기본 인증 요구 (템플릿 방식)
+                .authorizeHttpRequests((authorize) ->
+                        authorize.anyRequest().authenticated()
+                )
+
+                // 6. [사용자 정의] 리소스 서버 설정 (JWT 검증)
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+
+                // 7. [사용자 정의] 인증 실패 시 커스텀 EntryPoint 사용 (템플릿 구조 + 사용자 로직)
+                // (템플릿의 /login 리디렉션 대신, 기존의 provider 분기 로직을 사용)
+                .exceptionHandling((exceptions) -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                entryPoint, // 사용자의 커스텀 EntryPoint
+                                rq -> rq.getRequestURI().startsWith("/oauth2/authorize") // 사용자의 커스텀 Predicate
+                        )
+                )
+
+                // 8. [사용자 정의] CSRF 설정
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/oauth2/**", "/.well-known/**"));
+
+        return http.build();
     }
 
     @Bean
@@ -104,6 +135,7 @@ public class OAuth2AuthorizationServerConfig {
                     type.add(AuthorizationGrantType.AUTHORIZATION_CODE);
                     type.add(AuthorizationGrantType.REFRESH_TOKEN);
                     type.add(KakaoGrantType.KAKAO_ACCESS_TOKEN);
+                    type.add(AppleGrantType.APPLE_IDENTITY_TOKEN);
                 })
                 .redirectUris(uri -> {
                     uri.addAll(leenk.getRedirectUris());
@@ -201,6 +233,20 @@ public class OAuth2AuthorizationServerConfig {
 
         return new KakaoAuthenticationProvider(
                 kakaoAuthService, userGetService, authorizationService, tokenGenerator);
+    }
+
+    @Bean
+    AppleIdentityTokenAuthenticationConverter appleConverter() {
+        return new AppleIdentityTokenAuthenticationConverter();
+    }
+
+    @Bean
+    AppleAuthenticationProvider appleProvider(
+            OAuth2AuthorizationService authorizationService,
+            OAuth2TokenGenerator<?> tokenGenerator) {
+
+        return new AppleAuthenticationProvider(
+                appleAuthService, userGetService, authorizationService, tokenGenerator);
     }
 
     private RSAKey loadRsaKeyFromString() {

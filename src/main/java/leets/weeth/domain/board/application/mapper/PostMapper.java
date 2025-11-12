@@ -34,6 +34,8 @@ public interface PostMapper {
     @Mapping(target = "category", constant = "Education")
     Post fromEducationDto(PostDTO.SaveEducation dto, User user);
 
+    PostDTO.SaveResponse toSaveResponse(Post post);
+
     @Mappings({
             @Mapping(target = "name", source = "post.user.name"),
             @Mapping(target = "position", source = "post.user.position"),

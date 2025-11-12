@@ -9,9 +9,9 @@ import org.springframework.data.domain.Slice;
 
 public interface PostUsecase {
 
-    void save(PostDTO.Save request, Long userId);
+    PostDTO.SaveResponse save(PostDTO.Save request, Long userId);
 
-    void saveEducation(PostDTO.SaveEducation request, Long userId);
+    PostDTO.SaveResponse saveEducation(PostDTO.SaveEducation request, Long userId);
 
     PostDTO.Response findPost(Long postId);
 
@@ -23,9 +23,9 @@ public interface PostUsecase {
 
     PostDTO.ResponseStudyNames findStudyNames(Part part);
 
-    void update(Long postId, PostDTO.Update dto, Long userId) throws UserNotMatchException;
+    PostDTO.SaveResponse update(Long postId, PostDTO.Update dto, Long userId) throws UserNotMatchException;
 
-    void updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) throws UserNotMatchException;
+    PostDTO.SaveResponse updateEducation(Long postId, PostDTO.UpdateEducation dto, Long userId) throws UserNotMatchException;
 
     void delete(Long postId, Long userId) throws UserNotMatchException;
 
