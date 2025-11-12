@@ -1,23 +1,28 @@
 package leets.weeth.domain.attendance.application.mapper;
 
-import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
-import static org.assertj.core.api.Assertions.*;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import leets.weeth.domain.attendance.application.dto.AttendanceDTO;
 import leets.weeth.domain.attendance.domain.entity.Attendance;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Position;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import static leets.weeth.domain.attendance.test.fixture.AttendanceTestFixture.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(MockitoExtension.class)
 class AttendanceMapperTest {
 
-	private final AttendanceMapper attendanceMapper = new AttendanceMapperImpl();
+	@InjectMocks
+	private final AttendanceMapper attendanceMapper = Mappers.getMapper(AttendanceMapper.class);
 
 	@Test
 	@DisplayName("toMainDto: 사용자 + 당일 출석 객체를 Main DTO로 매핑한다")
@@ -120,5 +125,46 @@ class AttendanceMapperTest {
 		assertThat(main.start()).isNull();
 		assertThat(main.end()).isNull();
 		assertThat(main.location()).isNull();
+	}
+
+	@Test
+	@DisplayName("toMainDto: 일반 유저는 출석 코드가 null로 매핑된다")
+	void toMainDto_normalUser_codeIsNull() {
+		// given
+		LocalDate today = LocalDate.now();
+		Meeting meeting = createOneDayMeeting(today, 1, 1234, "Today");
+		User user = createActiveUserWithAttendances("일반유저", List.of(meeting));
+		Attendance attendance = user.getAttendances().get(0);
+
+		// when
+		AttendanceDTO.Main main = attendanceMapper.toMainDto(user, attendance);
+
+		// then
+		assertThat(main).isNotNull();
+		assertThat(main.code()).isNull();
+		assertThat(main.title()).isEqualTo("Today");
+		assertThat(main.status()).isEqualTo(attendance.getStatus());
+	}
+
+	@Test
+	@DisplayName("toAdminResponse: ADMIN 유저는 출석 코드가 포함된다")
+	void toAdminResponse_adminUser_includesCode() {
+		// given
+		LocalDate today = LocalDate.now();
+		Integer expectedCode = 1234;
+		Meeting meeting = createOneDayMeeting(today, 1, expectedCode, "Today");
+		User adminUser = createAdminUserWithAttendances("관리자", List.of(meeting));
+		Attendance attendance = adminUser.getAttendances().get(0);
+
+		// when
+		AttendanceDTO.Main main = attendanceMapper.toAdminResponse(adminUser, attendance);
+
+		// then
+		assertThat(main).isNotNull();
+		assertThat(main.code()).isEqualTo(expectedCode);
+		assertThat(main.title()).isEqualTo("Today");
+		assertThat(main.start()).isEqualTo(meeting.getStart());
+		assertThat(main.end()).isEqualTo(meeting.getEnd());
+		assertThat(main.location()).isEqualTo(meeting.getLocation());
 	}
 }
