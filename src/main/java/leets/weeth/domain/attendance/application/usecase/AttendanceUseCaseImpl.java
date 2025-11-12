@@ -13,6 +13,7 @@ import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
 import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,10 @@ public class AttendanceUseCaseImpl implements AttendanceUseCase {
                         && attendance.getMeeting().getEnd().toLocalDate().isEqual(LocalDate.now()))
                 .findAny()
                 .orElse(null);
+
+        if (Role.ADMIN == user.getRole()) {
+            return mapper.toAdminResponse(user, todayMeeting);
+        }
 
         return mapper.toMainDto(user, todayMeeting);
     }
