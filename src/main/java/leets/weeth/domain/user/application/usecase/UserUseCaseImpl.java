@@ -271,7 +271,6 @@ public class UserUseCaseImpl implements UserUseCase {
     @Override
     @Transactional
     public void appleRegister(Register dto) {
-        isDevEnvironment();
         validate(dto);
 
         // Apple authCode로 토큰 교환 후 ID Token 검증 및 사용자 정보 추출
