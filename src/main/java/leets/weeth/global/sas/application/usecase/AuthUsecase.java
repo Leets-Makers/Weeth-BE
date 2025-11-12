@@ -6,6 +6,9 @@ import leets.weeth.domain.user.domain.entity.Cardinal;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.service.UserCardinalGetService;
 import leets.weeth.domain.user.domain.service.UserGetService;
+import leets.weeth.global.auth.apple.AppleAuthService;
+import leets.weeth.global.auth.apple.dto.AppleTokenResponse;
+import leets.weeth.global.auth.apple.dto.AppleUserInfo;
 import leets.weeth.global.auth.jwt.service.JwtService;
 import leets.weeth.global.auth.kakao.KakaoAuthService;
 import leets.weeth.global.auth.kakao.dto.KakaoTokenResponse;
@@ -22,6 +25,7 @@ import java.util.Optional;
 public class AuthUsecase {
 
     private final KakaoAuthService kakaoAuthService;
+    private final AppleAuthService appleAuthService;
     private final UserGetService userGetService;
     private final JwtService jwtService;
     private final UserCardinalGetService userCardinalGetService;
@@ -46,6 +50,32 @@ public class AuthUsecase {
 
         if (user.isInactive()) {
             throw new UserInActiveException(); // -> weeth 가입 승인 페이지로 리 다이렉트 or LEENK 내부 모달이나 토스트 메시지로 가입 승인 중이라고 표시
+        }
+
+        return user;
+    }
+
+    /*
+    필요 없음
+     */
+    public User appleLogin(String authCode, String idToken) {
+        AppleTokenResponse tokenResponse = appleAuthService.getAppleToken(authCode);
+
+        // ID Token 사용
+        String token = idToken != null ? idToken : tokenResponse.id_token();
+        AppleUserInfo userInfo = appleAuthService.verifyAndDecodeIdToken(token);
+
+        String appleId = userInfo.appleId();
+        Optional<User> optionalUser = userGetService.findByAppleId(appleId);
+
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException(); // -> Weeth 회원가입 페이지로 리다이렉트
+        }
+
+        User user = optionalUser.get();
+
+        if (user.isInactive()) {
+            throw new UserInActiveException(); // -> 가입 승인 대기
         }
 
         return user;

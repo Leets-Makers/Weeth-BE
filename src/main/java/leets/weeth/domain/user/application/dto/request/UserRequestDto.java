@@ -1,5 +1,6 @@
 package leets.weeth.domain.user.application.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,10 @@ public class UserRequestDto {
     }
 
     public record Register(
-            @NotNull Long kakaoId,
+            @Schema(description = "kakao로 회원가입 하는 경우")
+            Long kakaoId,
+            @Schema(description = "애플로 회원가입 하는 경우 - Apple OAuth authCode")
+            String appleAuthCode,
             @NotBlank String name,
             @NotBlank String studentId,
             @NotBlank String email,

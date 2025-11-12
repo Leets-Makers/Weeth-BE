@@ -36,9 +36,15 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
         // ttl 설정
         if (entity.getAccessToken() == null && entity instanceof OAuth2AuthorizationCodeGrantAuthorization codeGrant) {
-            entity.updateExpire(calculateTtlSeconds(((OAuth2AuthorizationCodeGrantAuthorization) entity).getAuthorizationCode().getExpiresAt()));
-        } else {
+            entity.updateExpire(calculateTtlSeconds(codeGrant.getAuthorizationCode().getExpiresAt()));
+        } else if (entity.getRefreshToken() != null) {
             entity.updateExpire(calculateTtlSeconds(entity.getRefreshToken().getExpiresAt()));
+        } else if (entity.getAccessToken() != null) {
+            // refresh token이 없으면 access token의 만료 시간 사용
+            entity.updateExpire(calculateTtlSeconds(entity.getAccessToken().getExpiresAt()));
+        } else {
+            // access token도 없으면 기본값으로 1시간 설정
+            entity.updateExpire(3600L);
         }
 
         this.authorizationGrantAuthorizationRepository.save(entity);

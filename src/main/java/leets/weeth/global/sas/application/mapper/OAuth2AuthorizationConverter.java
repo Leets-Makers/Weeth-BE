@@ -1,6 +1,7 @@
 package leets.weeth.global.sas.application.mapper;
 
 
+import leets.weeth.global.sas.config.grant.AppleGrantType;
 import leets.weeth.global.sas.config.grant.KakaoGrantType;
 import leets.weeth.global.sas.domain.entity.*;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -33,11 +34,34 @@ public class OAuth2AuthorizationConverter {
             return convertKakaoAuthorizationGrantAuthorization(authorization);
         }
 
+        if (AppleGrantType.APPLE_IDENTITY_TOKEN.equals(grantType)) {
+            return convertAppleAuthorizationGrantAuthorization(authorization);
+        }
+
         return null;
     }
 
     private static OidcAuthorizationCodeGrantAuthorization
     convertKakaoAuthorizationGrantAuthorization(OAuth2Authorization authorization) {
+
+        AccessToken accessToken = extractAccessToken(authorization);
+        RefreshToken refreshToken = extractRefreshToken(authorization);
+        IdToken idToken = extractIdToken(authorization);
+
+        return OidcAuthorizationCodeGrantAuthorization.builder()
+                .id(authorization.getId())
+                .registeredClientId(authorization.getRegisteredClientId())
+                .principalName(authorization.getPrincipalName())
+                .authorizedScopes(authorization.getAuthorizedScopes())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .idToken(idToken)
+                .principal(authorization.getAttribute(Principal.class.getName()))
+                .build();
+    }
+
+    private static OidcAuthorizationCodeGrantAuthorization
+    convertAppleAuthorizationGrantAuthorization(OAuth2Authorization authorization) {
 
         AccessToken accessToken = extractAccessToken(authorization);
         RefreshToken refreshToken = extractRefreshToken(authorization);
