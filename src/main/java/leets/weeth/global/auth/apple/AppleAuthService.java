@@ -57,6 +57,9 @@ public class AppleAuthService {
     @Value("${auth.providers.apple.private_key_path}")
     private String privateKeyPath;
 
+    @Value("${auth.providers.apple.allowed_audiences}")
+    private java.util.List<String> allowedAudiences;
+
     private final RestClient restClient = RestClient.create();
 
     /**
@@ -222,7 +225,9 @@ public class AppleAuthService {
             throw new RuntimeException("유효하지 않은 발급자(issuer)입니다.");
         }
 
-        if (!aud.equals(appleClientId)) {
+        // 허용된 audience 목록에 포함되어 있는지 확인 (웹 + Leenk 앱)
+        if (!allowedAudiences.contains(aud)) {
+            log.error("유효하지 않은 audience: {}. 허용된 목록: {}", aud, allowedAudiences);
             throw new RuntimeException("유효하지 않은 수신자(audience)입니다.");
         }
 

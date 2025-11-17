@@ -34,7 +34,9 @@ auth:
       redirect_uri: ${APPLE_REDIRECT_URI}
       token_uri: https://appleid.apple.com/auth/token
       keys_uri: https://appleid.apple.com/auth/keys
-      private_key_path: ${APPLE_PRIVATE_KEY_PATH}
+      private_key_path: AuthKey_5JL5Z7K6J7.p8
+      # 허용할 audience 목록 (웹 + Leenk 앱), 쉼표로 구분
+      allowed_audiences: ${APPLE_CLIENT_ID},${APPLE_ALLOWED_AUDIENCES}
   jwt:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
