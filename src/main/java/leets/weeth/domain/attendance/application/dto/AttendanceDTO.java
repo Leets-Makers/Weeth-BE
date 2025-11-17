@@ -1,5 +1,6 @@
 package leets.weeth.domain.attendance.application.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import leets.weeth.domain.attendance.domain.entity.enums.Status;
@@ -13,6 +14,8 @@ public class AttendanceDTO {
             Integer attendanceRate,
             String title,
             Status status,
+            @Schema(description = "어드민인 경우 출석 코드 노출")
+            Integer code,
             LocalDateTime start,
             LocalDateTime end,
             String location

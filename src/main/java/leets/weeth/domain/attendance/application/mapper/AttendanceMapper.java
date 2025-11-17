@@ -14,11 +14,23 @@ public interface AttendanceMapper {
             @Mapping(target = "attendanceRate", source = "user.attendanceRate"),
             @Mapping(target = "title", source = "attendance.meeting.title"),
             @Mapping(target = "status", source = "attendance.status"),
+            @Mapping(target = "code", ignore = true),
             @Mapping(target = "start", source = "attendance.meeting.start"),
             @Mapping(target = "end", source = "attendance.meeting.end"),
             @Mapping(target = "location", source = "attendance.meeting.location"),
     })
     AttendanceDTO.Main toMainDto(User user, Attendance attendance);
+
+    @Mappings({
+            @Mapping(target = "attendanceRate", source = "user.attendanceRate"),
+            @Mapping(target = "title", source = "attendance.meeting.title"),
+            @Mapping(target = "status", source = "attendance.status"),
+            @Mapping(target = "code", source = "attendance.meeting.code"),
+            @Mapping(target = "start", source = "attendance.meeting.start"),
+            @Mapping(target = "end", source = "attendance.meeting.end"),
+            @Mapping(target = "location", source = "attendance.meeting.location"),
+    })
+    AttendanceDTO.Main toAdminResponse(User user, Attendance attendance);
 
     @Mappings({
             @Mapping(target = "attendances", source = "attendances"),

@@ -10,6 +10,7 @@ import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.user.domain.entity.User;
 import leets.weeth.domain.user.domain.entity.enums.Department;
 import leets.weeth.domain.user.domain.entity.enums.Position;
+import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.entity.enums.Status;
 
 public class AttendanceTestFixture {
@@ -19,6 +20,29 @@ public class AttendanceTestFixture {
 	//todo : 추후 User Fixture 활용 예정
 	public static User createActiveUser(String name) {
 		return User.builder().name(name).status(Status.ACTIVE).build();
+	}
+
+	public static User createAdminUser(String name) {
+		return User.builder().name(name).status(Status.ACTIVE).role(Role.ADMIN).build();
+	}
+
+	public static User createAdminUserWithAttendances(String name, List<Meeting> meetings) {
+		User user = createAdminUser(name);
+
+		if (user.getAttendances() == null) {
+			try {
+				java.lang.reflect.Field f = user.getClass().getDeclaredField("attendances");
+				f.setAccessible(true);
+				f.set(user, new java.util.ArrayList<>());
+			} catch (Exception ignore) {}
+		}
+		if (meetings != null) {
+			for (Meeting meeting : meetings) {
+				Attendance attendance = createAttendance(meeting, user);
+				user.add(attendance);
+			}
+		}
+		return user;
 	}
 
 	//todo : 추후 User Fixture 활용 예정
