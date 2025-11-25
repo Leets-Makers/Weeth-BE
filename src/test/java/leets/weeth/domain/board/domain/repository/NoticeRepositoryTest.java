@@ -2,7 +2,7 @@ package leets.weeth.domain.board.domain.repository;
 
 import leets.weeth.config.TestContainersConfig;
 import leets.weeth.domain.board.domain.entity.Notice;
-import leets.weeth.domain.board.domain.test.fixture.NoticeFixture;
+import leets.weeth.domain.board.test.fixture.NoticeTestFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -31,7 +31,7 @@ class NoticeRepositoryTest {
         // given
         List<Notice> notices = new ArrayList<>();
         for(int i = 0; i<5; i++){
-            Notice notice = NoticeFixture.createNotice("공지" + i);
+            Notice notice = NoticeTestFixture.createNotice("공지" + i);
             notices.add(notice);
         }
 
@@ -60,9 +60,9 @@ class NoticeRepositoryTest {
         for(int i = 0; i<6; i++){
             Notice notice;
             if(i % 2 == 0){
-                notice = NoticeFixture.createNotice("공지" + i);
+                notice = NoticeTestFixture.createNotice("공지" + i);
             } else{
-                notice = NoticeFixture.createNotice("검색" + i);
+                notice = NoticeTestFixture.createNotice("검색" + i);
             }
             notices.add(notice);
         }
