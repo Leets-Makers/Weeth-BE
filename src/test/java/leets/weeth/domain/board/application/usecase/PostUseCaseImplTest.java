@@ -259,7 +259,6 @@ class PostUseCaseImplTest {
         verify(userGetService).find(userId);
         verify(cardinalGetService).findByUserSide(cardinalNumber);
         verify(userCardinalGetService).notContains(user, cardinal);
-
         verify(postFindService, never()).findEducationByCardinal(any(), anyInt(), any(Pageable.class));
     }
 
