@@ -143,7 +143,7 @@ class PostUseCaseImplTest {
                 PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"))
         )).willReturn(postSlice);
 
-        given(mapper.toAll(post2, postUseCase.checkFileExistsByPost(post2.getId()))).willReturn(response2);
+        given(mapper.toAll(post2, false)).willReturn(response2);
 
         // when
         Slice<PostDTO.ResponseAll> result = postUseCase.findPartPosts(dto, pageNumber, pageSize);
@@ -191,8 +191,8 @@ class PostUseCaseImplTest {
         given(userGetService.find(userId)).willReturn(adminUser);
         given(postFindService.findByCategory(part, Category.Education, cardinalNumber, pageNumber, pageSize))
                 .willReturn(postSlice);
-        given(mapper.toEducationAll(post1, postUseCase.checkFileExistsByPost(post1.getId()))).willReturn(response1);
-        given(mapper.toEducationAll(post2, postUseCase.checkFileExistsByPost(post2.getId()))).willReturn(response2);
+        given(mapper.toEducationAll(post1, false)).willReturn(response1);
+        given(mapper.toEducationAll(post2, false)).willReturn(response2);
 
         // when
         Slice<PostDTO.ResponseEducationAll> result =
@@ -206,8 +206,8 @@ class PostUseCaseImplTest {
                 .containsExactly("교육글1", "교육글2");
 
         verify(postFindService).findByCategory(part, Category.Education, cardinalNumber, pageNumber, pageSize);
-        verify(mapper).toEducationAll(post1, postUseCase.checkFileExistsByPost(post1.getId()));
-        verify(mapper).toEducationAll(post2, postUseCase.checkFileExistsByPost(post2.getId()));
+        verify(mapper).toEducationAll(post1, false);
+        verify(mapper).toEducationAll(post2, false);
     }
 
     @Test
