@@ -1,6 +1,7 @@
 package leets.weeth.domain.user.test.fixture;
 
 import leets.weeth.domain.user.domain.entity.User;
+import leets.weeth.domain.user.domain.entity.enums.Role;
 import leets.weeth.domain.user.domain.entity.enums.Status;
 
 public class UserTestFixture {
@@ -72,5 +73,15 @@ public class UserTestFixture {
 			.status(Status.WAITING)
 			.build();
 	}
+
+    public static User createAdmin(Long id) {
+        return User.builder()
+                .id(id)
+                .name("적순")
+                .email("admin@test.com")
+                .status(Status.ACTIVE)
+                .role(Role.ADMIN)
+                .build();
+    }
 
 }
