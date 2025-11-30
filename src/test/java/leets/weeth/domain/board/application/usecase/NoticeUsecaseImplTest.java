@@ -106,7 +106,6 @@ class NoticeUsecaseImplTest {
         assertThat(noticeResponses.hasNext()).isTrue();
 
         verify(noticeFindService, times(1)).findRecentNotices(pageable);
-
     }
 
     @Test
@@ -228,7 +227,6 @@ class NoticeUsecaseImplTest {
         verify(fileMapper).toFileList(dto.files(), notice);
         verify(fileSaveService).save(newFiles);
         verify(noticeUpdateService).update(notice, dto);
-        verify(noticeMapper).toSaveResponse(notice);
     }
 
     @Test

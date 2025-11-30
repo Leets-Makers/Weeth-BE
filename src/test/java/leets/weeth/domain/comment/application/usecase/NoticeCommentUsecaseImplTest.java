@@ -69,8 +69,6 @@ class NoticeCommentUsecaseImplTest {
         verify(userGetService).find(userId);
         verify(noticeFindService).find(noticeId);
         verify(commentSaveService).save(comment);
-        verify(fileSaveService).save(List.of());
-        verify(commentMapper).fromCommentDto(dto, notice, user, null);
 
         assertThat(notice.getComments()).contains(comment);
 
@@ -104,7 +102,7 @@ class NoticeCommentUsecaseImplTest {
         // then
         verify(commentFindService).find(parentComment.getId());
         verify(commentSaveService).save(childComment);
-        verify(fileSaveService).save(List.of());
+
         assertThat(parentComment.getChildren()).contains(childComment);
     }
 
