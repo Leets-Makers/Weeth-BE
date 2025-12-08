@@ -11,6 +11,7 @@ import leets.weeth.domain.schedule.application.dto.ScheduleDTO;
 import leets.weeth.domain.schedule.application.mapper.MeetingMapper;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingDeleteService;
+import leets.weeth.domain.schedule.domain.service.MeetingDomainService;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
 import leets.weeth.domain.schedule.domain.service.MeetingSaveService;
 import leets.weeth.domain.schedule.domain.service.MeetingUpdateService;
@@ -45,6 +46,7 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     private final UserGetService userGetService;
     private final MeetingUpdateService meetingUpdateService;
     private final MeetingDeleteService meetingDeleteService;
+    private final MeetingDomainService meetingDomainService;
     private final AttendanceGetService attendanceGetService;
     private final AttendanceSaveService attendanceSaveService;
     private final AttendanceDeleteService attendanceDeleteService;
@@ -79,30 +81,11 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
 
         }
 
-        LocalDate today = LocalDate.now();
-        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        List<Meeting> ordered = meetingDomainService.reorderMeetingsWithThisWeek(meetings);
 
-        Meeting thisWeek = meetings.stream()
-            .filter(m -> {
-                LocalDate d = m.getStart().toLocalDate();
-                return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
-            })
-            .findFirst()
-            .orElse(null);
-
-        if (thisWeek != null) {
-            result.add(mapper.toInfo(thisWeek));
-        }
-
-        result.addAll(
-            meetings.stream()
-                .sorted(Comparator.comparing(Meeting::getStart).reversed())
-                .map(mapper::toInfo)
-                .toList()
-        );
-
-        return result;
+        return ordered.stream()
+            .map(mapper::toInfo)
+            .toList();
     }
 
     @Override
