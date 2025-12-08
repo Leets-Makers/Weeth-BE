@@ -24,6 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static leets.weeth.domain.schedule.application.dto.MeetingDTO.Info;
@@ -64,6 +69,7 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     @Override
     public List<Info> find(Integer cardinal) {
         List<Meeting> meetings;
+        List<Info> result = new ArrayList<>();
 
         if (cardinal == null) {
             meetings = meetingGetService.findAll();
@@ -73,9 +79,30 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
 
         }
 
-        return meetings.stream()
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        Meeting thisWeek = meetings.stream()
+            .filter(m -> {
+                LocalDate d = m.getStart().toLocalDate();
+                return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
+            })
+            .findFirst()
+            .orElse(null);
+
+        if (thisWeek != null) {
+            result.add(mapper.toInfo(thisWeek));
+        }
+
+        result.addAll(
+            meetings.stream()
+                .sorted(Comparator.comparing(Meeting::getStart).reversed())
                 .map(mapper::toInfo)
-                .toList();
+                .toList()
+        );
+
+        return result;
     }
 
     @Override
