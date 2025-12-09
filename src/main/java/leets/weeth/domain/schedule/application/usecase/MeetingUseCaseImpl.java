@@ -71,7 +71,6 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     @Override
     public List<Info> find(Integer cardinal) {
         List<Meeting> meetings;
-        List<Info> result = new ArrayList<>();
 
         if (cardinal == null) {
             meetings = meetingGetService.findAll();
