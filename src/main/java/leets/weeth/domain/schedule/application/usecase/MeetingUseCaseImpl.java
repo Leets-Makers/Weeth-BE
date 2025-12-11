@@ -7,11 +7,11 @@ import leets.weeth.domain.attendance.domain.service.AttendanceDeleteService;
 import leets.weeth.domain.attendance.domain.service.AttendanceGetService;
 import leets.weeth.domain.attendance.domain.service.AttendanceSaveService;
 import leets.weeth.domain.attendance.domain.service.AttendanceUpdateService;
+import leets.weeth.domain.schedule.application.dto.MeetingDTO;
 import leets.weeth.domain.schedule.application.dto.ScheduleDTO;
 import leets.weeth.domain.schedule.application.mapper.MeetingMapper;
 import leets.weeth.domain.schedule.domain.entity.Meeting;
 import leets.weeth.domain.schedule.domain.service.MeetingDeleteService;
-import leets.weeth.domain.schedule.domain.service.MeetingDomainService;
 import leets.weeth.domain.schedule.domain.service.MeetingGetService;
 import leets.weeth.domain.schedule.domain.service.MeetingSaveService;
 import leets.weeth.domain.schedule.domain.service.MeetingUpdateService;
@@ -25,6 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.List;
 
 import static leets.weeth.domain.schedule.application.dto.MeetingDTO.Info;
@@ -41,7 +45,6 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     private final UserGetService userGetService;
     private final MeetingUpdateService meetingUpdateService;
     private final MeetingDeleteService meetingDeleteService;
-    private final MeetingDomainService meetingDomainService;
     private final AttendanceGetService attendanceGetService;
     private final AttendanceSaveService attendanceSaveService;
     private final AttendanceDeleteService attendanceDeleteService;
@@ -64,22 +67,21 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
     }
 
     @Override
-    public List<Info> find(Integer cardinal) {
+    public MeetingDTO.Infos find(Integer cardinal) {
         List<Meeting> meetings;
 
         if (cardinal == null) {
             meetings = meetingGetService.findAll();
-
         } else {
             meetings = meetingGetService.findMeetingByCardinal(cardinal);
-
         }
 
-        List<Meeting> ordered = meetingDomainService.reorderMeetingsWithThisWeek(meetings);
+        Meeting thisWeek = findThisWeek(meetings);
+        List<Meeting> sorted = sortMeetings(meetings);
 
-        return ordered.stream()
-            .map(mapper::toInfo)
-            .toList();
+        return new MeetingDTO.Infos(
+            thisWeek != null ? mapper.toInfo(thisWeek) : null,
+            sorted.stream().map(mapper::toInfo).toList());
     }
 
     @Override
@@ -118,4 +120,26 @@ public class MeetingUseCaseImpl implements MeetingUseCase {
         attendanceDeleteService.deleteAll(meeting);
         meetingDeleteService.delete(meeting);
     }
+
+    private List<Meeting> sortMeetings(List<Meeting> meetings) {
+        return meetings.stream()
+            .sorted(Comparator.comparing(Meeting::getStart).reversed())
+            .toList();
+    }
+
+
+    private Meeting findThisWeek(List<Meeting> meetings) {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek   = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        return meetings.stream()
+            .filter(m -> {
+                LocalDate d = m.getStart().toLocalDate();
+                return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
+            })
+            .findFirst()
+            .orElse(null);
+    }
+
 }

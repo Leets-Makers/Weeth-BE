@@ -1,5 +1,6 @@
 package leets.weeth.domain.schedule.application.usecase;
 
+import leets.weeth.domain.schedule.application.dto.MeetingDTO;
 import leets.weeth.domain.schedule.application.dto.ScheduleDTO;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface MeetingUseCase {
 
     Response find(Long userId, Long eventId);
 
-    List<Info> find(Integer cardinal);
+    MeetingDTO.Infos find(Integer cardinal);
 
     void save(ScheduleDTO.Save dto, Long userId);
 
