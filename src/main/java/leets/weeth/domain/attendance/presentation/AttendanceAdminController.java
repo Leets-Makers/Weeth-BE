@@ -34,8 +34,8 @@ public class AttendanceAdminController {
 
     @GetMapping("/meetings")
     @Operation(summary = "정기모임 조회")
-    public CommonResponse<List<MeetingDTO.Info>> getMeetings(@RequestParam(required = false) Integer cardinal) {
-        List<MeetingDTO.Info> response = meetingUseCase.find(cardinal);
+    public CommonResponse<MeetingDTO.Infos> getMeetings(@RequestParam(required = false) Integer cardinal) {
+        MeetingDTO.Infos response = meetingUseCase.find(cardinal);
 
         return CommonResponse.createSuccess(MEETING_FIND_SUCCESS.getMessage(), response);
     }
