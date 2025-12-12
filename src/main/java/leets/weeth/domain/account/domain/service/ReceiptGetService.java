@@ -20,6 +20,6 @@ public class ReceiptGetService {
     }
 
     public List<Receipt> findAllByAccountId(Long accountId) {
-        return receiptRepository.findAllByAccountIdOrderByIdDesc(accountId);
+        return receiptRepository.findAllByAccountIdOrderByCreatedAtDesc(accountId);
     }
 }
