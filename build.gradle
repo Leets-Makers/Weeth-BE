@@ -41,6 +41,12 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'com.auth0:java-jwt:4.2.1'
 
+	// QueryDSL
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+
 	// mapStruct
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
