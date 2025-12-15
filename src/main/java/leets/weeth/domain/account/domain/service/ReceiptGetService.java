@@ -6,6 +6,8 @@ import leets.weeth.domain.account.application.exception.ReceiptNotFoundException
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReceiptGetService {
@@ -15,5 +17,9 @@ public class ReceiptGetService {
     public Receipt find(Long id) {
         return receiptRepository.findById(id)
                 .orElseThrow(ReceiptNotFoundException::new);
+    }
+
+    public List<Receipt> findAllByAccountId(Long accountId) {
+        return receiptRepository.findAllByAccountIdOrderByCreatedAtDesc(accountId);
     }
 }
